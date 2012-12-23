@@ -1,3 +1,5 @@
+Include("libs/Common_Globals.ntl");
+
 var File = {
 	Exists: function (path) {
 		var _file = FileOpen(path, 0);
@@ -40,7 +42,7 @@ var File = {
 		_time = (h > 12 ? (h - 12): h) + ":" + m + ":" + s + (h > 12 ? "pm": "am");
 		_msg = me.name + ": (" + _time + ") " + msg;
 
-		var _fHandle = FileOpen("error_logs/" + type + ".txt", 2);
+		var _fHandle = FileOpen(eLog + me.name + "_" + type + ".txt", 2);
 		if (_fHandle) {
 			_fHandle.WriteLine(_msg);
 			_fHandle.Close();

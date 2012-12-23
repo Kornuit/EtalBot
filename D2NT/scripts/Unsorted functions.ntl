@@ -1,0 +1,582 @@
+function NTC_CastSkill(skillid, usehand, x, y)
+{
+	var _hand;
+	var _shift;
+
+	if(arguments.length < 1)
+		return false;
+
+	if(arguments.length == 1)
+	{
+		_hand = NTC_CLICK_RDOWN;
+		_shift = NTC_SHIFT_NONE;
+		usehand = NTC_HAND_RIGHT;
+	}
+	else
+	{
+		if(usehand == NTC_HAND_RIGHT)
+		{
+			_hand = NTC_CLICK_RDOWN;
+			_shift = NTC_SHIFT_NONE;
+		}
+		else if(usehand == NTC_HAND_LEFT)
+		{
+			_hand = NTC_CLICK_LDOWN;
+			_shift = NTC_SHIFT_NONE;
+		}
+		else
+		{
+			_hand = NTC_CLICK_LDOWN;
+			_shift = NTC_SHIFT_HOLD;
+			usehand = NTC_HAND_LEFT;
+		}
+	}
+
+	if(NTC_PutSkill(skillid, usehand))
+	{
+		var i, n;
+		var _mode;
+
+		if(!NTC_ClearCursor())
+			return false;
+
+		for(i = 0 ; i < 5 ; i++)
+		{
+			switch(arguments.length)
+			{
+			case 1:
+			case 2:
+				ClickMap(_hand, _shift, me.x, me.y);
+				break;
+			case 3:
+				if(!ClickMap(_hand, _shift, x))
+				{
+					NTC_Delay(NTC_DELAY_FRAME);
+					return false;
+				}
+				break;
+			default:
+				ClickMap(_hand, _shift, x, y);
+				break;
+			}
+
+			for(n = 0 ; n < 4 ; n++)
+			{
+				NTC_Delay(NTC_DELAY_FRAME);
+
+				_mode = me.mode;
+				if(_mode == 7 || _mode == 8 || (_mode >= 10 && _mode <= 16) || _mode == 18)
+				{
+					NTC_Delay(NTC_DELAY_FRAME);
+					break;
+				}
+			}
+
+			ClickMap(_hand+2, NTC_SHIFT_NONE, null);
+
+			if(n < 4)
+			{
+				for(i = 0 ; i < 100 ; i++)
+				{
+					NTC_Delay(20);
+
+					if(me.mode != _mode)
+						break;
+				}
+
+				return true;
+			}
+
+			NTC_Delay(NTC_DELAY_FRAME);
+		}
+	}
+
+	return false;
+}
+
+function NTC_PutSkill(skillid, hand)
+{
+	if(me.GetSkill(hand) == skillid)
+		return true;
+
+	if(GetBaseStat("skills.txt", skillid, 182))
+		return false;
+
+	if(NTC_GetSkillLevel(skillid) < 1)
+		return false;
+
+	return me.SetSkill(skillid, hand);
+}
+
+function NTC_GetSkillLevel(skillid)
+{
+	var _level = me.GetSkill(skillid, true);
+
+	if(_level != null)
+		return _level;
+
+	return 0;
+}
+
+function NTC_GetCastDelay(skillid)
+{
+	var _delay = GetBaseStat("skills.txt", skillid, 165);
+
+	if(_delay)
+		return (_delay*NTC_DELAY_FRAME);
+
+	return 0;
+}
+
+function NTC_SwapWeapons(switchto)
+{
+	if(arguments.length > 0 && me.weaponstab == switchto)
+		return true;
+
+	NTC_PingDelay(200);
+
+	if(!NTC_WaitIdleMode())
+		return false;
+
+	return me.SwapWeapons();
+}
+
+
+function NTC_GetSpecialChest()
+{
+	var _chest;
+
+	_chest = NTC_FindUnit(NTC_UNIT_OBJECT, GetLocaleString(3260));
+
+	if(_chest)
+	{
+		do
+		{
+			switch(_chest.classid)
+			{
+			case 354:
+			case 355:
+			case 356:
+			case 397:
+			case 405:
+			case 406:
+			case 407:
+			case 455:
+				return _chest;
+			}
+		} while(_chest.GetNext());
+	}
+
+	return null;
+}
+
+function NTC_OpenChest(chest)
+{
+	if(!chest)
+		return false;
+
+	if(chest.mode > 0)
+		return false;
+
+	for(var i = 0 ; i < 20 ; i++)
+	{
+		if((i % 10) == 0)
+		{
+			if(GetDistance(me, chest) > 2)
+				NTM_MoveTo(chest.areaid, chest.x+1, chest.y);
+
+			NTC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, chest);
+		}
+
+		NTC_Delay(200);
+
+		if(chest.mode > 0)
+			return true;
+	}
+
+	return false;
+}
+
+function NTC_FindUnit(unittype, search, retry)
+{
+	var _unit;
+
+	switch(arguments.length)
+	{
+	case 0:
+		return null;
+	case 1:
+		search = null;
+	case 2:
+		retry = 0;
+		break;
+	}
+
+	for(var i = 0 ; i <= retry ; i++)
+	{
+		_unit = GetUnit(unittype, search);
+
+		if(_unit)
+			return _unit;
+
+		if(i < retry)
+			NTC_Delay(200);
+	}
+
+	return null;
+}
+
+function NTC_GetBeltSize()
+{
+	var _items = me.GetItems();
+
+	if(!_items)
+		return 1;
+
+	for(var i = 0 ; i < _items.length ; i++)
+	{
+		if(_items[i].mode == 1 && _items[i].itemloc == 8)
+		{
+			if(_items[i].classid == 344 || _items[i].classid == 345)
+				return 2;
+			else if(_items[i].classid == 346 || _items[i].classid == 347)
+				return 3;
+
+			return 4;
+		}
+	}
+
+	return 1;
+}
+
+function OpenChestsInArea() {
+	//var ChestIds = [104, 105, 106, 107, 5,6,87,92,143,140,141,144,146,147,148, 176, 177, 181, 183, 198, 240 , 241 , 242 , 243, 329, 330, 331,332, 333, 334 , 335, 336, 354, 355, 356, 371 ,387 , 389, 390, 391, 397 , 405 , 406 , 407 , 413 , 420 , 424 , 425 , 430 , 431 , 432 , 433 , 454 , 455 , 501 , 502 ,504 , 505, 580, 581]
+	var ChestLocs =[];
+	var ChestIdstest = [];
+		var unit = GetPresetUnits(me.areaid);
+		if(unit){
+			for (var j = 0; j < unit.length; j++){
+				for (var c = 0; c < NTConfig_Chestids.length; c++){
+					if (NTConfig_Chestids[c] == unit[j].id){
+						ChestLocs.push([unit[j].roomx*5+unit[j].x,unit[j].roomy*5+unit[j].y])
+						ChestIdstest.push(unit[j].id)
+					}
+				}
+			}
+		}
+
+	while(ChestLocs.length > 0){
+		ChestLocs.sort(SortRoomInt);
+		var _room = ChestLocs.shift();
+		var _id = ChestIdstest.shift();
+		NTM_MoveTo(me.areaid, _room[0], _room[1]);
+		var chest = NTC_FindUnit(NTC_UNIT_OBJECT);
+		if(chest){
+			do{
+				if(GetDistance(me.x,me.y,chest.x,chest.y)<3){
+					if(NTC_OpenChest(chest)){
+						if(NTConfig_CheckChestid)
+							Print(COLOR_17 + chest.name + " = " + chest.classid);
+					}
+					NTSI_PickItems();
+				}
+			}while(chest.GetNext());
+		}
+	}
+}
+
+function OpenSpecialChestsInArea() {
+	var ChestIds = [354,355, 356, 397, 405, 406, 407, 455]
+	var ChestLocs =[];
+	var ChestIdstest = [];
+	var unit = GetPresetUnits(me.areaid);
+		if(unit){
+			for (var j = 0; j < unit.length; j++){
+				for (var c = 0; c < ChestIds.length; c++){
+					if (ChestIds[c] == unit[j].id){
+						ChestLocs.push([unit[j].roomx*5+unit[j].x,unit[j].roomy*5+unit[j].y])
+						ChestIdstest.push(unit[j].id)
+					}
+				}
+			}
+		}
+
+	while(ChestLocs.length > 0){
+		ChestLocs.sort(SortRoomInt);
+		var _room = ChestLocs.shift();
+		var _id = ChestIdstest.shift();
+		NTM_MoveTo(me.areaid, _room[0], _room[1]);
+		var chest = NTC_FindUnit(NTC_UNIT_OBJECT, GetLocaleString(3260))
+		if(chest){
+			do{
+				if(GetDistance(me.x,me.y,chest.x,chest.y)<3){
+					if(NTC_OpenChest(chest)){
+						if(NTConfig_CheckChestid)
+							Print(COLOR_17 + chest.name + " = " + chest.classid);
+					}
+					NTSI_PickItems();
+				}
+			}while(chest.GetNext());
+		}
+	}
+}
+
+function NTC_OpenChestsInAreaNear (_orgx, _orgy, range) // credit for original function to muddy waters modded by stairbuilder
+{
+	var _orgx, _orgy, _chest, _dist, _mindist, _minIndex;
+	_chest = NTC_FindUnit(NTC_UNIT_OBJECT);
+	_lootableChests = [];
+	var _NTL_ChestSkipList = [];
+	if(_chest)
+	{
+		do
+		{
+			if(_chest.mode == 0 && GetDistance(_orgx, _orgy, _chest.x, _chest.y) < range  && (NTConfig_Chestids.indexOf(_chest.classid) > -1) &&_chest.name != GetLocaleString(5386) && _NTL_ChestSkipList.indexOf(_chest.gid) == -1)
+				_lootableChests.push(new Lootable(_chest.x, _chest.y, _chest.gid));
+		} while(_chest.GetNext());
+
+		for(var i = 0; i < _lootableChests.length; i++)
+		{
+			_mindist = 1E3;
+			_minIndex = -1;
+
+			for(var j = 0; j < _lootableChests.length; j++)
+			{
+				if(!_lootableChests[j].looted)
+				{
+					_dist = GetDistance(me.x, me.y, _lootableChests[j].x, _lootableChests[j].y);
+
+					if(_dist < _mindist)
+					{
+						_mindist = _dist;
+						_minIndex = j;
+					}
+				}
+			}
+
+			if(_minIndex > -1)
+			{
+				_chest = NTC_FindUnit(NTC_UNIT_OBJECT, _lootableChests[_minIndex].gid);
+
+				if(_chest)
+				{
+					if(NTC_OpenChest(_chest)){
+						if(NTConfig_CheckChestid)
+							Print(COLOR_17 + _chest.name + " = " + _chest.classid);
+						NTSI_PickItems();
+					}
+					_NTL_ChestSkipList.push(_chest.gid);
+				}
+
+				_lootableChests[_minIndex].looted = true;
+			}
+			else
+				break;
+		}
+
+		//NTSI_PickItems();
+
+		return true;
+	}
+
+	return false;
+}
+
+function Lootable(x, y, gid)
+{
+	this.gid = gid;
+	this.x = x;
+	this.y = y;
+	this.looted = false;
+}
+
+function NTC_FindMonster(classid, spectype)
+{
+	var _monster;
+
+	if(arguments.length < 1)
+		return false;
+
+	if(arguments.length < 2)
+		spectype = 0;
+
+	for(var i = 0 ; i < 2 ; i++)
+	{
+		_monster = GetUnit(NTC_UNIT_MONSTER, classid);
+
+		if(_monster)
+		{
+			if(spectype)
+			{
+				do
+				{
+					if(_monster.spectype & spectype)
+						return _monster;
+				} while(_monster.GetNext());
+			}
+			else
+				return _monster;
+		}
+
+		if(i < 1)
+			NTC_PingDelay(200);
+	}
+
+	return false;
+}
+
+function NTC_GetUnit(unittype, classid)
+{
+	var _unit;
+
+	for(var i = 0 ; i < 2 ; i++)
+	{
+		if(arguments.length < 2)
+			_unit = GetUnit(unittype);
+		else
+			_unit = GetUnit(unittype, classid);
+
+		if(_unit)
+			return _unit;
+
+		if(i < 1)
+			NTC_PingDelay(200);
+	}
+
+	return false;
+}
+
+
+function NTC_PickSpecialItem(_item) {
+	var groundItem = NTC_FindUnit(NTC_UNIT_ITEM, _item, 2); // may want to change the 10 to smaller #
+	var theTorch;
+	if(!groundItem) { // we are going to assume that if item is not on ground we have it
+		return true;
+	}
+	if(groundItem && groundItem.classid == 604){
+		do{
+			if(groundItem.quality == 7){ // check to make sure that the LC is in fact a torch
+				theTorch = groundItem;
+				break;
+			}
+		} while(_portal.GetNext());
+		for(var i = 0 ; i < 10 ; i++){
+			if(theTorch.mode == 3 || theTorch.mode == 5){
+				if(NTC_PickUpItemIntSpecial(theTorch)){
+					Delay(10);
+				}
+				else{
+					NTA_ClearPosition(10, false);
+				}
+			}
+			if(theTorch.mode != 3 && theTorch.mode != 5){
+				var _parent;
+				NTC_PingDelay(100);
+				_parent = theTorch.GetParent();
+				if(_parent && _parent.gid == me.gid){
+					var _area = GetArea();
+					Print(COLOR_8 + "Picked up " + COLOR_4 + "HellFireTorch");
+					return true;
+				}
+				else{
+					return false;
+				}
+			}
+			Delay(250)
+		}
+	}
+	else if(groundItem){
+		for(var i = 0 ; i < 10 ; i++){
+			if(groundItem.mode == 3 || groundItem.mode == 5){
+				if(NTC_PickUpItemIntSpecial(groundItem)){
+					Delay(10);
+				}
+				else{
+					NTA_ClearPosition(10, false);
+				}
+			}
+			if(groundItem.mode != 3 && groundItem.mode != 5){
+				var _parent;
+				NTC_PingDelay(100);
+				_parent = groundItem.GetParent();
+				if(_parent && _parent.gid == me.gid){
+					var _area = GetArea();
+					Print(COLOR_4 + "Picked up " + COLOR_8 + groundItem.name.split("\n")[0])
+					if(groundItem.classid >= 650 && groundItem.classid <= 652){
+						NTC_SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + " Kept: " + COLOR_8 + groundItem.name.split("\n")[0]+ ";" + groundItem.itemdesc + "\n" + COLOR_2 + "iLvl: " + groundItem.itemlevel + "\n" + COLOR_2 + "Area: " +_area.name);
+					}
+					else{
+						NTC_SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + " Kept: " + NTC_ItemQualityToMGRColor[groundItem.quality] + groundItem.name.split("\n")[0]+ ";" + groundItem.itemdesc + "\n" + COLOR_2 + "iLvl: " + groundItem.itemlevel + "\n" + COLOR_2 + "Area: " +_area.name);
+					}
+					return true;
+				}
+				else{
+					return false;
+				}
+			}
+			Delay(250)
+		}
+	}
+	return false;
+}
+
+function NTC_PickUpItemIntSpecial(snagitem){
+	var i;
+	var _classid;
+	_classid = snagitem.classid;
+	for(i = 0 ; i < 40 ; i++){
+		if((i % 10) == 0 && (snagitem.mode == 3 || snagitem.mode == 5)){
+			if(GetDistance(me, snagitem) > 3)
+				NTM_MoveTo(snagitem.areaid, snagitem.x, snagitem.y);
+			if(NTC_ClearCursor())
+				NTC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, snagitem);
+		}
+		NTC_Delay(NTC_DELAY_FRAME);
+		if(snagitem.mode != 3 && snagitem.mode != 5){
+			var _parent;
+			NTC_PingDelay(100);
+			_parent = snagitem.GetParent();
+			return (_parent && _parent.gid == me.gid);
+		}
+	}
+	return false;
+}
+
+function GoWestFromLutGholein(){
+	if(me.areaid == 40){
+		if(CheckForRogueScripts()){
+			_warriv = NTC_FindUnit(NTC_UNIT_NPC, 175, 5);
+			if(_warriv && GetDistance(me.x,me.y,_warriv.x,_warriv.y)<20){
+				NTM_MoveTo(me.areaid, _warriv.x, _warriv.y);
+				if(NTT_DoInteract(_warriv))
+				if(NTT_DoInteract(_warriv)){
+					for(var i = 0 ; i < 4 ; i++){
+						if((i % 4) == 0)
+							me.SelectNPCMenu(0x0D37);
+						NTC_Delay(500);
+					} me.Cancel(1);
+				}
+			}
+		}
+	} return;
+}
+
+
+function CheckForRogueScripts()
+{
+	UsingWarrivNow = false;
+	var ActOneScripts = ["NTBloodMoor.ntj", "NTColdPlains.ntj", "NTBurialGrounds.ntj","NTStonyField.ntj",
+						"NTUndergroundPassage.ntj", "NTDarkWood.ntj", "NTBlackMarsh.ntj", "NTTamoeHighland.ntj",
+						"NTOuterCloister.ntj", "NTBarracks.ntj", "NTJail.ntj", "NTInnerCloister.ntj",
+						"NTCatacombs.ntj", "NTMooMooFarm.ntj"]
+	var NTC_S = ActOneScripts;
+	for(n = 0 ; n < NTConfig_Script.length; n++){
+		if(NTConfig_Script[n] == (NTC_S[0] || NTC_S[1] || NTC_S[2] || NTC_S[3] || NTC_S[4] || NTC_S[5] || NTC_S[6] || NTC_S[7] || NTC_S[8] || NTC_S[9] || NTC_S[10] || NTC_S[11] || NTC_S[12])){
+			UsingWarrivNow = true;
+			return true;
+		}
+	}
+	if(UsingWarrivNow) { return true; }
+	else { return false; }
+}
+
