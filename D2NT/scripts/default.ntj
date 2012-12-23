@@ -1,38 +1,40 @@
+
+
 var debug = true;
 ////////////////////////////////////////
 //        Connection Settings:        //
 ////////////////////////////////////////
 var DelayConfig = {
-gameMinLength: 180000, // time in milliseconds to wait between making games
-unableToConnectRetry: 5,	// time in minutes to retry connecting on connection fail (real value is +/- 1 min)
-realmDownRetry: 300,		// time in minutes to retry connecting on a realm down (default is 300 minutes)
-disconnectedRetry: 5,		// time in minutes to retry on a disconnection (usually ip ban related)
-cdkeyInUseRetry: 5,		// time in minutes to retry on a cdkey in use error message (set to 0 to stop)
-connectingToBnetTimeout: 20000,	// time in milliseconds to wait for a login to time out and click cancel and retry
-characterScreenTimeout: 10000,	// time in milliseconds to wait for character screen to appear
-pleaseWaitTimeout: 10000,	// time in milliseconds to wait for a please wait popup
-createGameThreshold: 5000,		// time in milliseconds to wait between making games
-createGameThresholdRandom: 1000,		// time in milliseconds to randomly add +/- to the game create time
-createGameTimeout: 45000,	// time in milliseconds to register a failed to create game
-waitInLineTimeout: 60000,	// time in milliseconds to wait in lines for a create game (60 second default)
-characterSelectDelay: 1000,		// time in milliseconds to wait before selecting a character on the char screen
-loginDelay: 1000,		// time in milliseconds to wait before submitting login information
-clickDelay: 500,		// wait X milliseconds before next action after a click event
-textDelay: 500,		// wait X milliseconds before next action after inserting text into a textbox
-clickDelayRandom: 500,		// random amount of time to add to a click
-textDelayRandom: 500,		// random amount of time to add to a text set
-gameDoesNotExistDelayMin: 600000,	// how long to wait when a Game Does Not Exist occurs - minimum - default 10 minutes
-gameDoesNotExistDelayMax: 900000,	// how long to wait when a Game Does Not Exist occurs - maximum - default 15 minutes
-gameDoesNotExistTimeout: 30000,	// how long to wait for the dialog to disappear (default 30 seconds, don't change this)
-waitBeforeEnterChatMin: 1000,		// min how long to wait before entering chat
-waitBeforeEnterChatMax: 2000,		// max how long to wait before entering chat
-waitInChatBeforeActionsMin: 2000,		// min how long to wait before joining channel
-waitInChatBeforeActionsMax: 3000,		// max how long to wait before joining channel
-waitBeforeNextLineChatMin: 500,		// Minimum ammount of time to add after each text line	
-waitBeforeNextLineChatMax: 1500,		// Maximum ammount of time to add after each text line
-};
+		gameMinLength: 180000, // time in milliseconds to wait between making games
+		unableToConnectRetry: 5,	// time in minutes to retry connecting on connection fail (real value is +/- 1 min)
+		realmDownRetry: 300,		// time in minutes to retry connecting on a realm down (default is 300 minutes)
+		disconnectedRetry: 5,		// time in minutes to retry on a disconnection (usually ip ban related)
+		cdkeyInUseRetry: 5,		// time in minutes to retry on a cdkey in use error message (set to 0 to stop)
+		connectingToBnetTimeout: 20000,	// time in milliseconds to wait for a login to time out and click cancel and retry
+		characterScreenTimeout: 10000,	// time in milliseconds to wait for character screen to appear
+		pleaseWaitTimeout: 10000,	// time in milliseconds to wait for a please wait popup
+		createGameThreshold: 5000,		// time in milliseconds to wait between making games
+		createGameThresholdRandom: 1000,		// time in milliseconds to randomly add +/- to the game create time
+		createGameTimeout: 45000,	// time in milliseconds to register a failed to create game
+		waitInLineTimeout: 60000,	// time in milliseconds to wait in lines for a create game (60 second default)
+		characterSelectDelay: 1000,		// time in milliseconds to wait before selecting a character on the char screen
+		loginDelay: 1000,		// time in milliseconds to wait before submitting login information
+		clickDelay: 500,		// wait X milliseconds before next action after a click event
+		textDelay: 500,		// wait X milliseconds before next action after inserting text into a textbox
+		clickDelayRandom: 500,		// random amount of time to add to a click
+		textDelayRandom: 500,		// random amount of time to add to a text set
+		gameDoesNotExistDelayMin: 600000,	// how long to wait when a Game Does Not Exist occurs - minimum - default 10 minutes
+		gameDoesNotExistDelayMax: 900000,	// how long to wait when a Game Does Not Exist occurs - maximum - default 15 minutes
+		gameDoesNotExistTimeout: 30000,	// how long to wait for the dialog to disappear (default 30 seconds, don't change this)
+		waitBeforeEnterChatMin: 1000,		// min how long to wait before entering chat
+		waitBeforeEnterChatMax: 2000,		// max how long to wait before entering chat
+		waitInChatBeforeActionsMin: 2000,		// min how long to wait before joining channel
+		waitInChatBeforeActionsMax: 3000,		// max how long to wait before joining channel
+		waitBeforeNextLineChatMin: 500,		// Minimum ammount of time to add after each text line	
+		waitBeforeNextLineChatMax: 1500		// Maximum ammount of time to add after each text line
+	};
 // DONT EDIT ANYTHING BELOW THIS
-
+/*
 // D2NT Manager Command
 const D2NT_MGR_LOADING = 1;
 const D2NT_MGR_READY = 2;
@@ -43,18 +45,17 @@ const D2NT_MGR_RESTART = 6;
 const D2NT_MGR_CHICKEN = 7;
 const D2NT_MGR_PRINT_STATUS = 8;
 const D2NT_MGR_PRINT_LOG = 9;
-
+*/
 Include("libs/controlInfo.ntl");
 Include("libs/common/NTFile.ntl");
 var controlData = new controlInfo();
 
-function NTMain()
-{
-	while(1) {
-		debugEntry("My profile is " + me.account);
+function NTMain() {
+	while (1) {
+		Entry.Debug("My profile is " + me.account);
 
 		if (File.Exists("libs/common/NTFile.ntl")) {
-			debugEntry("The file NTFile.ntl does exist");
+			Entry.Debug("The file NTFile.ntl does exist");
 		}
 
 		File.Create("logs/CreatedFile.txt");
@@ -66,18 +67,18 @@ function NTMain()
 		File.Log("logs/" + me.account + "_error_logs.txt", "checking file functions!");
 		Delay(20001);
 	}
-	
+
 }
 
-function debugEntry(msg)
-{
-	if(debug) {
-	sendEventToOOG(D2NT_MGR_PRINT_LOG, msg, 0); 
+var Entry = {
+	Debug: function (msg) {
+		if (debug) {
+			this.SendEventToOOG(D2NT_MGR_PRINT_LOG, msg, 0);
+		}
+		return;
+	},
+
+	SendEventToOOG: function (locationId, statusString, pendingTime) {
+		return SendCopyData("D2NT Manager", null, (locationId << 16) | pendingTime, statusString);
 	}
-	return;
-}
-
-function sendEventToOOG(locationId, statusString, pendingTime)
-{
-	return SendCopyData("D2NT Manager", null, (locationId<<16)|pendingTime, statusString);
-}
+};

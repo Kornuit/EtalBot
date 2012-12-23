@@ -9,11 +9,11 @@ var File = {
 			_file.Close();
 			return true;
 		}
-	return true;
+		return true;
 	},
 
 	Create: function (path) {
-		var i, n, _file, _fileCheck;
+		var _file, _fileCheck;
 
 		_fileCheck = FileOpen(path, 0);
 
@@ -32,17 +32,38 @@ var File = {
 	},
 
 	LogError: function (type, msg) {
-		var h, m, s, date, _msg, _time;
+		var h, m, s, date, _msg, _time, _fHandle, _log;
+
+		switch (type) {
+		case "script":
+			_log = sLog;
+			break;
+		case "error":
+			_log = eLog;
+			break;
+		case "inventory":
+			_log = iLog;
+			break;
+		case "gamename":
+			_log = gLog;
+			break;
+		case "mule":
+			_log = mLog;
+			break;
+		case "area":
+			_log = aLog;
+			break;
+		}
 
 		date = new Date();
 		h = date.getHours();
 		m = date.getMinutes();
 		s = date.getSeconds();
 
-		_time = (h > 12 ? (h - 12): h) + ":" + m + ":" + s + (h > 12 ? "pm": "am");
+		_time = (h > 12 ? (h - 12) : h) + ":" + m + ":" + s + (h > 12 ? "pm" : "am");
 		_msg = me.name + ": (" + _time + ") " + msg;
 
-		var _fHandle = FileOpen(eLog + me.name + "_" + type + ".txt", 2);
+		_fHandle = FileOpen("logs/" + _log + "/" + me.name + "_" + type + ".txt", 2);
 		if (_fHandle) {
 			_fHandle.WriteLine(_msg);
 			_fHandle.Close();
@@ -72,7 +93,7 @@ var File = {
 			_new.Close();
 			_old.Close();
 		}
-	return true;
+		return true;
 	},
 
 	Log: function (path, msg) {
@@ -81,31 +102,27 @@ var File = {
 
 		_create = false;
 
-		if(!_fileCheck) {
+		if (!_fileCheck) {
 			_create = true;
 		} else if (_fileCheck) {
 			_fileCheck.Close();
 		}
 
-		switch(_create) {
-			case true:
-			{
-				_file = FileOpen(path, 1);
-				if (_file) {
-					_file.WriteLine(msg);
-				}
-				_file.Close();
-				return true;
+		switch (_create) {
+		case true:
+			_file = FileOpen(path, 1);
+			if (_file) {
+				_file.WriteLine(msg);
 			}
-			case false:
-			{
-				_file = FileOpen(path, 2);
-				if (_file) {
-					_file.WriteLine(msg);
-				}
-				_file.Close();
-				return true;
+			_file.Close();
+			return true;
+		case false:
+			_file = FileOpen(path, 2);
+			if (_file) {
+				_file.WriteLine(msg);
 			}
+			_file.Close();
+			return true;
 		}
 		return false;
 	}
