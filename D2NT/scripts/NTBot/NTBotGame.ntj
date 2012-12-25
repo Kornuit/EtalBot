@@ -9,9 +9,14 @@ var SoJElapsedTime = 0;
 var InitLife;
 var Corpses = 0;
 var checkActOnce = false;
+var joinCheck = false;
+var etal = this;
+var rusher = false;
+var _checkAct;
+
 function D2NTStatus(where, time, message) { return SendCopyData('D2NT Manager', null, where << 16 | time, message); }
-function NTMain()
-{
+function NTMain () {
+	
 	Delay(1000);
 
 	InitLife = me.hp;
@@ -21,84 +26,174 @@ function NTMain()
 	Common.IncludeConfig("NTBot/char_configs");
 	Include("libs/common/Exp.ntl");
 
-	NT_LoadConfig();
+	LoadConfig();
 	Exp.InitializeStats();
+
+	this.ClearMessages = function () {
+		for(var i = 0 ; i < Scripts.length ; i++){
+			if(Scripts[i].toLowerCase().indexOf("leech") != -1){
+				if(Scripts[i].toLowerCase().indexOf("baal") != -1){
+					File.OverWrite("logs/messagecomands/"+me.charname+"-baal.txt", " ");
+				}
+				if(Scripts[i].toLowerCase().indexOf("diablo") != -1){
+					File.OverWrite("logs/messagecomands/"+me.charname+"-diablo.txt", " ");
+				}
+				if(Scripts[i].toLowerCase().indexOf("trav") != -1){
+					File.OverWrite("logs/messagecomands/"+me.charname+"-trav.txt", " ");
+				}
+			}
+		}
+	};
+
+	this.CheckForFriends = function () {
+		var _player = GetPlayerUnit();
+		if (_player) {
+			do {
+				if (_player.name === me.name)
+					continue;
+
+				if (Config.ExitWith.indexOf(_player.name) != -1) {
+					joinCheck = true;
+				}
+			} while (_player.GetNext());
+		}
+	};
+
+	this.CheckLeave = function () {
+		var _player,
+			leaveWith = "";
+		for (i in Config.ExitWith) {
+			_player = GetPlayerUnit();
+			if(_player) {
+				do {
+					if(_player.name === me.name)
+						continue;
+
+					if (_player.name === Config.ExitWith[i]) {
+						leaveWith = Config.ExitWith[i];
+						return leaveWith;
+					}
+				} while (_player.GetNext());
+			}
+		}
+		return leaveWith;
+	};
+
+	this.ExtractName = function (path) {
+		var _sect,
+			_name = "";
+		if (path === undefined) {
+			_name = "";
+		} else {
+			_sect = path.split("/");
+			if(_sect.length > 0) {
+				do {
+					if (_name !== "") {
+						break;
+					} else {
+						if (_sect.indexOf(".ntj") != -1) {
+							_name = _sect.split(0, ".");
+						}
+					}
+				} while (_sect.GetNext());
+			}
+		}
+		return _name;
+	};
+
+	this.BuildScriptList = function () {
+		var _scriptpath,
+			_possScript = [],
+			_script = GetScript();
+
+		if(_script)
+		{
+			do
+			{
+				_scriptpath = _script.name.toLowerCase();
+
+				if(_scriptpath.indexOf("/bots/") != -1 || _scriptpath.indexOf("/rushbots/" != -1) {
+					var _sname = this.ExtractName(_scriptpath);
+					if (Scripts.[_sname]) {
+						if (_scriptpath.indexOf("/rushbots/" != -1) {
+							rusher = true;
+						}
+					_possScript.push(this.ExtractName(_scriptpath));
+					}
+				}
+			} while(_script.GetNext());
+		}
+
+		if (_possScript.length > 0) {
+			for (i in _possScript) {
+				_scriptList.push(_possScript[i]);
+			}
+			return true;
+		}
+		return false;
+	};
 
 	if(!me.gamename) { Say("/players 5"); }
 
 	if(Config.FreeSpace == 0)
 		Print(COLOR_2 + "Please don't forget to set Config.FreeSpace in your character config to avoid your inv filling");
 
-	NT_ClearMessages();
+	this.ClearMessages();
+	this.CheckForFriends();
 
-	//var _time1 = NTU_timeStamp();
-	//Print ("Begin Parse: "+_time1);
-	NTSI_LoadNIPFiles("NTBot/item_configs");
-	//var _time2 = NTU_timeStamp();
-	//Print ("End Parse: "+_time2);
-
-	// ubi21 Enigma reset start
-	////////////////////////////
-	NTU_LogExitStatus("F");
-
-	// ubi21 Enigma reset end
-	////////////////////////////
-
-	if(NTConfig_StartDelay > 0);
-		NTC_Delay(NTConfig_StartDelay);
+	SnagIt.LoadNIPFiles("NTBot/item_configs");
+	Tools.LogExitStatus("F");
+	
+	if(Config.StartDelay > 0);
+		Delay(Config.StartDelay);
 
 	GetPath(me.areaid, me.x, me.y, me.x, me.y, true);
 
 	SetUIState(0x0A, true);
 
-	// ubi21 Enigma reset start
-	////////////////////////////
-	if(!NTT_PutBackEnigma()) {
-		NTC_Delay(240000); // Wait 4 mins to prevent r/d 240000
-		ExitGame();
-	}
-	// ubi21 Enigma reset end
-	////////////////////////////
-
-	if(NTConfig_CheckPassword && !me.gamepassword){
-		Print(COLOR_1 + "1No password found exiting game");//s
-		NTC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Exiting Game- No Password");
-		NTC_Delay(2000);
+	if(!Town.PutBackEnigma()) {
+		Delay(240000);
 		ExitGame();
 	}
 
-	Corpses = NTT_GetCorpses();
+	if(Config.CheckPassword && !me.gamepassword){
+		Print(COLOR_1 + "1No password found exiting game");
+		Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Exiting Game- No Password");
+		Delay(2000);
+		ExitGame();
+	}
+
+	Corpses = Town.GetCorpses();
 	if (Corpses > 0 || InitLife < 10)
-		NTU_DeathLog(Corpses, InitLife);
-	if(NTConfig_Script.length > 0)
+		Tools.DeathLog(Corpses, InitLife);
+
+	this.BuildScriptList();
+
+	if(_scriptList.length > 0)
 	{
-		NTCU_InitCubing();
+		Cubing.InitCubing();
 
-		NTT_ClearInventory();
-		NTT_ClearBelt();
+		Town.ClearInventory();
+		Town.ClearBelt();
 
-		// ubi21 Enigma reset start
-		////////////////////////////
-		if(!NTT_LookForEnigma()) {
+		if(!Town.LookForEnigma()) {
 			if (GetUIState(0x01))
 				SetUIState(0x01, false);
-			NTC_Delay(240000); // Wait 4 mins to prevent r/d 240000
+			Delay(240000);
 			ExitGame();
 		}
-		// ubi21 Enigma reset end
-		////////////////////////////
 
-		if(NTConfig_GoWestFromLut){ // if bot starts in act 2 use warriv to go to act 1
+		if(Config.GoWestFromLut){
 			GoWestFromLutGholein();
 		}
 
-		Load("NTBot/tools/NTToolsThread.ntj");
+		Load("NTBot/tools/ToolsThread.ntj");
 
-		if(NTConfig_HostileHandler)
-			Load("NTBot/tools/NTHostHandler.ntj");
+		if(Config.HostileHandler)
+			Load("NTBot/tools/HostHandler.ntj");
 
-		if(NTConfig_Announcer)
-			Load("NTBot/tools/NTLevelAnnouncer.ntj");
+		if(Config.Announcer)
+			Load("NTBot/tools/LevelAnnouncer.ntj");
 
 		if(DPSMeter)
 			Load("NTBot/tools/DPS.ntj");
@@ -108,52 +203,72 @@ function NTMain()
 		RegisterEvent(EVENT_SCRIPTMSG, NT_ScriptMsgEvents);
 
 		SetStatusText(Rev + " Loading....");
-		//SetStatusText(Rev + " "+ NTConfig_Script[CurScriptIndex]);
 
 		Include("libs/common/Snagit.ntl");
 		SnagIt.ClearIgnoredItems();
 
-		var leaderParty = false;
-
 		for (i in Scripts) {
-			load the scripts
-					break;
-		}
-
-			if(LastScript && !checkActOnce && leaderParty && Common.InMyParty(Config.Leader)) {
-				TownMove.CheckAct();
-				checkActOnce = true; // this is added so if you need to go back in someplace the bot doesn't keep towning
-			}
-
-			if(leaderParty && !Common.InMyParty(Config.Leader)){
-				if(!LastScript) {
-					Exp.ComputeStats(false);
-				}
-				Delay(350);
-				_Checkscript = GetScript();
-				if(_Checkscript){
-					Common.StopScriptLeecher();
-					Delay(150);
-				}
-				Common.CancelMenus();
-				Delay(Config.LeechExitDelay);
-				ExitGame();
-			}
-
-			if(SoJNotify)
-			{
-				SoJElapsedTime += 1;
-
-				if(LastScript)
-				{
-					TownMove.CheckAct();
-					SetStatusText(COLOR_4 + "Waiting for SoJ sales... " + COLOR_0 + (Config.SoJWaitTime*60-SoJElapsedTime));
+			if (Scripts.hasOwnProperty(i) && _scriptList.indexOf(i) > -1 && Scripts[i]) {
+				switch (rusher) {
+					case false:
+						Include("NTBot/bots/" + i + ".ntj");
+					case true:
+						Include("NTRush/rushbots/" + i + ".ntj");
 				}
 
-				if(SoJElapsedTime >= Config.SoJWaitTime*60)
-					SoJNotify = false;
+				if (typeof (etal[i]) === "function") {
+					try {
+						_checkAct = TownMove.CheckAct();
+						catch (error) {
+							Print(COLOR_2 + "Failed to check act. Skipping to next script.");
+						} else _checkAct = true;
+
+						if (_checkAct) {
+							try {
+								SetStatusText(Rev + "    Running:  " + i);
+								etal[i]();
+							} catch (error) {
+								File.Log("logs/scripterrors/" + me.name + "_scripterror.txt", "Failed to load " + i);
+								Print("Failed to load " + i);
+								}
+						}
+					} else {
+						File.Log("logs/scripterrors/" + me.name + "_scripterror.txt", "Error in script. Skipping to " + (i++));
+						Print("error in the script for " + i + " skipping to next script.");
+					}
+				}
 			}
 		}
+	}
+
+	if(Common.InMyParty(this.CheckLeave()) && joinCheck) {
+		TownMove.CheckAct();
+		while (Common.InMyParty(this.CheckLeave()) {
+			Delay(500);
+		}
+	}
+
+	if(!Common.InMyParty(this.CheckLeave()) && joinCheck) {
+		Exp.ComputeStats(false);
+		Delay(350);
+		_Checkscript = GetScript();
+		if(_Checkscript){
+			Common.StopScriptLeecher();
+			Delay(150);
+		}
+		Common.CancelMenus();
+		Delay(Config.LeechExitDelay);
+		ExitGame();
+	}
+
+	if(SoJNotify)
+	{
+		SoJElapsedTime += 1;
+		TownMove.CheckAct();
+		SetStatusText(COLOR_4 + "Waiting for SoJ sales... " + COLOR_0 + (Config.SoJWaitTime*60-SoJElapsedTime));
+
+		if(SoJElapsedTime >= Config.SoJWaitTime*60)
+			SoJNotify = false;
 	}
 
 	Exp.ComputeStats(false);
@@ -233,26 +348,20 @@ function GameMsgEvents(msg, type)
 		logfile.WriteLine(date + " - " + msg + " ( " + _area.name + " ) ");
 		logfile.Close();
 	}
-	else if(type == 0 && msg.indexOf(NTConfig_Leader) != -1){ // leech improvements
-		NTC_CheckPlayer(NTConfig_Leader);
-		//Print(COLOR_1 + "The leader is in " + _leaderareaid);
-		if((_leaderareaid == 130 || _leaderareaid == 131) && msg.indexOf(NTConfig_TakeTpBaal) != -1){ // all baal leech scripts will use the same one
-			//Print(COLOR_8 + "received take baal take tp message")
-			NT_File("logs/messagecomands/"+me.charname+"-baal.txt", 1, "takebtp")
+	else if(type == 0 && msg.indexOf(Config.Leader) != -1){
+		Common.CheckPlayer(Config.Leader);
+		if((_leaderareaid == 130 || _leaderareaid == 131) && msg.indexOf(NTConfig_TakeTpBaal) != -1){
+			File.OverWrite("logs/messagecomands/"+me.charname+"-baal.txt", 1, "takebtp")
 		}
-		else if((_leaderareaid == 130 || _leaderareaid == 131) && msg.indexOf(NTConfig_GrabShrine) != -1){ // so you can set the var for grabbing shrine different from the take tp one
-			//Print(COLOR_8 + "received take shrine message")
-			NT_File("logs/messagecomands/"+me.charname+"-baal.txt", 1, "grabshrine")
+		else if((_leaderareaid == 130 || _leaderareaid == 131) && msg.indexOf(NTConfig_GrabShrine) != -1){
+			File.OverWrite("logs/messagecomands/"+me.charname+"-baal.txt", 1, "grabshrine")
 		}
-		else if(_leaderareaid == 108 && msg.indexOf(NTConfig_TakeTpDiablo) != -1){ // all diablo leech scripts will use the same one
-			//Print(COLOR_8 + "received take diablo tp message")
-			NT_File("logs/messagecomands/"+me.charname+"-diablo.txt", 1, "takedtp")
+		else if(_leaderareaid == 108 && msg.indexOf(NTConfig_TakeTpDiablo) != -1){
+			File.OverWrite("logs/messagecomands/"+me.charname+"-diablo.txt", 1, "takedtp")
 		}
-		else if(_leaderareaid == 83 && msg.indexOf(NTConfig_TakeTpTravincal) != -1){ // all diablo leech scripts will use the same one
-			//Print(COLOR_8 + "received take travincal tp message")
-			NT_File("logs/messagecomands/"+me.charname+"-trav.txt", 1, "takettp")
+		else if(_leaderareaid == 83 && msg.indexOf(NTConfig_TakeTpTravincal) != -1){
+			File.OverWrite("logs/messagecomands/"+me.charname+"-trav.txt", 1, "takettp")
 		}
-		// add in something here that if leader recieves a message indexOf("entered") it will send the join game message.  make sure it is something specific to entered battlenet message
 	}
 
 }
@@ -404,72 +513,6 @@ function ScriptMsgEvents(msg)
 			LastScript = true;
 		break;
 	}
-}
-
-function ClearMessages(){ // leech improvemetst
-	for(var i = 0 ; i < NTConfig_Script.length ; i++){
-		if(NTConfig_Script[i].toLowerCase().indexOf("leech") != -1){
-			if(NTConfig_Script[i].toLowerCase().indexOf("baal") != -1){
-				NT_File("logs/messagecomands/"+me.charname+"-baal.txt", 1, " ");
-			}
-			if(NTConfig_Script[i].toLowerCase().indexOf("diablo") != -1){
-				NT_File("logs/messagecomands/"+me.charname+"-diablo.txt", 1, " ");
-			}
-			if(NTConfig_Script[i].toLowerCase().indexOf("trav") != -1){
-				NT_File("logs/messagecomands/"+me.charname+"-trav.txt", 1, " ");
-			}
-		}
-	}
-}
-
-function CancelMenus() { // more koreans
-	while (GetUIState(0x01) || GetUIState(0x08) || GetUIState(0x0C) || GetUIState(0x0F) || GetUIState(0x14) ||
-		GetUIState(0x17) || GetUIState(0x19) ||   GetUIState(0x1A) || GetUIState(0x24)){
-
-		for (var i = 0; i < 40; i++){
-			if ((i % 20) == 0){
-				me.Cancel(1);
-			}
-			Delay(100);
-			if (!GetUIState(0x01) && !GetUIState(0x08) && !GetUIState(0x0C) && !GetUIState(0x0F) && !GetUIState(0x14) &&
-					!GetUIState(0x17) && !GetUIState(0x19) &&  !GetUIState(0x1A) && !GetUIState(0x24)){
-
-				NTC_PingDelay(300);
-				break;
-			}
-		}
-	}
-}
-
-function StopScriptLeecher(){
-	_script = NTC_FindScript(NTConfig_Script[CurScriptIndex]);
-	if(_script){
-		if(_script.running){
-			_script.Stop();
-			NTC_Delay(150);
-			ClickMap(NTC_CLICK_LUP, NTC_SHIFT_NONE, null);
-		}
-	}
-	return;
-}
-
-function PrintPossibleLeaders()
-{
-	var _player;
-	var _myPartyId;
-
-	_player = GetPlayerUnit();
-
-	if(_player)
-	{
-		do
-		{
-			if( _player.name == me.name)
-				continue;
-			NTC_LogPrintSimple("logs/namelog/"+me.charname+"-leaderName.txt", _player.name);
-		} while(_player.GetNext());
-	}
-	return false;
 }
 
 function LoadConfigError()

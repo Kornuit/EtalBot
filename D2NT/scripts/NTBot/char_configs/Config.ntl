@@ -2,7 +2,8 @@
 // Now in order based on the char_config's themselves. Please stick to this so things are easier to track
 // Done by Tru - April 2012
 
-var NTConfig_Script = [];
+var Scripts = { };
+var scriptList = [];
 
 // Class Specific Var's
 	var DebugAttacksInGame;
