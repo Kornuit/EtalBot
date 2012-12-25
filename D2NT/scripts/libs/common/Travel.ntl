@@ -1,0 +1,811 @@
+var debugVoyageTo = false;
+var debugMove = false;
+
+Include("libs/common/vector_funcs.ntl");
+var Travel = {
+	MoveTo(areaid, x, y, retry, clearpath, canswitch) {
+		var i, n, _teleport,
+			_path = undefined,
+			_retry = 0,
+			_attacked = false;
+
+		if(x == me.x && y == me.y) { return true; }
+
+		if(arguments.length < 4) { retry = 3; }
+
+		if(arguments.length < 5) { clearpath = false; }
+
+		if(arguments.length < 6) { canswitch = true; }
+
+		if(Config.ResetEnigma && Skill.GetSkillLevel(54) < 1) {
+			Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Teleport Bug Found!");
+			Print(COLOR_1 + "Teleport Bug Found!");
+			Town.ResetEnigma();		
+		}
+
+		if(Common.InTown() || Skill.GetSkillLevel(54) < 1) { _teleport = false; }
+		else { _teleport = true; }
+
+		if (_teleport && GetDistance(me.x, me.y, x, y) < 30) {
+			return this.TeleportTo(x, y);
+		}
+		
+		_path = GetPath(areaid, me.x, me.y, x, y, _teleport);
+
+		if(!_path) { return (Common.InTown() && (this.WalkTo(x, y) || Town.MoveToXY(x, y))); }
+		
+		if(Config.SwitchTele && _path.length > 2 && canswitch && _teleport){
+			if(Common.SwapWeapons(1)){
+				if(debugMove){ 
+					switchedtoTele = me.weaponstab == 1;
+					Print(COLOR_2 + "Swapped to tele " + switchedtoTele);
+				}
+			}
+		}
+
+		for(i = 0 ; i < _path.length ; i++)
+		{
+			for(n = 0 ; n < 2 ; n++)
+			{
+				if(_teleport)
+				{
+					if(this.TeleportTo(_path[i][0]+Random(-n, n), _path[i][1]+Random(-n, n))) { break; }
+				}
+				else
+				{
+					if(this.WalkTo(_path[i][0], _path[i][1])) { break; }
+				}
+			}
+			
+			if(!Common.InTown()) { 
+				if((Config.CheckSelfSafe.indexOf("01") != -1) && Town.NeedPots()) {
+						Print("I need some more potions!");
+						return TownManager.VisitTown();		
+				}
+			}
+			
+			if(n < 2)
+			{
+				if(clearpath)
+				{
+					if(!Attack.ClearPosition('20', true, '2')) { return false; }
+					Precast.DoPrecast(false);
+					this.MoveTo(me.areaid, _path[i][0], _path[i][1], 1);
+				}
+			}
+			else if(_retry < retry)
+			{
+				_path = GetPath(areaid, me.x, me.y, x, y, _teleport);
+
+				if(!_path) { return false; }
+
+				i = -1;
+				_retry++;
+				_attacked = false;
+			}
+			else if((!_attacked) && (!Config.SwitchTele))
+			{
+				Attack.ClearPosition(10, true);
+				_attacked = true;
+				_retry = 0;
+			}
+			else {
+				return false;
+			}
+		}
+		
+		if(Config.SwitchTele && canswitch){
+			if(Common.SwapWeapons(0)){
+				if(debugMove) {
+					switchedToAttack = me.weaponstab == 0;
+					Print(COLOR_1 + "Swapped to attack " + switchedToAttack);
+				}
+			}
+		}
+		
+		return true;
+	},
+
+	MoveToPresetUnit: function (areaid, unittype, classid, offsetx, offsety, clearpath) {
+		var i, j, _oldUnits, _newUnits;
+
+		if (arguments.length < 4) { offsetX = 0; offsetY = 0; }
+		if (arguments.length < 6) { clearpath = false }                               
+		for (i = 0; i < 3; i++)
+		{
+			_oldUnits = GetPresetUnits(areaId, unitType);
+			if (_oldUnits)
+			{
+				for (j = 0; j < _oldUnits.length; j++)
+				{
+					if (_oldUnits[j].id == classId)
+					{
+						if (this.MoveTo(areaId, _oldUnits[j].roomx * 5 + _oldUnits[j].x + offsetX, _oldUnits[j].roomy * 5 + _oldUnits[j].y + offsetY, 3, clearpath))
+							return true;
+						else
+						{
+							switch (me.areaid)
+							{
+							case 28:
+							case 29:
+							case 30:
+							case 31:
+							case 51:
+							case 52:
+							case 53:
+							case 54:
+								var _moveXy = [[30, 0], [0, 30], [-30, 0], [0, -30]];
+
+								for (i = 0; i < 4; i++)
+								{
+									while (true)
+									{
+										if (!this.TeleportTo(me.x + _moveXy[i][0], me.y + _moveXy[i][1]))
+											break;
+										if (this.MoveTo(areaId, _oldUnits[j].roomx * 5 + _oldUnits[j].x + offsetX, _oldUnits[j].roomy * 5 + _oldUnits[j].y + offsetY, 0, clearpath))
+											return true;
+									}
+								}
+								break;
+							}
+
+							return false;
+						}
+					}
+				}
+			}
+
+			if (i < 2)
+				Delay(500);
+		}
+
+		return false;
+	},
+
+	MoveToStair: function (areaId, subAreaId, offsetX, offsetY, clearpath) {
+		var i, j, _oldUnits, _newUnits;
+
+		if (arguments.length < 3) { offsetX = 0; offsetY = 0; }
+		if (arguments.length < 5) { clearpath = false }
+									
+		for (i = 0; i < 3; i++)
+		{
+			_oldUnits = GetPresetUnits(areaId, NTC_UNIT_TILE);
+			if (_oldUnits)
+			{
+				for (j = 0; j < _oldUnits.length; j++)
+				{
+					if (_oldUnits[j].subareaid == subAreaId)
+					{
+						if (this.MoveTo(areaId, _oldUnits[j].roomx * 5 + _oldUnits[j].x + offsetX, _oldUnits[j].roomy * 5 + _oldUnits[j].y + offsetY, 3, clearpath))
+							return true;
+						else
+						{
+							switch (me.areaid)
+							{
+							case 28:
+							case 29:
+							case 30:
+							case 31:
+							case 51:
+							case 52:
+							case 53:
+							case 54:
+								var _moveXy = [[30, 0], [0, 30], [-30, 0], [0, -30]];
+
+								for (i = 0; i < 4; i++)
+								{
+									while (true)
+									{
+										if (!this.TeleportTo(me.x + _moveXy[i][0], me.y + _moveXy[i][1]))
+											break;
+										if (this.MoveTo(areaId, _oldUnits[j].roomx * 5 + _oldUnits[j].x + offsetX, _oldUnits[j].roomy * 5 + _oldUnits[j].y + offsetY, 0, clearpath))
+											return true;
+									}
+								}
+								break;
+							}
+
+							return false;
+						}
+					}
+				}
+			}
+
+			if (i < 2)
+				Delay(500);
+		}
+		return false;
+	},
+
+	TeleportTo: function (x, y) {
+		var i;
+
+		Skill.CastSkill(54, NTC_HAND_RIGHT, x, y);
+
+		if(Config.TeleGrab == 1){
+			Config.TeleGrab++;
+			SnagIt.PickItems();
+			Config.TeleGrab--;
+		}
+
+		Shrine.CatchShrine();
+
+		for(i = 0 ; i < 15 ; i++)
+		{
+			if(Math.abs(me.x-x) < 4 && Math.abs(me.y-y) < 4){
+				return true;
+			}
+			Delay(NTC_DELAY_FRAME);
+		}
+		return false;
+	},
+
+	WalkTo: function (x, y) {
+		var i, distance, nTimer,
+			nFail = 0,
+			attemptCount = 0;
+
+		if (me.runwalk === 0) {
+			me.runwalk = 1;
+		}
+
+		MoveLoop : while (GetDistance(me.x, me.y, x, y) > 3 && me.mode !== 17) {
+			if (me.classid == 3) {
+				Skill.PutSkill(115, NTC_HAND_RIGHT);
+			}
+
+			ClickMap(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, x, y);
+			Delay(40);
+			ClickMap(NTC_CLICK_LUP, NTC_SHIFT_NONE, null);
+
+			attemptCount += 1;
+			nTimer = GetTickCount();
+
+			while (me.mode !== 2 && me.mode !== 3 && me.mode !== 6) {
+				if (me.mode === 17) {
+					break MoveLoop;
+				}
+
+				if ((GetTickCount() - nTimer) > 500) {
+					nFail++;
+
+					if (nFail === 2) {
+						return false;
+					}
+
+					ClickMap(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, me.x + Random(-3, 3), me.y + Random(-3, 3));
+					Delay(40);
+					ClickMap(NTC_CLICK_LUP, NTC_SHIFT_NONE, null);
+					
+					continue MoveLoop;
+				}
+				Delay(40);
+			}
+
+			while (me.mode !== 1 && me.mode !== 5 && me.mode !== 17) {
+				Delay(40);
+			}
+
+			if (attemptCount >= 3) {
+				return false;
+			}
+		}
+		return true;
+	},
+
+	TakeUnit: function (unittype, classid) {
+		var _unit, _prearea;
+
+		_unit = Unit.FindUnit(unittype, classid, 5);
+
+		if(!_unit)
+			return false;
+
+		_prearea = me.areaid;
+
+		for(var i = 0 ; i < 20 ; i++)
+		{
+			if((i % 5) == 0)
+			{
+				if(i == 10)
+					this.MoveTo(_prearea, me.x+6, me.y+6);
+
+					if(this.GetCloserInt(_unit)){
+						Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _unit);
+					}
+			}
+
+			Delay(200);
+
+			if(me.areaid != _prearea)
+				break;
+		}
+
+		while(me.areaid == 0)
+			Delay(200);
+
+		if(me.areaid == _prearea)
+			return false;
+
+		Common.PingDelay(Config.AreaDelay);
+
+		return true;
+	},
+
+	TakeStair: function (areaid) {
+		var i, _unit, _prearea;
+
+		_unit = this.GetStairInt(areaid);
+
+		if(!_unit)
+			return false;
+
+		_prearea = me.areaid;
+
+		for(i = 0 ; i < 20 ; i++)
+		{
+			if((i % 5) == 0)
+			{
+				if(i == 10)
+					this.MoveTo(_prearea, me.x+6, me.y+6);
+
+				if(this.GetCloserInt(_unit))
+					Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _unit);
+			}
+
+			Delay(200);
+
+			if(me.areaid != _prearea)
+				break;
+		}
+
+		while(me.areaid == 0)
+			Delay(200);
+
+		if(me.areaid == _prearea)
+			return false;
+
+		Common.PingDelay(Config.AreaDelay);
+
+		return true;
+	},
+
+	TakeWaypoint: function (areaId, delay) {
+		var i, j, _unit, _isTelekinesis;
+
+		if (me.areaid == areaId)
+			return true;
+
+		if (arguments.length < 2)
+			delay = 35;
+
+		if (Common.InTown())
+			me.Cancel(1);
+
+		_unit = this.GetWaypointInt();
+		if (!_unit)
+			return false;
+
+		_isTelekinesis = me.classid === 1 && Config.Telekinesis && Common.InTown() && Skill.GetSkillLevel(43);
+		
+		for (i = 0; i < 3; i++) {
+			if (_isTelekinesis) {
+				_isTelekinesis = GetDistance(me, _unit) > 4 && GetDistance(me, _unit) < 20;
+				if (i > 0 && _isTelekinesis)
+					this.MoveCloseInt(_unit, Math.round(GetDistance(me, _unit) / 2), false);
+			}
+
+			if (_isTelekinesis || this.GetCloserInt(_unit)) {
+
+				for (j = 0; j < delay; j++) {
+					if ((j % 10) == 0) {
+						if (i > 0) {
+							me.Cancel(0);
+						}
+						_isTelekinesis ? Skill.CastSkill(43, NTC_HAND_RIGHT, _unit) : Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _unit);
+					}
+
+					Delay(200);
+
+					if (GetUIState(0x14)) {
+						Waypoint.CheckWps();
+						if(Config.VoyageToMissingWps && wpsDontHave.indexOf(areaId) != -1) {
+							Common.CancelMenus();
+							Delay(500);
+							Print("You don't have the " + GetArea(areaId).name + " wp");
+							Print("Let's go get it!!");
+							if(areaId == 129 && !me.GetQuest(39, 0)) {
+								Print("Can't get ws2 wp because you have not complete ancients quest");
+								Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "You need to kill your ancients");
+								return false;
+							}
+							if(Waypoint.VoyageToArea(areaId)) {
+								return true;
+							} else {
+								return false;
+							}
+						}
+						else if (me.TakeWaypoint(areaId)) { 
+							Common.PingDelay(Config.AreaDelay);
+							return true;
+						}
+
+						break;
+					}
+				}
+			}
+
+			if (i == 1) {
+				Common.RemoveLag(_unit, 1000);
+			}
+			else if (i == 2) {
+				Common.RemoveLag(_unit, 1000, 10);
+			}
+		}
+		
+		return false;
+	},
+
+	UsePortal: function (how, dest, ownername, portal) {
+		if(me.areaid == dest)
+			return true;
+
+		if(NTC_InTown())
+			me.Cancel(1);
+
+		if(this.ChangeAreaInt(how, dest, ownername, portal))
+		{
+			Common.PingDelay(Config.AreaDelay);
+			return true;
+		}
+		return false;
+	},
+
+	MakeTP: function (dest) {
+		var i, _portal, _portalname,
+			_usetp = true;
+
+		if(Common.InTown())
+			return true;
+
+		if(arguments.length < 1)
+			_usetp = false;
+
+		if(!Skill.CastSkill(220, NTC_HAND_RIGHT))
+			return false;
+
+		Common.PingDelay(500);
+
+		_portalname = GetLocaleString(3226);
+
+		for(i = 0 ; i <= 2 ; i++)
+		{
+			_portal = Unit.FindUnit(NTC_UNIT_OBJECT, _portalname);
+
+			if(_portal)
+			{
+				do
+				{
+					if(_portal.mode == 2 && Common.CheckOwner(_portal))
+					{
+						if(_usetp)
+							return this.UsePortal("BluePortal", dest, me.name, _portal);
+
+						return true;
+					}
+				} while(_portal.GetNext());
+			}
+
+			if(i < 2)
+				Delay(500);
+		}
+
+		return false;
+	},
+
+	GetStairInt: function (areaid) {
+		var i, _tile;
+
+		for(i = 0 ; i <= 2 ; i++)
+		{
+			_tile = Unit.FindUnit(NTC_UNIT_TILE);
+
+			if(_tile)
+			{
+				do
+				{
+					if(!areaid || _tile.subareaid == areaid)
+						return _tile;
+				} while(_tile.GetNext());
+			}
+
+			if(i < 2)
+				Delay(500);
+		}
+		return null;
+	},
+
+	GetWaypointInt: function () {
+		var i, _waypoint, _classid;
+
+		for(i = 0 ; i <= 2 ; i++)
+		{
+			_waypoint = Unit.FindUnit(NTC_UNIT_OBJECT);
+
+			if(_waypoint)
+			{
+				do
+				{
+					_classid = _waypoint.classid;
+
+					if(_classid == 119 || _classid == 145 || _classid == 156 || _classid == 157
+						|| _classid == 237 || _classid == 238 || _classid == 288 || _classid == 323
+						|| _classid == 324 || _classid == 398 || _classid == 402 || _classid == 429
+						|| _classid == 494 || _classid == 496 || _classid == 511 || _classid == 539)
+						return _waypoint;
+				} while(_waypoint.GetNext());
+			}
+
+			if(i < 2)
+				NTC_Delay(500);
+		}
+
+		return null;
+	},
+
+	ChangeAreaInt: function (how, dest, ownername, myportal) {
+		var _portal, _prearea,
+			_playerportal = false;
+
+		if(how == "BluePortal")
+		{
+			if(!ownername)
+				ownername = me.name;
+
+			_playerportal = true;
+		}
+
+		if(arguments.length > 3 && myportal)
+			_portal = myportal;
+		else
+		{
+			_portal = this.FindCorrectPortalInt(_playerportal, dest, ownername);
+
+			if(_portal < 0)
+				_portal = this.FindPortalAreaInt(dest);
+
+			if(_portal == -1)
+				return false;
+		}
+
+		if(!_portal)
+			return false;
+
+		_prearea = me.areaid;
+
+		for(var i = 0 ; i < 80 ; i++)
+		{
+			if((i % 10) == 0)
+			{
+				if (me.classid === 1 && Config.Telekinesis && Common.InTown() && Skill.GetSkillLevel(43) && GetDistance(me, _portal) > 5 && GetDistance(me, _portal) < 23)
+				{
+					if (i > 10)
+						this.MoveCloseInt(_portal, Math.round(GetDistance(me, _portal) / 2), false);
+
+					Skill.CastSkill(43, NTC_HAND_RIGHT, _portal);
+				}
+				else{
+					if(Skill.GetSkillLevel(54) < 1){
+						Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _portal);
+					}
+					else if(this.GetCloserIntS(_portal)) {
+						Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _portal);
+					}
+				}
+			}
+			Delay(100);
+
+			if(me.areaid != _prearea)
+			{
+				while(me.areaid == 0)
+					Delay(200);
+			
+				if(me.areaid != _prearea)
+				{
+					Common.PingDelay(Config.AreaDelay);
+					return true;
+				}
+			
+				break;
+			}
+		}
+
+		return (me.areaid != _prearea);
+	},
+
+	FindCorrectPortalInt: function (blueportal, dest, ownername) {
+		var i, _portal, _portalname;
+
+		_portalname = GetLocaleString(3226);
+
+		if(blueportal)
+		{
+			for(var i = 0 ; i <= 2 ; i++)
+			{
+				_portal = Unit.FindUnit(NTC_UNIT_OBJECT, _portalname);
+
+				if(_portal)
+				{
+					do
+					{
+						if(_portal.mode == 2 && Common.CheckOwner(_portal, ownername) && GetDistance(me, _portal) <= 30 && (_portal.subareaid == dest || _portal.subareaid == dest + 768))
+							return _portal;
+					} while(_portal.GetNext());
+				}
+
+				if(i < 2)
+					Delay(500);
+			}
+
+			return -2;
+		}
+		else
+		{
+			for(i = 0 ; i <= 2 ; i++)
+			{
+				_portal = Unit.FindUnit(NTC_UNIT_OBJECT, _portalname);
+
+				if(_portal)
+				{
+					do
+					{
+						if(_portal.mode == 2 && !_portal.GetParent())
+							return _portal;
+					} while(_portal.GetNext());
+				}
+
+				if(i < 2)
+					Delay(500);
+			}
+		}
+
+		return -3;
+	},
+
+	FindPortalAreaInt: function (dest) {
+		var i, _portal, _portalname;
+
+		_portalname = GetLocaleString(3226);
+
+		for(i = 0 ; i <= 2 ; i++)
+		{
+			_portal = Unit.FindUnit(NTC_UNIT_OBJECT, _portalname);
+
+			if(_portal)
+			{
+				do
+				{
+					if(_portal.mode == 2 && (_portal.subareaid == dest || _portal.subareaid == dest+768))
+					{
+						if(_portal.GetParent())
+						{
+							if(Common.CheckOwner(_portal) || Common.InMyParty(_portal.GetParent()))
+								return _portal;
+						}
+						else
+							return _portal;
+					}
+				} while(_portal.GetNext());
+			}
+
+			if(i < 2)
+				Delay(500);
+		}
+
+		return -1;
+	},
+
+	GetCloserInt: function (unit) {
+		if(GetDistance(me, unit) > 2)
+			return this.MoveTo(unit.areaid, unit.x, unit.y);
+
+		return true;
+	},
+
+	GetCloserIntS: function (unit) {
+		if(GetDistance(me, unit) > 3)
+			return this.MoveTo(unit.areaid, unit.x+1, unit.y);
+		return true;
+	},
+
+	MoveCloseInt: function (target, maxrange) {
+		var _destx, _desty,
+			_result = true,
+			_dist   = GetDistance(me, target);
+
+		if (_dist > maxrange)
+		{
+			_destx = me.x + Math.round((_dist - maxrange) * (target.x - me.x) / _dist);
+			_desty = me.y + Math.round((_dist - maxrange) * (target.y - me.y) / _dist);
+
+			_result = this.MoveTo(target.areaid, _destx, _desty, 1);
+		}
+		return _result;
+	},
+
+	UseTelekinesisPortal: function () {
+		var _portal = Unit.FindUnit(NTC_UNIT_OBJECT, GetLocaleString(3226));
+
+		if (_portal)
+		{
+			do
+			{
+				if (_portal.name == GetLocaleString(3226) && Common.CheckOwner(_portal) && GetDistance(me, _portal) < 23)
+					return true;
+			} while (_portal.GetNext());
+		}
+
+		return false;
+	},
+
+	UseTelekinesisWaypoint: function () {
+		var _waypoint = Unit.FindUnit(NTC_UNIT_OBJECT, GetLocaleString(22526));
+
+		if (_waypoint)
+		{
+			if(me.act == 1 || me.act == 4)
+			{
+				if (GetDistance(me, _waypoint) < 17)
+					return true;
+			}
+			else
+			{
+				if (GetDistance(me, _waypoint) < 20)
+					return true;
+			}
+		}
+
+		return false;
+	},
+
+	UseTelekinesisStash: function () {
+		var _stash = Unit.FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH);
+
+		if (_stash)
+		{
+			if (GetDistance(me, _stash) < 23)
+				return true;
+		}
+		return false;
+	},
+
+	MoveToObject: function (areaid, unittype, low, high, offsetx, offsety, clearpath) {
+		var i, _unit;
+
+		if(arguments.length < 4)
+			high = low;
+
+		if(arguments.length < 5)
+		{
+			offsetx = 0;
+			offsety = 0;
+		}
+
+		if(arguments.length < 7)
+			clearpath = false;
+
+		_unit = GetPresetUnits(areaid, unittype);
+
+		if(!_unit)
+			return false;
+
+		for(i = 0 ; i < _unit.length ; i++)
+		{
+			if(_unit[i].id >= low && _unit[i].id <= high)
+				return this.MoveTo(areaid, _unit[i].roomx*5+_unit[i].x+offsetx, _unit[i].roomy*5+_unit[i].y+offsety, 3, clearpath);
+		}
+
+		return false;
+	}
+};

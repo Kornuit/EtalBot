@@ -1,6 +1,0 @@
-var eLog = "error_logs/"; //error log folder name
-var mLog = "mule_logs"; // mule log folder name
-var sLog = "script_logs"; // script log folder name
-var aLog = "area_logs"; // area log folder name
-var gLog = "game_logs"; // gamename log folder name
-var iLog = "inventory_logs"; // inventory log folder name

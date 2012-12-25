@@ -1,0 +1,1372 @@
+Include("libs/Common_Vars.ntl");
+
+var TownManager = {
+	var _TMGR_BuyPots, _TMGR_BuyTP,	_TMGR_BuyID, _TMGR_BuyKey, _TMGR_DoHeal, _TMGR_DoID, _TMGR_DoRepair, _TMGR_DoRevive, _TMGR_RemoveCurse, _TMGR_Simple,
+	_TMGR_BuyArrows = false,
+	ammyreq = Math.abs(Math.floor(me.GetStat(12) / 2)-90) * 2;
+
+	Manager: function (simple) {
+		var _cubing;
+		while(me.areaid == 0){
+			Delay(200);
+		}	
+		Common.SwapWeapons(0);
+
+		if(arguments.length < 1)
+			simple = false;		
+		
+		Common.ClearCursor();
+		Town.CleanPotions();
+		_TMGR_BuyPotsInt = Town.CheckBelt();
+		_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+		
+		_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);
+		
+		_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
+		_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && TownManager.CheckKeys() < 6);
+		_TMGR_DoHeal = Town.CheckHeal();
+		_TMGR_DoID = Town.CheckUnids();
+		_TMGR_DoRepair = Town.CheckRepair(Config.Repair);
+		_TMGR_DoRevive = Town.CheckMerc();
+		_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+		_TMGR_Simple = simple;
+		_TMGR_BuyArrows = this.CheckBow();
+
+		Cubing.InitCubing();
+		
+		switch(me.act)
+		{
+		case 1:
+			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct()) 
+				this.VisitCain(simple);
+
+			_TMGR_DoHeal = Town.CheckHeal();
+			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_DoID = Town.CheckUnids();
+			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+		
+			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);
+			
+			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
+			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+
+			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoID || _TMGR_BuyPots || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey) {
+				this.VisitAkara();
+			}
+
+			_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+			if(_cubing || Town.CheckInventory())
+				this.VisitStash(_cubing);
+
+			if(_TMGR_DoRevive)
+				this.VisitKashya();
+
+			if(_TMGR_DoRepair || _TMGR_BuyArrows) 
+				this.VisitCharsi();
+			TownMove.GCCheckAmu();
+			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold) 
+			{
+				this.VisitGheed();
+
+				_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+				if(_cubing || Town.CheckInventory())
+					this.VisitStash(_cubing);
+			}
+			break;
+
+		case 2:
+			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct())
+				this.VisitCain(simple);
+			
+			_TMGR_DoHeal = Town.CheckHeal(); 
+			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_DoID = Town.CheckUnids();
+			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+			
+			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);// id in field add
+			
+			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
+			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+
+			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoRepair || _TMGR_BuyArrows)
+				this.VisitFara();
+			if(_TMGR_BuyPots || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_DoID)
+				this.VisitDrognan();
+			if(_TMGR_BuyKey)
+				this.VisitLysander();
+
+			_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+			if(_cubing || Town.CheckInventory())
+				this.VisitStash(_cubing);
+			if(_TMGR_DoRevive)
+				this.VisitGreiz();
+			TownMove.GCCheckAmu();
+			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold)
+			{
+				this.VisitElzix();
+
+				_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+				if(_cubing || Town.CheckInventory())
+					this.VisitStash(_cubing);
+			}
+			break;
+
+		case 3:
+			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct())
+				this.VisitCain(simple);
+
+			_TMGR_DoHeal = Town.CheckHeal(); 
+			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_DoID = Town.CheckUnids();
+			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+			
+			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);// id in field add
+			
+			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
+			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+
+			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoID || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyPots)
+				this.VisitOrmus();
+
+			_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+			if(_cubing || Town.CheckInventory())
+				this.VisitStash(_cubing);
+			if(_TMGR_DoRevive)
+				this.VisitAsheara();
+			if(_TMGR_DoRepair || _TMGR_BuyKey || _TMGR_BuyArrows)
+				this.VisitHratli();
+			TownMove.GCCheckAmu();
+			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold)
+			{
+				this.VisitAlkor();
+
+				_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+				if(_cubing || Town.CheckInventory())
+					this.VisitStash(_cubing);
+			}
+			break;
+
+		case 4:
+			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct())
+				this.VisitCain(simple);
+
+			_TMGR_DoHeal = Town.CheckHeal(); 
+			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_DoID = Town.CheckUnids();
+			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+			
+			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);// id in field add
+			
+			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
+			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+
+			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoID || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey || _TMGR_BuyPots)
+				this.VisitJamella(false);
+			if(_TMGR_DoRepair || _TMGR_BuyArrows)
+				this.VisitHalbu();
+
+			_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+			if(_cubing || Town.CheckInventory())
+				this.VisitStash(_cubing);
+			if(_TMGR_DoRevive)
+				this.VisitTyrael();
+			TownMove.GCCheckAmu();
+			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold)
+			{
+				this.VisitJamella(true);
+
+				_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+				if(_cubing || Town.CheckInventory())
+					this.VisitStash(_cubing);
+			}
+			break;
+
+		case 5:
+			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct())
+				this.VisitCain(simple);
+
+			_TMGR_DoHeal = Town.CheckHeal(); 
+			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_DoID = Town.CheckUnids();
+			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+			
+			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);// id in field add
+			
+			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
+			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+
+			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoID || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey || _TMGR_BuyPots)
+				this.VisitMalah();
+
+			_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+			if(_cubing || Town.CheckInventory())
+				this.VisitStash(_cubing);
+			if(_TMGR_DoRepair || _TMGR_BuyArrows)
+				this.VisitLarzuk();
+			if(_TMGR_DoRevive)
+				this.VisitQualKehk();
+			TownMove.GCCheckAmu();
+			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold)
+			{
+				this.VisitAnya();
+
+				_cubing = (!simple && (Cubing.CheckCubing() || Runeword.CheckRunewords()));
+
+				if(_cubing || Town.CheckInventory())
+					this.VisitStash(_cubing);
+			}
+			break;
+		}
+		
+		if (Config.AutoMule && Mule.CheckMuleStash() < Config.MuleStash && Mule.CheckMuleInventory() < Config.MuleInv && !Mule.StatusSet()) {
+			File.OverWrite("logs/mulelogs/" + me.account + "_charstatus.txt", 1, "Main");
+			File.OverWrite("logs/mulelogs/" + me.account + "_mulingstatus.txt", 1, "true");
+			Common.SendLogToOOG(NTC_LOG_COMMON, 'Automuling triggered.' + COLOR_2 + 'Stash Capacity is ' + COLOR_4 + Mule.CheckMuleStash() + COLOR_2 + ' Inventory Capacity is ' + COLOR_4 + Mule.CheckMuleInventory());
+			Delay(500);
+
+			if(!Config.FinishRun) {
+				Delay(500);
+				Print(COLOR_4 + "Calculating stats for game!");
+				Exp.ComputeStats(false);
+				Delay(500);
+				ExitGame();
+			} else {
+				Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_7 + 'Finishing run before muling');
+			}
+		}
+	},
+
+	VisitTown: function () {
+		var _prearea = me.areaid;
+
+		if(!TownMove.CheckAct())
+			return false;
+
+		this.TownManager(true);
+
+		if(!TownMove.MoveTo("portalspot", true))
+			return false;
+			
+		if(me.classid == Common.CHAR_CLASS_ASSASSIN && Config.UseFade)
+			Common.CastSkill(267, NTC_HAND_RIGHT);
+
+		if(!Travel.UsePortal("BluePortal", _prearea))
+			return false;
+
+		if(Config.PublicMode)
+			Travel.MakeTP();
+
+		return true;
+	},
+
+	VisitStash: function (cubing) {
+		var _stash;
+
+		TownMove.MoveTo("stash");
+
+		_stash = Unit.FindUnit(Common.UNIT_OBJECT, NTC_UNIT_STASH, 5);
+
+		if(_stash)
+		{
+			if(Town.DoInteract(_stash))
+			{
+				if(Config.MakeRunewords)
+					Runeword.MakeRuneword();
+
+				Town.ManageStash();
+				
+				if(cubing)
+				{
+					Cubing.DoCubing();
+
+					if(Town.DoInteract(_stash))
+						Town.ManageStash();
+
+					me.Cancel(1);
+					Town.ClearInventory();
+				}
+				else			
+					me.Cancel(1);
+			}
+		}
+	},
+
+	VisitAkara: function () {
+		var _npc;
+
+		TownMove.MoveTo("akara");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_AKARA, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				if(_TMGR_DoID || _TMGR_BuyPotsInt || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey)
+				{
+					if(Town.DoTrade(_npc))
+					{
+						if(_TMGR_BuyPotsInt)
+							Town.FillBelt(_npc);
+							Town.FillTome(_npc);
+							Town.FillTome(_npc, 1);
+						if(_TMGR_BuyKey)
+							Town.FillKey(_npc);
+						if(_TMGR_DoID)
+							this.IDItems(_npc);
+					}
+				}
+
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitKashya: function () {
+		var _npc;
+
+		TownMove.MoveTo("kashya");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_KASHYA, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				Town.ReviveMerc();
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitCharsi: function () {
+		var _npc;
+
+		TownMove.MoveTo("charsi");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_CHARSI, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				if(_TMGR_DoRepair || _TMGR_BuyArrows)
+				{
+					if(Town.DoTrade(_npc))
+					{
+						if(_TMGR_DoRepair)
+							Town.RepairItems(_npc);
+						if(_TMGR_BuyArrows)
+							Town.FillArrows(_npc);
+					}
+				me.Cancel(1);
+				}
+			}
+		}
+	},
+
+	VisitGheed: function () {
+		var _npc;
+
+		TownMove.MoveTo("gheed");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_GHEED, 5);
+		if (me.classid == 6)
+			Skill.PutSkill(0, NTC_HAND_RIGHT);
+		if(_npc)
+		{
+			while(Common.MyGold() > Config.GambleStopGold)
+			{
+				if(Town.DoInteract(_npc))
+				{
+					if(Town.DoTrade(_npc, 1))
+						Town.GambleIt(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	},
+
+	VisitFara: function () {
+		var _npc;
+
+		TownMove.MoveTo("fara");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_FARA, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				if(_TMGR_DoRepair || _TMGR_BuyArrows)
+				{
+					if(Town.DoTrade(_npc))
+					{
+						if(_TMGR_DoRepair)
+							Town.RepairItems(_npc);
+						if(_TMGR_BuyArrows)
+							Town.FillArrows(_npc);
+					}
+				}
+
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitDrognan: function () {
+		var _npc;
+
+		TownMove.MoveTo("drognan");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_DROGNAN, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				if(Town.DoTrade(_npc))
+				{
+					if(_TMGR_BuyPotsInt)
+						Town.FillBelt(_npc);
+						Town.FillTome(_npc);
+						Town.FillTome(_npc, 1);
+					if(_TMGR_DoID)
+						this.IDItems(_npc);
+				}
+
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitLysander: function () {
+		var _npc;
+
+		TownMove.MoveTo("lysander");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_LYSANDER, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				if(Town.DoTrade(_npc))
+					Town.FillKey(_npc);
+
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitGreiz: function () {
+		var _npc;
+
+		TownMove.MoveTo("greiz");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_GREIZ, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				Town.ReviveMerc();
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitElzix: function () {
+		var _npc;
+
+		TownMove.MoveTo("elzix");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ELZIX, 5);
+		if (me.classid == 6)
+			Skill.PutSkill(0, NTC_HAND_RIGHT);
+
+		if(_npc)
+		{
+			while(Common.MyGold() > Config.GambleStopGold)
+			{
+				if(Town.DoInteract(_npc))
+				{
+					if(Town.DoTrade(_npc, 1))
+						Town.GambleIt(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	},
+
+	VisitOrmus: function () {
+		var _npc;
+
+		TownMove.MoveTo("ormus");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ORMUS, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				if(_TMGR_DoID || _TMGR_BuyPotsInt || _TMGR_BuyTP || _TMGR_BuyID)
+				{
+					if(Town.DoTrade(_npc))
+					{
+						if(_TMGR_BuyPotsInt)
+							Town.FillBelt(_npc);
+							Town.FillTome(_npc);
+							Town.FillTome(_npc, 1);
+						if(_TMGR_DoID)
+							this.IDItems(_npc);
+					}
+				}
+
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitAsheara: function () {
+		var _npc;
+
+		TownMove.MoveTo("asheara");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ASHEARA, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				Town.ReviveMerc();
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitHratli: function () {
+	   var _npc;
+
+	   TownMove.MoveTo("hratli");
+
+	   _npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_HRATLI, 5);
+
+	   if(_npc)
+	   {
+		  if(Town.DoInteract(_npc))
+		  {
+			 if(Town.DoTrade(_npc))
+			 {
+				if(_TMGR_DoRepair)
+				   Town.RepairItems(_npc);
+				if(_TMGR_BuyKey)
+				   Town.FillKey(_npc);
+				if(_TMGR_BuyArrows)
+				   Town.FillArrows(_npc);
+			 }
+
+			 me.Cancel(1);
+		  }
+	   }
+	},
+
+	VisitAlkor: function () {
+		var _npc;
+
+		TownMove.MoveTo("alkor");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ALKOR, 5);
+		if (me.classid == 6)
+			Skill.PutSkill(0, NTC_HAND_RIGHT);
+
+		if(_npc)
+		{
+			while(Common.MyGold() > Config.GambleStopGold)
+			{
+				if(Town.DoInteract(_npc))
+				{
+					if(Town.DoTrade(_npc, 1))
+						Town.GambleIt(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	},
+
+	VisitJamella: function (gamble) {
+		var _npc;
+
+		TownMove.MoveTo("jamella");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_JAMELLA, 5);
+		if (me.classid == 6)
+			Skill.PutSkill(0, NTC_HAND_RIGHT);
+
+		if(_npc)
+		{
+			if(gamble)
+			{
+				while(Common.MyGold() > Config.GambleStopGold)
+				{
+					if(Town.DoInteract(_npc))
+					{
+						if(Town.DoTrade(_npc, 1))
+							Town.GambleIt(_npc);
+
+						me.Cancel(1);
+					}
+					else
+						break;
+				}
+			} else {
+				if(Town.DoInteract(_npc))
+				{
+					if(_TMGR_DoID || _TMGR_BuyPotsInt || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey)
+					{
+						if(Town.DoTrade(_npc))
+						{
+							if(_TMGR_BuyPotsInt)
+								Town.FillBelt(_npc);
+								Town.FillTome(_npc);
+								Town.FillTome(_npc, 1);
+							if(_TMGR_BuyKey)
+								Town.FillKey(_npc);
+							if(_TMGR_DoID)
+								this.IDItems(_npc);
+						}
+					}
+
+					me.Cancel(1);
+				}
+			}
+		}
+		return true;
+	},
+
+	VisitHalbu: function () {
+		var _npc;
+
+		TownMove.MoveTo("halbu");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_HALBU, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				if(_TMGR_DoRepair || _TMGR_BuyArrows)
+				{
+					if(Town.DoTrade(_npc))
+					{
+						if(_TMGR_DoRepair)
+							Town.RepairItems(_npc);
+						if(_TMGR_BuyArrows)
+							Town.FillArrows(_npc);
+					}
+				me.Cancel(1);
+				}
+			}
+		}
+	},
+
+	VisitTyrael: function () {
+		var _npc;
+
+		TownMove.MoveTo("tyrael");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_TYRAEL_ACT_4, 5);
+
+		if(_npc)
+		{	
+			if(Town.DoInteract(_npc))
+			{
+				Town.ReviveMerc();
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitMalah: function () {
+		var _npc;
+
+		TownMove.MoveTo("malah");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_MALAH, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				if(_TMGR_DoID || _TMGR_BuyPotsInt || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey)
+				{
+					if(Town.DoTrade(_npc))
+					{
+						if(_TMGR_BuyPotsInt)
+							Town.FillBelt(_npc);
+							Town.FillTome(_npc);
+							Town.FillTome(_npc, 1);
+						if(_TMGR_BuyKey)
+							Town.FillKey(_npc);
+						if(_TMGR_DoID)
+							this.IDItems(_npc);
+					}
+				}
+
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitLarzuk: function () {
+		var _npc;
+
+		TownMove.MoveTo("larzuk");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_LARZUK, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				if(Town.DoTrade(_npc))
+				{
+					if(_TMGR_DoRepair || _TMGR_BuyArrows)
+					{
+						if(_TMGR_DoRepair)
+							Town.RepairItems(_npc);
+						if(_TMGR_BuyArrows)
+							Town.FillArrows(_npc);
+					}
+				}
+
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitQualKehk: function () {
+		var _npc;
+
+		TownMove.MoveTo("qual-kehk");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_QUALKEHK, 5);
+
+		if(_npc)
+		{
+			if(Town.DoInteract(_npc))
+			{
+				Town.ReviveMerc();
+				me.Cancel(1);
+			}
+		}
+	},
+
+	VisitAnya: function () {
+		var _npc;
+
+		TownMove.MoveTo("anya");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ANYA_TOWN, 5);
+		if (me.classid == 6)
+			Skill.PutSkill(0, NTC_HAND_RIGHT);
+
+		if(_npc)
+		{
+			while(Common.MyGold() > Config.GambleStopGold)
+			{
+				if(Town.DoInteract(_npc))
+				{
+					if(Town.DoTrade(_npc, 1))
+						Town.GambleIt(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	},
+
+	CheckScrolls: function (scrolltype) {
+		var _tome = Town.GetTome(scrolltype);
+
+		if(_tome)
+			return _tome.GetStat(70);
+
+		return 0;
+	},
+
+	CheckKeys: function () {
+		var _key;
+
+		if(me.classid == NTC_CHAR_CLASS_ASSASSIN)
+			return 12;
+
+		_key = Town.GetKey();
+
+		if(_key)
+			return _key.GetStat(70);
+
+		return 0;
+	},
+
+	CheckBow: function () {
+		var i,
+			_range = false,
+			_weapon = me.GetItems();
+
+		Common.SwapWeapons(0);
+
+		if(_weapon) {
+			for(i = 0 ; i < _weapon.length ; i++) {
+				if (_weapon[i].mode == 1 && (_weapon[i].itemloc == 4 || _weapon[i].itemloc == 5)) {
+					switch (_weapon[i].classid) {
+					case 68: //Short Bow
+					case 69: //Hunter's Bow
+					case 70: //Longbow
+					case 71: //Composite Bow
+					case 72: //Short Battle Bow
+					case 73: //Long Battle Bow
+					case 74: //short war bow
+					case 75: //Long War Bow
+					case 161: //Edge Bow
+					case 162: //Razor Bow
+					case 163: //Cedar Bow
+					case 164: //Double Bow
+					case 165: //Short Siege Bow
+					case 166: //Large Siege Bow
+					case 167: //Rune Bow
+					case 168: //Gothic Bow
+					case 264: //Spider Bow
+					case 265: //Blade Bow
+					case 266: //Shadow Bow
+					case 267: //Great Bow
+					case 268: //Diamond Bow
+					case 269: //Crusader Bow
+					case 270: //Ward Bow
+					case 271: //Hydra Bow
+					case 281: //Stag Bow
+					case 282: //Reflex Bow
+					case 291: //Ashwood Bow
+					case 292: //Cermonial Bow
+					case 301: //Matriarchal Bow
+					case 302: //Grand Matron Bow
+					case 76: //Light Crossbow
+					case 77: //Crossbow
+					case 78: //Heavy Crossbow
+					case 79: //Repeating Crossbow
+					case 169: //Arbalest
+					case 170: //Siege Crossbow
+					case 171: //Ballista
+					case 172: //Chu-Ko-Nu
+					case 272: //Pellet Bow
+					case 273: //Gorgon Crossbow
+					case 274: //Colossus Crossbow
+					case 275: //Demon Crossbow
+						_range = true;
+						break;
+					default:
+						_range = false;
+						break;
+					}
+				}
+				
+				if (_range) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		return false;
+	},
+
+	IDItems: function (npc) {
+		Include("libs/common/Itemlogger.ntl");
+		var i, _location, _tome, _scroll, _result, _keys, _npckeys,
+			_resultArray = new Array(),
+			_items = Town.GetUnidItems();
+
+		if(!_items || _items.length < 1)
+			return;
+
+		_tome = Town.GetTome();
+
+		if(_tome && _tome.GetStat(70) < _items.length)
+			Town.FillTome(npc);
+		
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			
+			var _isEthereal = ((_items[i].itemflag & 0x400000) == 0x400000);
+			_location = Common.GetLocation(_TMGR_Simple);
+			resultArray = SnagIt.CheckItem(_items[i]);
+			result = resultArray[0];
+			switch(result)
+			{
+			case 1:
+				if(_items[i].itemflag & 0x10) {
+					Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + "Kept: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location+ "\n" + COLOR_2 +resultArray[1]+", "+resultArray[2]);
+				}
+			case 2:
+				break;
+			case -1:
+				if(_tome)
+					_result = Town.IdItem(_tome, _items[i]);
+				else
+				{
+					_scroll = Town.GetScroll();
+
+					if(!_scroll)
+					{
+						Town.BuyScrolls(npc);
+						_scroll = Town.GetScroll();
+					}
+
+					_result = Town.IdItem(_scroll, _items[i]);
+				}
+
+				if(_result)
+				{
+					resultArray = SnagIt.CheckItem(_items[i]);
+					result = resultArray[0];
+					switch(result)
+					{
+					case 1:
+						if(_items[i].itemflag & 0x10){
+							Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + "Kept: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location+ "\n" + COLOR_2 +resultArray[1]+", "+resultArray[2]);
+						}	
+					case 2:
+						break;
+					default:
+						if(Config.LogSoldItemQuality != 0 && _items[i].quality >= Config.LogSoldItemQuality) {
+							Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 +"Sold: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+						}
+						Town.ShopItem(_items[i], npc, 1);
+						break;
+					}
+				}
+				else	
+				{
+					if(Config.LogSoldItemQuality != 0 && _items[i].quality >= Config.LogSoldItemQuality) {
+							Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+						}
+					Town.ShopItem(_items[i], npc, 1);
+				}
+
+				break;
+			}
+		}
+		if(Config.UseKeysForPlaceHolder || Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests){
+			_npckeys = npc.GetItems(543);
+			_keys = me.GetItems(543);
+			if(_keys.length < 1 && _npckeys.length > 0) { 
+				Town.ShopItem(_npckeys[0], npc, 2); 
+			}
+		}
+	},
+
+	CheckCurse: function (selfmask, mercmask, print) {
+		if(arguments.length < 3) { var print = false }
+		if((selfmask.indexOf("02") != -1) && me.GetState(2)) {
+			if(print) { Print("I need to cure " + COLOR_1 + "Poison!") } 
+			return true; 
+		}
+		if((selfmask.indexOf("04") != -1) && me.GetState(9)) {
+			if(print) { Print("I need to cure " + COLOR_1 + "Amplify Damage!") } 
+			return true; 
+		}
+		if((selfmask.indexOf("08") != -1) && me.GetState(19)) {
+			if(print) { Print("I need to cure " + COLOR_1 + "Weaken!") } 
+			return true; 
+		}
+		if((selfmask.indexOf("10") != -1) && me.GetState(55)) {
+			if(print) { Print("I need to cure " + COLOR_1 + "Iron Maiden!") } 
+			return true; 
+		}
+		if((selfmask.indexOf("20") != -1) && me.GetState(60)) {
+			if(print) { Print("I need to cure " + COLOR_1 + "Decrepify") } 
+			return true; 
+		}
+		if((selfmask.indexOf("40") != -1) && me.GetState(61)) {
+			if(print) { Print("I need to cure " + COLOR_1 + "Lower Resists!") } 
+			return true; 
+		}
+		if((selfmask.indexOf("80") != -1) && me.GetState(114)) {
+			if(print) { Print("I need to cure " + COLOR_1 + "Blood Mana!") } 
+			return true; 
+		}
+		var _merc = Common.GetMerc();
+		if(_merc) {
+			if((mercmask.indexOf("02") != -1) && _merc.GetState(2)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Poison!") } 
+			return true; 
+		}
+			if((mercmask.indexOf("04") != -1) && _merc.GetState(9)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Amplify Damage!") } 
+			return true; 
+		}
+			if((mercmask.indexOf("08") != -1) && _merc.GetState(19)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Weaken!") } 
+			return true; 
+		}
+			if((mercmask.indexOf("10") != -1) && _merc.GetState(55)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Iron Maiden!") } 
+			return true; 
+		}
+			if((mercmask.indexOf("20") != -1) && _merc.GetState(60)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Decrepify!") } 
+			return true; 
+		}
+			if((mercmask.indexOf("40") != -1) && _merc.GetState(61)) {
+			if(print) { Print("I need to cure " + COLOR_2 + "my Merc's " + COLOR_1 + "Lower Resists!") } 
+			return true; 
+		}
+		}
+		return false;
+	},
+
+	CheckSafe: function (selfmask, mercmask) {
+		if((mercmask.indexOf("01") != -1) && Town.CheckMerc()) {
+			Print("The Merc is dead!");
+			Tools.MercDeathLog();
+			return true;
+		} else if((selfmask.indexOf("01") != -1) && Town.NeedPots()) {
+			Print("I need some more potions!");
+			return true;
+		} else if(this.CheckCurse(selfmask, mercmask)) { 
+			return true;
+		} else {
+			return false;
+		}
+	},
+
+	SkipCainAct: function () {
+		if(Config.DontCainAct.indexOf(me.act) > -1)
+			return false;
+		else
+			return true;
+	},
+
+	CheckUnidsGotStashed: function () {
+		var i, _value,
+			_unidcount = 0,
+			_items = me.GetItems();
+
+		if(!_items)
+			return _unidcount;
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0 && !(_items[i].itemflag&0x10))
+				_value = SnagIt.CheckItem(_items[i])[0];
+			
+			if(_value == 1)
+				_unidcount++;
+		}
+		return _unidcount;
+	},
+
+	VisitCain: function (check) {
+		var i, _location, _npc, result, _value, _isEthereal,
+			_items = me.GetItems(),
+			_uniditems = new Array(), 
+			_dropitems = new Array(),
+			_itemlist  = new Array(),
+			resultArray  = new Array();
+		
+		for(i = 0 ; i < _items.length ; i++){
+			
+			if(_items[i].mode == 0 && _items[i].itemloc == 0 && !(_items[i].itemflag&0x10)){
+				
+				_value = SnagIt.CheckItem(_items[i])[0];
+				_isEthereal = ((_items[i].itemflag & 0x400000) == 0x400000);
+				
+				if(_value == 1){
+					if(_items[i].quality >= 4 && _items[i].itemtype != 4 && (_items[i].itemtype < 76 || _items[i].itemtype > 81)){
+						TownMove.MoveTo("stash");
+						var _stash = Unit.FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH, 5);
+						if(_stash){
+							if(Town.DoInteract(_stash)){
+								TownMove.StashGold();
+								Town.ManageStash(_items[i]);
+							}
+						}
+					}
+					
+					if(Town.CheckInventory()){
+						if(Town.DoInteract(_stash)){
+							TownMove.StashGold();
+							Town.ManageStash();
+						}
+						me.Cancel(1);
+					}
+					me.Cancel(1);
+				}
+				else
+					_uniditems.push(_items[i]);
+			}
+		}
+		
+		if(this.CheckUnidsGotStashed() > 0 && !Config.AlwaysUseCain) {
+			Print(COLOR_1 + "That is not suppose to get identified...skipping cain.....");
+			return;
+		}
+
+		if(_uniditems.length > 0){
+			TownMove.MoveTo("cain");
+			_npc = Unit.FindUnit(NTC_UNIT_NPC, GetLocaleString(2890), 5);
+
+			if(!_npc)
+				return false;
+
+			if(_npc){
+				Travel.MoveTo(me.areaid, _npc.x, _npc.y);
+				if(Town.DoInteract(_npc)){
+					for(var i = 0 ; i < 4 ; i++){
+						if((i % 4) == 0)
+						me.SelectNPCMenu(0x0FB4);
+						Common.Delay(250);
+					}
+					me.Cancel(1);
+				}
+			}
+
+			for(i =0 ; i < _uniditems.length; i++) {
+				resultArray = SnagIt.CheckItem(_uniditems[i]); 
+				result = resultArray[0];
+				switch(result){
+					case 1:
+						_itemlist.push(_uniditems[i]);
+						break;
+					case 2:
+						break;
+					case 0:
+						_dropitems.push(_uniditems[i]);
+						break;
+				}
+			}
+		}
+
+		if (TownMove.CheckToStash()) {	
+			TownMove.MoveTo("stash");
+			var _stash = Unit.FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH, 5);
+
+			if(_stash){
+				Town.DoInteract(_stash);
+				TownMove.StashGold();
+			}
+
+			if(_itemlist.length > 0){
+				for (i = 0; i < _itemlist.length; i++) {
+					if(_itemlist[i].quality >= 4){ 
+						_location = Common.GetLocation(_TMGR_Simple);
+						Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + "Kept: " + NTC_ItemQualityToMGRColor[_itemlist[i].quality] + _itemlist[i].name.split("\n")[0]+ ";" + _itemlist[i].itemdesc + COLOR_2 + "\n iLvl: " + _itemlist[i].itemlevel + COLOR_2 + "\n Area: " + _location+ "\n" + COLOR_2 +resultArray[1]+", "+resultArray[2]);
+					}
+					Town.ManageStash(_itemlist[i])
+				}
+			}
+
+			if(Town.CheckInventory())
+				Town.ManageStash();
+
+			me.Cancel(1);
+		}
+
+		if((_dropitems.length > 0 && !Config.DropCainItems) || (_dropitems.length > 0 && Common.MyGold() <= Config.PocketChange)){
+			switch(me.act){ 
+
+				case 1:
+					var _npc;
+
+					TownMove.MoveTo("akara");
+					_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_AKARA, 5); 
+
+					if(_npc){
+						if(Town.DoInteract(_npc)){
+							Town.DoTrade(_npc, 1)
+							for(var i = 0; i < _dropitems.length; i++){
+								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality){ 
+									_location = Common.GetLocation(_TMGR_Simple);
+									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+								}
+								Town.ShopItem(_dropitems[i], _npc, 1); 
+							}
+							if(_TMGR_BuyPotsInt || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey){
+								if(_TMGR_BuyPotsInt)
+									Town.FillBelt(_npc);
+									Town.FillTome(_npc);
+									Town.FillTome(_npc, 1);
+								if(_TMGR_BuyKey)
+									Town.FillKey(_npc);
+							}
+							me.Cancel(1);
+						}
+					}
+					break;
+
+				case 2:
+					var _npc;					
+					var _buy = false;
+
+					if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoRepair || _TMGR_BuyArrows){ 
+						TownMove.MoveTo("fara");		
+						_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_FARA, 5);  
+					}
+					else if((_TMGR_BuyPots || _TMGR_BuyTP) || _TMGR_BuyID){ 
+						TownMove.MoveTo("drognan");
+						_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_DROGNAN, 5);
+						_buy = true;
+					}
+					else
+					{
+						TownMove.MoveTo("fara");		
+						_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_FARA, 5);  
+					}
+					if(_npc){ 
+						if(Town.DoInteract(_npc)){
+							Town.DoTrade(_npc, 1)
+							for(var i = 0; i < _dropitems.length; i++){
+								_location = Common.GetLocation(_TMGR_Simple);
+								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality){
+									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+								}
+								Town.ShopItem(_dropitems[i], _npc, 1); 
+							}
+							if(_buy && (_TMGR_DoID || _TMGR_BuyPotsInt || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey)){
+								if(_TMGR_BuyPotsInt)
+									Town.FillBelt(_npc);
+									Town.FillTome(_npc);
+									Town.FillTome(_npc, 1);
+							}
+							me.Cancel(1);
+						}
+					}
+					break;
+
+				case 3:
+					var _npc;
+
+					TownMove.MoveTo("ormus");
+					_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ORMUS, 5);
+
+					if(_npc){
+						if(Town.DoInteract(_npc)){
+							Town.DoTrade(_npc, 1)
+							for(var i = 0; i < _dropitems.length; i++){  
+								_location = Common.GetLocation(_TMGR_Simple);
+								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality){
+									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+								}
+								Town.ShopItem(_dropitems[i], _npc, 1); 
+							}
+							if(_TMGR_BuyPotsInt || _TMGR_BuyTP || _TMGR_BuyID){
+								if(_TMGR_BuyPotsInt)
+									Town.FillBelt(_npc);
+									Town.FillTome(_npc);
+									Town.FillTome(_npc, 1);
+							}
+							me.Cancel(1);
+						}
+					}
+					break;
+
+				case 4: 
+					var _npc;
+
+					TownMove.MoveTo("jamella");
+					_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_JAMELLA, 5);
+
+					if(_npc){
+						if(Town.DoInteract(_npc)) {
+							Town.DoTrade(_npc)
+							for(var i = 0; i < _dropitems.length; i++) {
+								_location = Common.GetLocation(_TMGR_Simple);
+								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality) {
+									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+								}
+								Town.ShopItem(_dropitems[i], _npc, 1); 
+							}
+							if(_TMGR_BuyPotsInt || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey) {
+								if(_TMGR_BuyPotsInt)
+									Town.FillBelt(_npc);
+									Town.FillTome(_npc);
+									Town.FillTome(_npc, 1);
+								if(_TMGR_BuyKey)
+									Town.FillKey(_npc);
+							}
+							me.Cancel(1);
+						}
+					}
+					break;
+
+				case 5:
+					var _npc;
+
+					TownMove.MoveTo("malah");
+					_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_MALAH, 5);
+					
+					if(_npc){
+						if(Town.DoInteract(_npc)){
+							Town.DoTrade(_npc, 1)
+							for(var i = 0; i < _dropitems.length; i++) {
+								_location = Common.GetLocation(_TMGR_Simple);
+								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality) {
+									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+								}
+								Town.ShopItem(_dropitems[i], _npc, 1); 
+							}
+							if(_TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey || _TMGR_BuyPotsInt) {
+								if(_TMGR_BuyPotsInt)
+									Town.FillBelt(_npc);
+									Town.FillTome(_npc);
+									Town.FillTome(_npc, 1);
+								if(_TMGR_BuyKey)
+									Town.FillKey(_npc);
+							}
+							me.Cancel(1);
+						}
+					}
+					break;
+			}	
+		}
+		else if(_dropitems.length > 0 && Config.DropCainItems){
+			SetUIState(0x01, true);
+			for(i = 0; i < _dropitems.length; i++){
+				_location = Common.GetLocation(_TMGR_Simple);
+				if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality) {
+					Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Dropped: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
+				}
+				if(Config.AnnounceDroppedItems){ 
+					Say(Common.RandomSelect(Config.dropMessages)  + " " + _dropitems[i].name.split("\n")[0]);
+					Delay(100);
+				}
+				Town.DropItem(_dropitems[i])
+			}
+		}
+		if(GetUIState(0x01))
+			me.Cancel(1);
+		
+		Town.ClearInventory();
+		return;
+	}
+};

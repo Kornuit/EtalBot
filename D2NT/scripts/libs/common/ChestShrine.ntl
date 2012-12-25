@@ -1,0 +1,451 @@
+Include("libs/Common_Vars.ntl");
+
+var Chest = {
+	GetSpecialChest: function () {
+		var _chest;
+
+		_chest = Unit.FindUnit(NTC_UNIT_OBJECT, GetLocaleString(3260));
+
+		if(_chest)
+		{
+			do
+			{
+				switch(_chest.classid)
+				{
+				case 354:
+				case 355:
+				case 356:
+				case 397:
+				case 405:
+				case 406:
+				case 407:
+				case 455:
+					return _chest;
+				}
+			} while(_chest.GetNext());
+		}
+
+		return null;
+	},
+
+	OpenChest: function (chest) {
+		if(!chest)
+			return false;
+
+		if(chest.mode > 0)
+			return false;
+
+		for(var i = 0 ; i < 20 ; i++)
+		{
+			if((i % 10) == 0)
+			{
+				if(GetDistance(me, chest) > 2)
+					Tracker.MoveTo(chest.areaid, chest.x+1, chest.y);
+
+				Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, chest);
+			}
+
+			Delay(200);
+
+			if(chest.mode > 0)
+				return true;
+		}
+
+		return false;
+	},
+
+	OpenChestsInArea: function () {
+		var j, c, _room, _id, unit, chest,
+			ChestLocs =[],
+			ChestIdstest = [];
+
+			unit = GetPresetUnits(me.areaid);
+			if(unit){
+				for (j = 0; j < unit.length; j++){
+					for (c = 0; c < Config.Chestids.length; c++){
+						if (Config.Chestids[c] == unit[j].id){
+							ChestLocs.push([unit[j].roomx*5+unit[j].x,unit[j].roomy*5+unit[j].y])
+							ChestIdstest.push(unit[j].id)
+						}
+					}
+				}
+			}
+
+		while (ChestLocs.length > 0) {
+			ChestLocs.sort(SortRoomInt);
+			_room = ChestLocs.shift();
+			_id = ChestIdstest.shift();
+			Tracker.MoveTo(me.areaid, _room[0], _room[1]);
+			chest = Unit.FindUnit(NTC_UNIT_OBJECT);
+			if(chest){
+				do{
+					if(GetDistance(me.x,me.y,chest.x,chest.y)<3){
+						if(this.OpenChest(chest)){
+							if(Config.CheckChestid)
+								Print(COLOR_17 + chest.name + " = " + chest.classid);
+						}
+						SnagIt.PickItems();
+					}
+				}while(chest.GetNext());
+			}
+		}
+	},
+
+	OpenSpecialChestsInArea: function () {
+		var j, c, _room, _id, chest,
+			ChestIds = [354,355, 356, 397, 405, 406, 407, 455],
+			ChestLocs =[],
+			ChestIdstest = [],
+			unit = GetPresetUnits(me.areaid);
+
+			if(unit){
+				for (j = 0; j < unit.length; j++){
+					for (c = 0; c < ChestIds.length; c++){
+						if (ChestIds[c] == unit[j].id){
+							ChestLocs.push([unit[j].roomx*5+unit[j].x,unit[j].roomy*5+unit[j].y])
+							ChestIdstest.push(unit[j].id)
+						}
+					}
+				}
+			}
+
+		while(ChestLocs.length > 0){
+			ChestLocs.sort(SortRoomInt);
+			_room = ChestLocs.shift();
+			_id = ChestIdstest.shift();
+			Tracker.MoveTo(me.areaid, _room[0], _room[1]);
+			chest = Unit.FindUnit(NTC_UNIT_OBJECT, GetLocaleString(3260))
+			if(chest){
+				do{
+					if(GetDistance(me.x,me.y,chest.x,chest.y)<3){
+						if(this.OpenChest(chest)){
+							if(Config.CheckChestid)
+								Print(COLOR_17 + chest.name + " = " + chest.classid);
+						}
+						SnagIt.PickItems();
+					}
+				}while(chest.GetNext());
+			}
+		}
+	},
+
+	OpenChestsInAreaNear: function (_orgx, _orgy, range) {
+		var i, j, _orgx, _orgy, _chest, _dist, _mindist, _minIndex,
+		_chest = Unit.FindUnit(NTC_UNIT_OBJECT),
+		_lootableChests = [],
+		_NTL_ChestSkipList = [];
+
+		if(_chest)
+		{
+			do
+			{
+				if(_chest.mode == 0 && GetDistance(_orgx, _orgy, _chest.x, _chest.y) < range  && (Config.Chestids.indexOf(_chest.classid) > -1) &&_chest.name != GetLocaleString(5386) && _NTL_ChestSkipList.indexOf(_chest.gid) == -1)
+					_lootableChests.push(new Lootable(_chest.x, _chest.y, _chest.gid));
+			} while(_chest.GetNext());
+
+			for(i = 0; i < _lootableChests.length; i++)
+			{
+				_mindist = 1E3;
+				_minIndex = -1;
+
+				for(j = 0; j < _lootableChests.length; j++)
+				{
+					if(!_lootableChests[j].looted)
+					{
+						_dist = GetDistance(me.x, me.y, _lootableChests[j].x, _lootableChests[j].y);
+
+						if(_dist < _mindist)
+						{
+							_mindist = _dist;
+							_minIndex = j;
+						}
+					}
+				}
+
+				if(_minIndex > -1)
+				{
+					_chest = Unit.FindUnit(NTC_UNIT_OBJECT, _lootableChests[_minIndex].gid);
+
+					if(_chest)
+					{
+						if(this.OpenChest(_chest)){
+							if(Config.CheckChestid)
+								Print(COLOR_17 + _chest.name + " = " + _chest.classid);
+							SnagIt.PickItems();
+						}
+						_NTL_ChestSkipList.push(_chest.gid);
+					}
+
+					_lootableChests[_minIndex].looted = true;
+				}
+				else
+					break;
+			}
+			return true;
+		}
+		return false;
+	},
+
+	Lootable: function (x, y, gid) {
+		this.gid = gid;
+		this.x = x;
+		this.y = y;
+		this.looted = false;
+	},
+
+	PickSpecialItem: function (_item) {
+		var i, _area, _parent, theTorch,
+			groundItem = Unit.FindUnit(NTC_UNIT_ITEM, _item, 2);
+		if(!groundItem) {
+			return true;
+		}
+		if(groundItem && groundItem.classid == 604){
+			do{
+				if(groundItem.quality == 7){
+					theTorch = groundItem;
+					break;
+				}
+			} while(_portal.GetNext());
+			for(i = 0 ; i < 10 ; i++){
+				if(theTorch.mode == 3 || theTorch.mode == 5){
+					if(this.PickUpItemIntSpecial(theTorch)){
+						Delay(10);
+					}
+					else{
+						Attack.ClearPosition(10, false);
+					}
+				}
+				if(theTorch.mode != 3 && theTorch.mode != 5){
+					Common.PingDelay(100);
+					_parent = theTorch.GetParent();
+					if(_parent && _parent.gid == me.gid){
+						_area = GetArea();
+						Print(COLOR_8 + "Picked up " + COLOR_4 + "HellFireTorch");
+						return true;
+					}
+					else{
+						return false;
+					}
+				}
+				Delay(250)
+			}
+		}
+		else if(groundItem){
+			for(i = 0 ; i < 10 ; i++){
+				if(groundItem.mode == 3 || groundItem.mode == 5){
+					if(this.PickUpItemIntSpecial(groundItem)){
+						Delay(10);
+					}
+					else{
+						Attack.ClearPosition(10, false);
+					}
+				}
+				if(groundItem.mode != 3 && groundItem.mode != 5){
+					Common.PingDelay(100);
+					_parent = groundItem.GetParent();
+					if(_parent && _parent.gid == me.gid){
+						_area = GetArea();
+						Print(COLOR_4 + "Picked up " + COLOR_8 + groundItem.name.split("\n")[0])
+						if(groundItem.classid >= 650 && groundItem.classid <= 652){
+							Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + " Kept: " + COLOR_8 + groundItem.name.split("\n")[0]+ ";" + groundItem.itemdesc + "\n" + COLOR_2 + "iLvl: " + groundItem.itemlevel + "\n" + COLOR_2 + "Area: " +_area.name);
+						}
+						else{
+							Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + " Kept: " + NTC_ItemQualityToMGRColor[groundItem.quality] + groundItem.name.split("\n")[0]+ ";" + groundItem.itemdesc + "\n" + COLOR_2 + "iLvl: " + groundItem.itemlevel + "\n" + COLOR_2 + "Area: " +_area.name);
+						}
+						return true;
+					}
+					else{
+						return false;
+					}
+				}
+				Delay(250)
+			}
+		}
+		return false;
+	},
+
+	PickUpItemIntSpecial: function (snagitem) {
+		var i, _classid, _parent;
+
+		_classid = snagitem.classid;
+		for(i = 0 ; i < 40 ; i++){
+			if((i % 10) == 0 && (snagitem.mode == 3 || snagitem.mode == 5)){
+				if(GetDistance(me, snagitem) > 3)
+					Tracker.MoveTo(snagitem.areaid, snagitem.x, snagitem.y);
+				if(Common.ClearCursor())
+					Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, snagitem);
+			}
+			Delay(NTC_DELAY_FRAME);
+			if(snagitem.mode != 3 && snagitem.mode != 5){
+				Common.PingDelay(100);
+				_parent = snagitem.GetParent();
+				return (_parent && _parent.gid == me.gid);
+			}
+		}
+		return false;
+	}
+};
+
+var Shrine = {
+	var lastShrineLoc, area, ThisShrine,
+		MyCS_CatchShrineCount  = new Array(),
+		XpSearchContinue = true,
+		FoundShrineArea = me.areaid;
+
+	CheckShrines: function (_shrine) {
+		var i;
+		for (i = 0; i < Config.Shrines.length; i++) {
+			if (_shrine.shrinetype == Config.Shrines[i] && (!me.GetState(128) && !me.GetState(129) && !me.GetState(130) && !me.GetState(131) && !me.GetState(132) && !me.GetState(133) && !me.GetState(134) && !me.GetState(135) && !me.GetState(136) && !me.GetState(137) && !me.GetState(138))) {
+				lastShrineLoc = i;
+				return true;
+			}
+			else if (_shrine.shrinetype == Config.Shrines[i] && (_shrine.shrinetype == 1 || _shrine.shrinetype == 2 || _shrine.shrinetype == 3 || _shrine.shrinetype == 18 || _shrine.shrinetype == 20 || _shrine.shrinetype == 2)){
+				lastShrineLoc = i;
+				return true;
+			}
+			else if (_shrine.shrinetype == Config.Shrines[i] && (me.GetState(128) || me.GetState(129)|| me.GetState(130)|| me.GetState(131)|| me.GetState(132)|| me.GetState(133)|| me.GetState(134)|| me.GetState(135)|| me.GetState(136)|| me.GetState(137)|| me.GetState(138)) && i <= lastShrineLoc) {
+				lastShrineLoc = i;
+				return true;
+			}
+		}
+		return false;
+	},
+
+	CheckCatchShrine: function (_shrine) {
+		var i;
+		for (i = 0; i < MyCS_CatchShrineCount.length; i++)
+			if (MyCS_CatchShrineCount[i] == _shrine.gid)
+				return false;
+		
+		MyCS_CatchShrineCount.push(_shrine.gid);
+		return true;
+	},
+
+	CatchShrine: function () {
+		var shrine = GetUnit(NTC_UNIT_OBJECT, GetLocaleString(3255)),
+			_isTelekinesis = Skill.GetSkillLevel(43);
+		
+		if (shrine) {
+			do {
+				if (!shrine.mode && this.CheckCatchShrine(shrine) && this.CheckShrines(shrine)) {
+					if(NTConfig_LogShrines){
+						File.Log("logs/shrinelog/"+me.charname+"_shrinelog.txt", " MyCatchShrine[" + shrine.shrinetype + "] " + "ObjectName[" + shrine.name + "] " + "ClassId[" + shrine.classid+ "] ");				
+					}
+					if (Tracker.MoveCloseInt(shrine, 20)){
+						if (shrine.shrinetype == 15 && Config.ShareExpShrine){
+							Tracker.MoveTo(me.areaid, shrine.x+3, shrine.y+3);
+							Attack.ClearPosition(20, false, 0);
+							Tracker.MoveTo(me.areaid, shrine.x+3, shrine.y+3);
+							Tracker.MakeTP();
+							area = GetArea();
+							Say("Exp Shrine up in Act " + me.act + " " + area.name);!i
+							Attack.ClearPosition(20, false, 0);
+							SnagIt.PickItems();
+						}
+						else if (NTC_CHAR_CLASS_SORCERESS && _isTelekinesis) {
+							Skill.CastSkill(43, NTC_HAND_RIGHT, shrine); 
+						}
+						else if (!_isTelekinesis || !Config.Telekinesis) {
+							Tracker.GetCloserInt(shrine);
+							Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, shrine);
+						}
+						if (shrine.shrinetype == 18) {
+							SnagIt.PickItems();
+						}
+						if (me.GetState(134)) {
+							Precast.DoPrecast(true);
+						}
+						break;
+					}
+				}
+			} while (shrine.GetNext());
+		}
+	},
+
+	GrabShrineXp: function () {
+		Tracker.UsePortal("BluePortal", FoundShrineArea);
+		if(ThisShrine){
+			while(!me.GetState(137) && !ThisShrine.mode){
+				if(Tracker.GetCloserIntS(ThisShrine)){
+					if(Config.LogShrines){
+						File.Log("logs/shrinelog/"+me.charname+"_leechshrinelog.txt", " LBXP Shrine Type[" + ThisShrine.shrinetype + "] " + "ObjectName[" + ThisShrine.name + "] " + "ClassId[" + ThisShrine.classid+ "] ");				
+					}
+					Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, ThisShrine);
+				}
+				Delay(100);															
+			}		
+		}
+		TownMove.CheckAct(5);
+	},
+
+	FindShrines(){	
+		var j, c, _room, shrine,
+			ShrineIds = [2, 81, 83, 85, 86, 93, 96, 97, 109, 116, 120, 123, 124, 133, 134, 135, 
+						136, 150, 151, 172, 173, 184, 190, 191, 197, 199, 200, 201, 226, 231, 
+						232, 260, 275, 276, 277, 278, 279, 282, 299, 300, 303, 325, 361, 414, 
+						415, 421, 422, 423, 427, 428, 464, 465, 472, 479, 483, 484, 488, 491, 
+						492, 495, 497, 499, 503, 509, 512, 520, 521, 522],
+			ShrineLocs = [],
+			unit = GetPresetUnits(me.areaid);
+
+		if(unit){	
+			for (j = 0; j < unit.length; j++){
+				for (c = 0; c < ShrineIds.length; c++){				
+					if (ShrineIds[c] == unit[j].id){
+							ShrineLocs.push([unit[j].roomx*5+unit[j].x + 3,unit[j].roomy*5+unit[j].y])					
+					}
+				}
+			}
+		}
+		while(ShrineLocs.length > 0){
+			ShrineLocs.sort(SortRoomInt);
+			_room = ShrineLocs.shift();
+			Tracker.MoveTo(me.areaid, _room[0], _room[1]);		
+			shrine = Unit.FindUnit(NTC_UNIT_OBJECT, "shrine");
+
+			if(shrine){
+				do{		
+					if(GetDistance(me.x,me.y,shrine.x,shrine.y)<5){
+						if(shrine.shrinetype == 15 && shrine.mode == 0){ 	
+							ThisShrine = shrine;
+							XpSearchContinue = false;									
+							FoundShrineArea = me.areaid;									
+							if(Config.ClearAroundShrine)
+								Attack.ClearPos(2, 15, 500, true);
+							if(GetDistance(me, shrine) > 2)
+								Tracker.MoveTo(shrine.areaid, shrine.x+1, shrine.y);
+							if(!Tracker.MakeTP(true)){  
+								Common.SendMsgToScript("NTBotGame.ntj", "NTM_MakeTP()");
+								break;
+							}
+						}
+					}
+				}while(shrine.GetNext());
+			}
+			if(Common.nTown())
+				break;
+		}	
+	},
+
+	SearchShrines: function () {
+		var i;
+
+		if(_FindXPArea.length > 0){ 
+			for(i = 0 ; i < _FindXPArea.length && XpSearchContinue ; i++){ 	
+				TownMove.CheckAct();												  		
+				if(_FindXPArea[i] == 2)
+					this.CheckBloodMoor();
+				else if(_FindXPArea[i] == 7) // could make this into a switch statement switch(_FindXPArea[i]) if I add more areas that don't have wp's
+					this.CheckTamoeHighland();
+				else if(Common.InTown()){	
+					TownManager.Manager();
+					TownMove.TownMove("waypoint");			
+					Delay(1000)
+					Tracker.TakeWaypoint(_FindXPArea[i]);							 
+				}															  
+				Precast.DoPrecast(true);
+				this.FindShrines();
+			}
+		}
+	}
+};

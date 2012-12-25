@@ -47,7 +47,7 @@ const D2NT_MGR_PRINT_STATUS = 8;
 const D2NT_MGR_PRINT_LOG = 9;
 */
 Include("libs/controlInfo.ntl");
-Include("libs/common/NTFile.ntl");
+Include("libs/common/File.ntl");
 var controlData = new controlInfo();
 
 function NTMain() {

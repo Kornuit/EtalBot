@@ -1,0 +1,788 @@
+Include("libs/common/ColorConverter.ntl");
+Include("libs/Common_Vars.ntl");
+
+var Common = {
+	IncludeConfig: function (filepath, createOverride) {
+		var _configname, _fullconfigname, _shortconfigname, _configfile, _customcharconfig, _defaultcharconfig;
+
+		if(arguments.length > 1)
+		createCharConfigs = createCharConfigsOverride;
+
+		switch(me.classid)
+		{
+		case NTC_CHAR_CLASS_AMAZON:
+			_fullconfigname = "NTConfig_Amazon_" + me.charname + ".ntl";
+			_shortconfigname = "NTConfig_Amazon.ntl";
+			break;
+		case NTC_CHAR_CLASS_SORCERESS:
+			_fullconfigname = "NTConfig_Sorceress_" + me.charname + ".ntl";
+			_shortconfigname = "NTConfig_Sorceress.ntl";
+			break;
+		case NTC_CHAR_CLASS_NECROMANCER:
+			_fullconfigname = "NTConfig_Necromancer_" + me.charname + ".ntl";
+			_shortconfigname = "NTConfig_Necromancer.ntl";
+			break;
+		case NTC_CHAR_CLASS_PALADIN:
+			_fullconfigname = "NTConfig_Paladin_" + me.charname + ".ntl";
+			_shortconfigname = "NTConfig_Paladin.ntl";
+			break;
+		case NTC_CHAR_CLASS_BARBARIAN:
+			_fullconfigname = "NTConfig_Barbarian_" + me.charname + ".ntl";
+			_shortconfigname = "NTConfig_Barbarian.ntl";
+			break;
+		case NTC_CHAR_CLASS_DRUID:
+			_fullconfigname = "NTConfig_Druid_" + me.charname + ".ntl";
+			_shortconfigname = "NTConfig_Druid.ntl";
+			break;
+		case NTC_CHAR_CLASS_ASSASSIN:
+			_fullconfigname = "NTConfig_Assassin_" + me.charname + ".ntl";
+			_shortconfigname = "NTConfig_Assassin.ntl";
+			break;
+		}
+		switch(filepath) {
+		case "NTBot/char_configs": 
+			{
+				_configname = _fullconfigname;
+				_configfile = FileOpen(filepath + "/" + _fullconfigname, 0);
+				if(_configfile)	//Char config exists - Good
+					_configfile.Close();
+				else if(createCharConfigs && filepath == "NTBot/char_configs") {
+					createCharConfigs = false;
+					_customcharconfig = FileOpen("NTBot/char_configs/" + _fullconfigname, 1);
+					_defaultcharconfig = FileOpen("NTBot/char_configs/" + _shortconfigname, 0);
+					while(!_defaultcharconfig.eof) {
+						_customcharconfig.WriteLine(_defaultcharconfig.ReadLine());
+					}
+					_customcharconfig.Close();
+					_defaultcharconfig.Close();
+					while(me.ingame) {
+					Print(COLOR_14 + "===========================================================");
+					Print(COLOR_14 + "================> " + COLOR_2 + "Auto Character Config Creation Complete" + COLOR_14 + "<================");
+					Print(COLOR_14 + "===========================================================");
+					Print(COLOR_14 + "=============>   " + COLOR_2 + "Press Stop on Manager & Edit Character Config" + COLOR_14 + "   <=============");
+					Print(COLOR_14 + "===========================================================");
+					Delay(Random(8000,11000))
+					}
+				}
+				else {
+					_configname = _shortconfigname;
+					if(filepath == "NTBot/char_configs/") {
+					Print(COLOR_14 + "===========================================================");
+					Print(COLOR_14 + "=====>     " + COLOR_3 + "DEFAULT CONFIG LOADED " + COLOR_14 + "     <=====");
+					Print(COLOR_14 + "===========================================================");
+					}
+				}
+			}
+			break;
+		case "NTRush/rush_configs": 
+			{
+				_configname = _fullconfigname;
+				_configfile = FileOpen(filepath + "/" + _fullconfigname, 0);
+				if(_configfile)	//Char config exists - Good
+					_configfile.Close();
+				else if(createCharConfigs && filepath == "NTRush/rush_configs") {
+					createCharConfigs = false;
+					_customcharconfig = FileOpen(filepath + "/" + _fullconfigname, 1);
+					_defaultcharconfig = FileOpen(filepath + "/" + _shortconfigname, 0);
+					while(!_defaultcharconfig.eof) {
+						_customcharconfig.WriteLine(_defaultcharconfig.ReadLine());
+					}
+					_customcharconfig.Close();
+					_defaultcharconfig.Close();
+					while(me.ingame) {
+					Print(COLOR_14 + "===========================================================");
+					Print(COLOR_14 + "================> " + COLOR_2 + "Auto Character Config Creation Complete" + COLOR_14 + "<================");
+					Print(COLOR_14 + "===========================================================");
+					Print(COLOR_14 + "=============>   " + COLOR_2 + "Press Stop on Manager & Edit Character Config" + COLOR_14 + "   <=============");
+					Print(COLOR_14 + "===========================================================");
+					Delay(Random(8000,11000))
+					}
+				}
+				else {
+					_configname = _shortconfigname;
+					if(filepath == "NTRush/rush_configs") {
+					Print(COLOR_14 + "===========================================================");
+					Print(COLOR_14 + "=====>     " + COLOR_3 + "DEFAULT RUSH CONFIG LOADED " + COLOR_14 + "     <=====");
+					Print(COLOR_14 + "===========================================================");
+					}
+				}
+			}
+		break;
+		case "NTMap/char_configs": 
+			{
+				_configname = _fullconfigname;
+				_configfile = FileOpen(filepath + "/" + _fullconfigname, 0);
+				if(_configfile)	//Char config exists - Good
+					_configfile.Close();
+				else if(createCharConfigs && filepath == "NTMap/char_configs") {
+					createCharConfigs = false;
+					_customcharconfig = FileOpen(filepath + "/" + _fullconfigname, 1);
+					_defaultcharconfig = FileOpen(filepath + "/" + _shortconfigname, 0);
+					while(!_defaultcharconfig.eof) {
+						_customcharconfig.WriteLine(_defaultcharconfig.ReadLine());
+					}
+					_customcharconfig.Close();
+					_defaultcharconfig.Close();
+					while(me.ingame) {
+					Print(COLOR_14 + "===========================================================");
+					Print(COLOR_14 + "================> " + COLOR_2 + "Auto Character Config Creation Complete" + COLOR_14 + "<================");
+					Print(COLOR_14 + "===========================================================");
+					Print(COLOR_14 + "=============>   " + COLOR_2 + "Press Stop on Manager & Edit Character Config" + COLOR_14 + "   <=============");
+					Print(COLOR_14 + "===========================================================");
+					Delay(Random(8000,11000))
+					}
+				}
+				else {
+					_configname = _shortconfigname;
+					if(filepath == "NTMap/char_configs") {
+					Print(COLOR_14 + "===========================================================");
+					Print(COLOR_14 + "=====>     " + COLOR_3 + "DEFAULT MAP CONFIG LOADED " + COLOR_14 + "     <=====");
+					Print(COLOR_14 + "===========================================================");
+					}
+				}
+			}
+			break;
+		}
+		Include(filepath + "/NTConfig.ntl");
+		Include(filepath + "/" + _configname);
+	},
+
+	IncludeLibs: function () {
+		Include("libs/common/Attack.ntl");
+		Include("libs/common/Cubing.ntl");
+		Include("libs/common/ItemParser.ntl");
+		Include("libs/common/Tracker.ntl");
+		Include("libs/common/Precast.ntl");
+		Include("libs/common/SnagIt.ntl");
+		Include("libs/common/Town.ntl");
+		Include("libs/common/TownManager.ntl");
+		Include("libs/common/TownMove.ntl");
+		Include("libs/common/CatchShrine.ntl");
+		Include("libs/common/Utilities.ntl");
+		Include("libs/common/Tools.ntl");
+		Include("libs/common/Runewords.ntl");
+		Include("libs/common/Itemlogger.ntl");
+		Include("libs/common/ColorConverter.ntl");
+
+		switch (me.classid) {
+		case NTC_CHAR_CLASS_AMAZON:
+			Include("libs/common/Amazon.ntl");
+			break;
+		case NTC_CHAR_CLASS_ASSASSIN:
+			Include("libs/common/ClassAttacks/Assassin.ntl");
+			break;
+		case NTC_CHAR_CLASS_BARBARIAN:
+			Include("libs/common/ClassAttacks/Barbarian.ntl");
+			break;
+		case NTC_CHAR_CLASS_DRUID:
+			Include("libs/common/ClassAttacks/Druid.ntl");
+			break;
+		case NTC_CHAR_CLASS_NECROMANCER:
+			Include("libs/common/ClassAttacks/Necromancer.ntl");
+			break;
+		case NTC_CHAR_CLASS_PALADIN:
+			Include("libs/common/ClassAttacks/Paladin.ntl");
+			break;
+		case NTC_CHAR_CLASS_SORCERESS:
+			Include("libs/common/ClassAttacks/Sorceress.ntl");
+			break;
+		}
+	},
+
+	DoClick: function (button, shift, x, y) {
+		if(arguments.length < 2)
+			return false;
+
+		if(button !== NTC_CLICK_LDOWN)
+			button = NTC_CLICK_RDOWN;
+
+		switch(arguments.length)
+		{
+		case 2:
+			ClickMap(button, shift, me.x, me.y);
+			break;
+		case 3:
+			if(!ClickMap(button, shift, x))
+				return false;
+			break;
+		default:
+			ClickMap(button, shift, x, y);
+			break;
+		}
+
+		NTC_Delay(200);
+		ClickMap(button+2, NTC_SHIFT_NONE, null);
+		return true;
+	},
+
+	MyGold: function () {
+		return me.GetStat(14) + me.GetStat(15);
+	},
+
+	MyGoldCarry: function () {
+		return me.GetStat(14);
+	},
+
+	StashGoldFull: function () {
+		return (me.GetStat(15) == 2500000);
+	},
+
+	CharGoldFull: function () {
+		return (me.GetStat(14) >= (me.GetStat(12)*10000));
+	},
+
+	CheckOwner: function (object, ownername) {
+		var _owner;
+
+		if(!object)
+			return false;
+
+		_owner = object.GetParent();
+		if(!_owner)
+			return false;
+
+		if(arguments.length < 2)
+		{
+			if(_owner == me.name || _owner.name == me.name)
+				return true;
+		}
+		else
+		{
+			if(_owner == ownername || _owner.name == ownername)
+				return true;
+		}
+
+		return false;
+	},
+
+	ItemToCursor: function (item) {
+		var i;
+
+		if(me.itemoncursor)
+			return true;
+
+		for(i = 0 ; i < 80 ; i++)
+		{
+			if((i % 40) == 0)
+				me.ClickItem(0, item);
+
+			this.Delay(100);
+
+			if(me.itemoncursor)
+			{
+				this.PingDelay(200);
+
+				return true;
+			}
+		}
+
+		return false;
+	},
+
+	ClearCursor: function () {
+		var i;
+		if(!me.itemoncursor)
+			return true;
+
+		for(i = 0 ; i < 40 ; i++)
+		{
+			if((i % 20) == 0)
+				this.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE);
+
+			this.Delay(100);
+
+			if(!me.itemoncursor)
+				return true;
+		}
+
+		return false;
+	},
+
+	GetMerc: function () {
+		var _merc;
+
+		_merc = me.GetMerc();
+
+		if(_merc)
+		{
+			if(_merc.hp > 0 && _merc.mode != 0 && _merc.mode != 12)
+				return _merc;
+		}
+
+		return null;
+	},
+
+	Delay: function (amount, random) {
+		if(arguments.length < 2)
+			Delay(amount);
+		else
+			Delay(amount+Random(0, random));
+	},
+
+	PingDelay: function (amount) {
+		var _currentping = me.ping;
+
+		if(_currentping > 100)
+			_currentping -= 100;
+		else
+			_currentping = 0;
+
+		this.Delay(amount+_currentping);
+	},
+
+	InTown: function (who) {
+		var _areaid;
+
+		if(arguments.length < 1)
+			who = me;
+
+		while(who.areaid == 0)
+			this.Delay(NTC_DELAY_FRAME);
+
+		_areaid = who.areaid;
+
+		return (_areaid == NTC_AREA_ID_ACT_1 || _areaid == NTC_AREA_ID_ACT_2 || _areaid == NTC_AREA_ID_ACT_3 || _areaid == NTC_AREA_ID_ACT_4 || _areaid == NTC_AREA_ID_ACT_5);
+	},
+
+	InMyParty: function (playerName) {
+		var _player;
+		var _myPartyId;
+
+		_player = GetPlayerUnit();
+
+		if(_player)
+		{
+			_myPartyId = _player.partyid;
+
+			if(_myPartyId != 65535)
+			{
+				do
+				{
+					if(_player.name == playerName && _myPartyId == _player.partyid)
+						return true;
+				} while(_player.GetNext());
+			}
+		}
+
+		return false;
+	},
+
+	FindScript: function (scriptname) {
+		var _script;
+		var _scriptpath;
+
+		if(scriptname == undefined){ // added for leave with leader mod
+			return false;
+		}
+
+		_script = GetScript();
+
+		if(_script)
+		{
+			do
+			{
+				_scriptpath = _script.name.toLowerCase();
+
+				if(_scriptpath.indexOf(scriptname.toLowerCase()) != -1)
+					return _script;
+			} while(_script.GetNext());
+		}
+
+		return null;
+	},
+
+	SendMsgToScript: function (scriptname, msg) {
+		var _script = this.FindScript(scriptname);
+		if(_script)
+			return _script.Send(msg);
+
+		return false;
+	},
+
+	StopScript: function (scriptname) {
+		var _script = this.FindScript(scriptname);
+
+		if(_script)
+			return _script.Stop();
+
+		return false;
+	},
+
+	WaitIdleMode: function () {
+		var i, _mode;
+
+		for(i = 0 ; i < 25 ; i++)
+		{
+			_mode = me.mode;
+
+			if((_mode >= 1 && _mode <= 3) || _mode == 5 || _mode == 6)
+				return true;
+
+			this.Delay(NTC_DELAY_FRAME);
+		}
+
+		return false;
+	},
+
+	SendLogToOOG: function (type, logString) {
+		return SendCopyData("D2NT Manager", null, 9<<16|type, logString);
+	},
+
+	LogCurScript: function (script) {
+	   var _hfile,
+			_file = new Array();
+		_hfile = FileOpen(me.account + "_scripts.txt", 2);
+		if(!_hfile)
+			return false;
+
+		while(line = _hfile.ReadLine())
+			_file.push(line);
+
+		_hfile.Close();
+
+		_hfile = FileOpen(me.account + "_scripts.txt", 1);
+		if(!_hfile)
+			return false;
+
+		if(_file.length > 0)
+			_hfile.WriteLine(_file.pop())
+
+		_hfile.WriteLine(script);
+		_hfile.Close();
+	},
+
+	GetScript: function (index) {
+	   var _hfile, _script;
+
+	   if(arguments.length < 1)
+		  index = false;
+
+	   var _hfile = FileOpen(me.account + "_scripts.txt", 2);
+	   if(!_hfile)
+		  return false;
+
+	   _script = _hfile.ReadLine();
+	   if(index)
+		  _script = _hfile.ReadLine();
+
+	   _hfile.Close();
+
+	   return _script;
+	},
+
+	SortRoomInt: function (a, b) {
+		if(GetDistance(me.x, me.y, a[0], a[1]) < GetDistance(me.x, me.y, b[0], b[1]))
+			return -1;
+
+		return 1;
+	},
+
+	AddCommas: function (nStr) {
+		nStr += '';
+		x = nStr.split('.');
+		x1 = x[0];
+		x2 = x.length > 1 ? '.' + x[1] : '';
+		var rgx = /(d+)(d{3})/;
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
+		return x1 + x2;
+	},
+
+	AddSeparatorsNF(nStr, inD, outD, sep) {
+		nStr += '';
+		var dpos = nStr.indexOf(inD);
+		var nStrEnd = '';
+		if (dpos != -1) {
+			nStrEnd = outD + nStr.substring(dpos + 1, nStr.length);
+			nStr = nStr.substring(0, dpos);
+		}
+		var rgx = /(\d+)(\d{3})/;
+		while (rgx.test(nStr)) {
+			nStr = nStr.replace(rgx, '$1' + sep + '$2');
+		}
+		return nStr + nStrEnd;
+	},
+
+	RemoveLag: function (target, delay, count) {
+		if (arguments.length < 2) delay = 700;
+		if (arguments.length < 3) count = 0;
+
+		Path.MoveTo(me.areaid, me.x + Random(-10, 10), me.y + Random(-10, 10));
+
+		me.Cancel(0);
+		Delay(delay);
+
+		if (GetUIState(0x09))
+			this.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, target || me);
+
+		Delay(delay);
+
+		me.Cancel(1);
+	},
+
+	CheckPlayer: function (leader) {
+		var _player = GetPlayerUnit();
+		while(_player.GetNext()){
+			if(_player.name == leader){
+				_leaderareaid = _player.areaid;
+				return true;
+			}
+		}
+		return false;
+	},
+
+	LogPrintSimple: function (filepath, mesg) {
+		var date = new Date().toLocaleFormat("<%a, %b %d, %H:%M>");
+		var logfile = FileOpen(filepath, 2);
+
+		logfile.WriteLine(date + " " + mesg );
+		logfile.Close();
+	},
+
+	SayNextGame: function () {
+		var _MyEval,  _MyIncrease, _MyNewGame, _MyNewGameName,
+			_MyGame = me.gamename;
+
+		if (_MyGame.indexOf("-") != -1) { _MyNewGame = _MyGame.substring(_MyGame.lastIndexOf("-") + 1, _MyGame.length); }
+		else {
+			_MyNewGameName	= "a random game name";
+			return _MyNewGameName;
+		}
+		if(_MyNewGame != 99) { _MyEval = (parseFloat(_MyNewGame,10)+1); } else { _MyEval = "00"; }
+		if(_MyEval < 10 && _MyEval != 00) { _MyIncrease = "0" + _MyEval; } else { _MyIncrease = _MyEval; }
+		_MyNewGameName = _MyGame.substring(0, _MyGame.lastIndexOf("-"));
+
+		return _MyNewGameName + "-" + _MyIncrease;
+	},
+
+	CancelOut: function (delay) {
+		if(arguments.length < 1) { delay = 1e2; }
+		Delay(delay);
+		me.Cancel(0);
+		Delay(delay);
+		me.Cancel(1);
+		Delay(delay);
+	},
+
+	GetLocation: function (index) {
+		var _this, _script,
+			 _hfile = FileOpen("logs/loc/" + me.charname + "_LocInfo.txt", 0);
+
+		if(arguments.length < 1)
+			index = false;
+
+		if(!_hfile) {
+			_this = "Rogue Encampment";
+			return _this;
+		}
+
+		_script = _hfile.ReadLine();
+		_hfile.Close();
+
+		return _script;
+	},
+
+	CancelMenus: function () {
+		while (GetUIState(0x01) || GetUIState(0x08) || GetUIState(0x0C) || GetUIState(0x0F) || GetUIState(0x14) ||
+			GetUIState(0x17) || GetUIState(0x19) ||   GetUIState(0x1A) || GetUIState(0x24)){
+
+			for (var i = 0; i < 40; i++){
+				if ((i % 20) == 0){
+					me.Cancel(1);
+				}
+				Delay(100);
+				if (!GetUIState(0x01) && !GetUIState(0x08) && !GetUIState(0x0C) && !GetUIState(0x0F) && !GetUIState(0x14) &&
+						!GetUIState(0x17) && !GetUIState(0x19) &&  !GetUIState(0x1A) && !GetUIState(0x24)){
+
+					this.PingDelay(300);
+					break;
+				}
+			}
+		}
+	},
+
+	StopScriptLeecher: function () {
+		var _script = NTC_FindScript(NTConfig_Script[CurScriptIndex]);
+		if(_script){
+			if(_script.running){
+				_script.Stop();
+				this.Delay(150);
+				ClickMap(NTC_CLICK_LUP, NTC_SHIFT_NONE, null);
+			}
+		}
+		return true;
+	},
+
+	PrintPossibleLeaders: function () {
+		var _player, _myPartyId;
+
+		_player = GetPlayerUnit();
+
+		if (_player)
+		{
+			do
+			{
+				if( _player.name == me.name)
+					continue;
+				this.LogPrintSimple("logs/namelog/"+me.charname+"-leaderName.txt", _player.name);
+			} while (_player.GetNext());
+		}
+		return false;
+	},
+
+	TimeKeeper: function (Message) {
+		var idleTime, hours, minutes, seconds,
+			time = 0;
+		while(1) {
+			Delay(1000);
+			time++;
+			if (time) {
+				hours = parseInt((time/3600), 10)
+				minutes = parseInt((time - (parseInt((hours * 3600), 10))) / 60);
+				seconds = parseInt((time), 10) - parseInt(((hours * 3600) + (minutes * 60)), 10)
+				idleTime = hours + "h " + minutes + "m " + seconds +"s"
+			}
+			Say(Message + idleTime );
+		}
+	},
+
+	PrintRandomColor: function (){
+		var possibleColors =
+		[
+		 COLOR_0,
+		 COLOR_1,
+		 COLOR_2,
+		 COLOR_3,
+		 COLOR_4,
+		 COLOR_5,
+		 //COLOR_6,
+		 COLOR_7,
+		 COLOR_8,
+		 COLOR_9,
+		 COLOR_10,
+		 COLOR_11,
+		 //COLOR_12,
+		 COLOR_13,
+		 COLOR_14,
+		 COLOR_15,
+		 COLOR_16,
+		 COLOR_17,
+		 COLOR_18,
+		 COLOR_19,
+		 COLOR_20,
+		 //COLOR_21,
+		 //COLOR_22,
+		 //COLOR_23,
+		 //COLOR_24,
+		 COLOR_25,
+		]
+		var randomColor = possibleColors[Math.floor(Math.random()*possibleColors.length)]
+		return randomColor;
+	},
+
+	ShowPossibleColors: function () {
+		var i,
+			possibleColors =
+			[
+			 COLOR_0,
+			 COLOR_1,
+			 COLOR_2,
+			 COLOR_3,
+			 COLOR_4,
+			 COLOR_5,
+			 COLOR_6,
+			 COLOR_7,
+			 COLOR_8,
+			 COLOR_9,
+			 COLOR_10,
+			 COLOR_11,
+			 COLOR_12,
+			 COLOR_13,
+			 COLOR_14,
+			 COLOR_15,
+			 COLOR_16,
+			 COLOR_17,
+			 COLOR_18,
+			 COLOR_19,
+			 COLOR_20,
+			 COLOR_21,
+			 COLOR_22,
+			 COLOR_23,
+			 COLOR_24,
+			 COLOR_25
+			];
+		for (i = 0 ; i < possibleColors.length ; i++) {
+			Print(possibleColors[i] + "This is COLOR_" + i)
+			Delay(1000);
+		}
+	},
+
+	RandomSelect: function (varArray) {
+		var randomReturn = varArray[Math.floor(Math.random() * varArray.length)];
+		return randomReturn;
+	},
+
+	IsLastScript: function (scriptName) {
+		return NTConfig_Script[NTConfig_Script.length - 1] === scriptName;
+	},
+
+	GetNextGame: function () {
+		function Pad(num) {
+			if (num < 10) {
+				num = 0 + "" + num;
+			}
+
+			return num;
+		}
+
+		var i, result, number,
+			game = me.gamename;
+
+		for (i = game.length - 1; i > -1; i -= 1) {
+			if (isNaN(game[i])) {
+				break;
+			}
+		}
+
+		result = game.substring(0, i + 1);
+		number = parseInt(game.substring(i + 1), 10) === 99 ? 0 : (parseInt(game.substring(i + 1), 10) + 1); // 99 correction
+		result += Pad(number);
+
+		return result;
+	},
+
+	SwapWeapons: function (switchto) {
+	if(arguments.length > 0 && me.weaponstab == switchto)
+		return true;
+
+	this.PingDelay(200);
+
+	if(!this.WaitIdleMode())
+		return false;
+
+	return me.SwapWeapons();
+	},
+
+	GetBeltSize: function () {
+		var _items = me.GetItems();
+
+		if(!_items)
+			return 1;
+
+		for(var i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 1 && _items[i].itemloc == 8)
+			{
+				if(_items[i].classid == 344 || _items[i].classid == 345)
+					return 2;
+				else if(_items[i].classid == 346 || _items[i].classid == 347)
+					return 3;
+
+				return 4;
+			}
+		}
+
+		return 1;
+	}
+};

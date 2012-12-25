@@ -1,0 +1,128 @@
+Include("libs/Common_Vars.ntl");
+
+var Skill = {
+	CastSkill: function (skillid, usehand, x, y) {
+		var _hand, _shift;
+
+		if(arguments.length < 1)
+			return false;
+
+		if(arguments.length == 1)
+		{
+			_hand = NTC_CLICK_RDOWN;
+			_shift = NTC_SHIFT_NONE;
+			usehand = NTC_HAND_RIGHT;
+		}
+		else
+		{
+			if(usehand == NTC_HAND_RIGHT)
+			{
+				_hand = NTC_CLICK_RDOWN;
+				_shift = NTC_SHIFT_NONE;
+			}
+			else if(usehand == NTC_HAND_LEFT)
+			{
+				_hand = NTC_CLICK_LDOWN;
+				_shift = NTC_SHIFT_NONE;
+			}
+			else
+			{
+				_hand = NTC_CLICK_LDOWN;
+				_shift = NTC_SHIFT_HOLD;
+				usehand = NTC_HAND_LEFT;
+			}
+		}
+
+		if(this.PutSkill(skillid, usehand))
+		{
+			var i, n;
+			var _mode;
+
+			if(!Common.ClearCursor())
+				return false;
+
+			for(i = 0 ; i < 5 ; i++)
+			{
+				switch(arguments.length)
+				{
+				case 1:
+				case 2:
+					ClickMap(_hand, _shift, me.x, me.y);
+					break;
+				case 3:
+					if(!ClickMap(_hand, _shift, x))
+					{
+						Delay(NTC_DELAY_FRAME);
+						return false;
+					}
+					break;
+				default:
+					ClickMap(_hand, _shift, x, y);
+					break;
+				}
+
+				for(n = 0 ; n < 4 ; n++)
+				{
+					Delay(NTC_DELAY_FRAME);
+
+					_mode = me.mode;
+					if(_mode == 7 || _mode == 8 || (_mode >= 10 && _mode <= 16) || _mode == 18)
+					{
+						Delay(NTC_DELAY_FRAME);
+						break;
+					}
+				}
+
+				ClickMap(_hand+2, NTC_SHIFT_NONE, null);
+
+				if(n < 4)
+				{
+					for(i = 0 ; i < 100 ; i++)
+					{
+						Delay(20);
+
+						if(me.mode != _mode)
+							break;
+					}
+
+					return true;
+				}
+
+				Delay(NTC_DELAY_FRAME);
+			}
+		}
+
+		return false;
+	},
+
+	PutSkill: function (skillid, hand) {
+		if(me.GetSkill(hand) == skillid)
+			return true;
+
+		if(GetBaseStat("skills.txt", skillid, 182))
+			return false;
+
+		if(this.GetSkillLevel(skillid) < 1)
+			return false;
+
+		return me.SetSkill(skillid, hand);
+	},
+
+	GetSkillLevel: funtion (skillid) {
+		var _level = me.GetSkill(skillid, true);
+
+		if(_level != null)
+			return _level;
+
+		return 0;
+	},
+
+	GetCastDelay(skillid) {
+		var _delay = GetBaseStat("skills.txt", skillid, 165);
+
+		if(_delay)
+			return (_delay * NTC_DELAY_FRAME);
+
+		return 0;
+	}
+};

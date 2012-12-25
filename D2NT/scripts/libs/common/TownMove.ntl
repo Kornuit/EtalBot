@@ -1,0 +1,929 @@
+Include("libs/Common_Vars.ntl");
+
+var TownMove = {
+	MoveTo: function (spot, isPortal, isWaypoint, isStash) {
+		var _act, _pos, _isWaypoint, _isStash,
+			a = false;
+
+		if (me.classid == 3 && Skill.GetSkillLevel(115) >= 1 &&me.GetSkill(NTC_HAND_RIGHT) != 115) {
+			Skill.PutSkill(115, NTC_HAND_RIGHT);
+		}
+		if (me.classid == 6 && Skill.GetSkillLevel(258) >= 1 && !a && me.GetSkill(NTC_HAND_RIGHT) != 258) {
+			Skill.CastSkill(258, NTC_HAND_RIGHT);
+			a = true;
+		}
+
+		if(arguments.length < 1 || !spot)
+			return false;
+
+		if(arguments.length < 2)
+			isPortal = false;
+
+		if(arguments.length < 3)
+			isWaypoint = Skill.GetSkillLevel(43) > 0 && spot == "waypoint";
+
+		if(arguments.length < 4)
+			isStash = Skill.GetSkillLevel(43) > 0 && spot == "stash";
+
+		_act = me.act - 1;
+
+		if(_act == 0)
+		{
+			if(!this.CreateAct1Int())
+				return false;
+		}
+
+		_pos = _townpoints[_act][spot];
+		if(!_pos)
+			return false;
+
+		if(_pos.x == 0 && _pos.y == 0)
+		{
+			this.TownFindSpotInt(_act, spot);
+
+			if(_pos.x == 0 && _pos.y == 0)
+				return false;
+		}
+
+		if(_pos.x != 0 && _pos.y != 0)
+		{
+			var _path;
+
+			for(var i = 0; i < 3; i++)
+			{
+				_path = this.FindTownPathInt(_act, _pos.x, _pos.y, 15);
+				if(!_path)
+					return false;
+
+				if(this.FollowTownPathInt(_path, isPortal, isWaypoint, isStash))
+					return true;
+
+				if(i < 2)
+					Common.PingDelay(1000);
+			}
+		}
+
+		return false;
+	},
+
+	MoveToXY: function (x, y) {
+		var _act, _path;
+
+		_act = me.act - 1;
+
+		if(_act == 0)
+		{
+			if(!this.CreateAct1Int())
+				return false;
+		}
+
+		_path = this.FindTownPathInt(_act, x, y, 15);
+
+		if(!_path)
+			return false;
+
+		return this.FollowTownPathInt(_path);
+	},
+
+	CheckAct: function (act) {
+		var _townid;
+
+		if(!Common.InTown())
+		{
+			switch(me.act)
+			{
+			case 1:
+				_townid = NTC_AREA_ID_ACT_1;
+				break;
+			case 2:
+				_townid = NTC_AREA_ID_ACT_2;
+				break;
+			case 3:
+				_townid = NTC_AREA_ID_ACT_3;
+				break;
+			case 4:
+				_townid = NTC_AREA_ID_ACT_4;
+				break;
+			case 5:
+				_townid = NTC_AREA_ID_ACT_5;
+				break;
+			}
+
+			if(!Travel.MakeTP(_townid))
+				return false;
+		}
+
+		if(arguments.length < 1)
+			return true;
+
+		if(act < 1 || act > 5)
+			return false;
+
+		if(act != me.act)
+		{
+			switch(act)
+			{
+			case 1:
+				_townid = NTC_AREA_ID_ACT_1;
+				break;
+			case 2:
+				_townid = NTC_AREA_ID_ACT_2;
+				break;
+			case 3:
+				_townid = NTC_AREA_ID_ACT_3;
+				break;
+			case 4:
+				_townid = NTC_AREA_ID_ACT_4;
+				break;
+			case 5:
+				_townid = NTC_AREA_ID_ACT_5;
+				break;
+			}
+			Skill.PutSkill(115, NTC_HAND_RIGHT);
+			if(!this.TownMove("waypoint"))
+				return false;
+
+			if(!Travel.TakeWaypoint(_townid))
+				return false;
+		}
+
+		return true;
+	},
+
+	CreateAct1Int: function () {
+		var _fireobject, _fire, wp, _wpobject;
+
+		if(_movepoints[0].length)
+			return true;
+
+		_fireobject = GetPresetUnits(me.areaid, NTC_UNIT_OBJECT, 39);
+
+		if(!_fireobject || _fireobject.length < 1)
+			return false;
+
+		_fire = new coord(_fireobject[0].roomx*5 + _fireobject[0].x, _fireobject[0].roomy*5 + _fireobject[0].y);
+
+		_townpoints[0]["gheed"] = new coord(_fire.x-34, _fire.y+36);
+		_townpoints[0]["charsi"] = new coord(_fire.x-39, _fire.y-25);
+		_townpoints[0]["akara"] = new coord(_fire.x+56, _fire.y-30);
+		_townpoints[0]["kashya"] = new coord(_fire.x+14, _fire.y-4);
+		_townpoints[0]["cain"] = new coord(_fire.x+6, _fire.y-5);
+		_townpoints[0]["warriv"] = new coord(_fire.x-5, _fire.y-2);
+		_townpoints[0]["stash"] = new coord(_fire.x-7, _fire.y-12);
+		_townpoints[0]["portalspot"] = new coord(_fire.x+10, _fire.y+18);
+		_townpoints[0]["waypoint"] = new coord();
+		_townpoints[0]["exit"] = new coord();
+
+		wp = Unit.FindUnit(NTC_UNIT_OBJECT, 119, 1);
+
+		if(wp)
+			_townpoints[0]["waypoint"].set(wp.x, wp.y);
+		else
+		{
+			_wpobject = GetPresetUnits(me.areaid, NTC_UNIT_OBJECT, 119);
+
+			if(_wpobject && _wpobject.length > 0)
+				_townpoints[0]["waypoint"].set(_wpobject[0].roomx*5 + _wpobject[0].x, _wpobject[0].roomy*5 + _wpobject[0].y);
+			else
+			{
+				Travel.WalkTo(me.x, me.y-5);
+
+				wp = Unit.FindUnit(NTC_UNIT_OBJECT, 119, 5);
+
+				if(wp)
+					_townpoints[0]["waypoint"].set(wp.x, wp.y);
+				else
+					return false;
+			}
+		}
+
+		_movepoints[0][0] = new coord();
+		_movepoints[0][1] = new coord();
+		_movepoints[0][2] = new coord(-4,-11);
+		_movepoints[0][3] = new coord(-6,-22);
+		_movepoints[0][4] = new coord(-16,-30);
+		_movepoints[0][5] = new coord(-26,-26);
+		_movepoints[0][6] = new coord(-34,-21);
+		_movepoints[0][7] = new coord(-31,-11);
+		_movepoints[0][8] = new coord(-21,-4);
+		_movepoints[0][9] = new coord(-9,-6);
+		_movepoints[0][10] = new coord(0,-17);
+		_movepoints[0][11] = new coord(11,-15);
+		_movepoints[0][12] = new coord(23,-13);
+		_movepoints[0][13] = new coord(33,-16);
+		_movepoints[0][14] = new coord(37,-27);
+		_movepoints[0][15] = new coord(27,-31);
+		_movepoints[0][16] = new coord(51,-28);
+		_movepoints[0][17] = new coord(8,-5);
+		_movepoints[0][18] = new coord(15,4);
+		_movepoints[0][19] = new coord(15,15);
+		_movepoints[0][20] = new coord(18,24);
+		_movepoints[0][21] = new coord(27,32);
+		_movepoints[0][22] = new coord(29,23);
+		_movepoints[0][23] = new coord(28,9);
+		_movepoints[0][24] = new coord(16,34);
+		_movepoints[0][25] = new coord(5,35);
+		_movepoints[0][26] = new coord(-1,22);
+		_movepoints[0][27] = new coord(7,17);
+		_movepoints[0][28] = new coord(-7,10);
+		_movepoints[0][29] = new coord(-14,0);
+		_movepoints[0][30] = new coord(-20,7);
+		_movepoints[0][31] = new coord(-27,15);
+		_movepoints[0][32] = new coord(-34,23);
+		_movepoints[0][33] = new coord(-31,33);
+
+		for(var i = 2 ; i < _movepoints[0].length ; i++)
+		{
+			_movepoints[0][i].x += _fire.x;
+			_movepoints[0][i].y += _fire.y;
+		}
+		return true;
+	},
+
+	TownMoveToInt: function (c) {
+		var oldpos = new coord(me),
+			pos = new coord(me),
+			dir = pos.dir(c);
+
+		if(this.MoveToInt(c))
+			return true;
+
+		dir.rotate(90);
+		pos.move(dir, 5);
+
+		if(this.MoveToInt(pos))
+		{
+			if(this.MoveToInt(c))
+				return true;
+
+			this.MoveToInt(oldpos);
+		}
+
+		dir.rotate(180);
+		pos.set(oldpos);
+		pos.move(dir, 5);
+
+		this.MoveToInt(pos);
+		this.MoveToInt(c);
+	},
+
+	MoveToInt: function (c) {
+		var i, _prex, _prey;
+		
+		for(i = 0 ; i < 240 ; i++)
+		{
+			if((i % 10) == 0)
+			{
+				if((i % 120) == 0)
+				{
+					_prex = me.x;
+					_prey = me.y;
+				}
+
+				ClickMap(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, c.x, c.y);
+			}
+
+			Delay(NTC_DELAY_FRAME);
+
+			if(c.dist(me) < 3)
+				break;
+
+			if((i % 10) == 9)
+			{
+				ClickMap(NTC_CLICK_LUP, NTC_SHIFT_NONE, null);
+				Delay(NTC_DELAY_FRAME);
+
+				if((i % 120) == 119 && me.x == _prex && me.y == _prey)
+					return false;
+			}
+		}
+		ClickMap(NTC_CLICK_LUP, NTC_SHIFT_NONE, null);
+		Delay(NTC_DELAY_FRAME);
+		return (i < 240);
+	},
+
+	TownFindSpotInt: function (act, spot) {
+		var wp, fire, _roomAct1Town, _roomAct1BloodMoor, x, y, obj;
+
+		if(act == 0)
+		{
+			if(spot == "waypoint")
+			{
+				wp = Unit.FindUnit(NTC_UNIT_OBJECT, 119, 1);
+
+				if(wp)
+				{
+					_townpoints[0]["waypoint"].set(wp);
+
+					return _townpoints[0]["waypoint"];
+				}
+
+				if(!this.MoveTo("stash"))
+					return null;
+
+				wp = Unit.FindUnit(NTC_UNIT_OBJECT, 119, 5);
+
+				if(wp)
+				{
+					_townpoints[0]["waypoint"].set(wp);
+
+					return _townpoints[0]["waypoint"];
+				}		
+			}
+			else if(spot == "exit")
+			{
+				if(!this.MoveTo("cain"))
+					return null;
+
+				fire = Unit.FindUnit(NTC_UNIT_OBJECT, 39, 5);
+
+				if(!fire)
+					return null;
+
+				_roomAct1Town = GetRoom(1);
+				_roomAct1BloodMoor = GetRoom(2);
+
+				if(_roomAct1Town && _roomAct1BloodMoor)
+				{
+					x = _roomAct1Town.x - _roomAct1BloodMoor.x;
+					y = _roomAct1Town.y - _roomAct1BloodMoor.y;
+
+					index = _movepoints[0].length - 1;
+
+					// South Exit
+					if(x < 0 && y < 0)
+					{
+						_townpoints[0]["exit"].set(fire.x+78, fire.y+1);
+						_movepoints[0][index++] = new coord(fire.x+62, fire.y-28);
+						_movepoints[0][index++] = new coord(fire.x+70, fire.y-20);
+						_movepoints[0][index++] = new coord(fire.x+69, fire.y-9);
+
+						return _townpoints[0]["exit"];
+					}
+					// North Exit
+					else if(x > 0 && y < 0)
+					{
+						_townpoints[0]["exit"].set(fire.x-75, fire.y+4);
+						_movepoints[0][index++] = new coord(fire.x-30, fire.y-6);
+						_movepoints[0][index++] = new coord(fire.x-41, fire.y-5);
+						_movepoints[0][index++] = new coord(fire.x-52, fire.y-8);
+						_movepoints[0][index++] = new coord(fire.x-61, fire.y+1);
+
+						return _townpoints[0]["exit"];
+					}
+					// West Exit
+					else if(x == 0 && y < 0)
+					{
+						_townpoints[0]["exit"].set(fire.x+15, fire.y+70);
+						_movepoints[0][index++] = new coord(fire.x+27, fire.y+41);
+						_movepoints[0][index++] = new coord(fire.x+26, fire.y+52);
+						_movepoints[0][index++] = new coord(fire.x+19, fire.y+56);
+
+						return _townpoints[0]["exit"];
+					}
+					// East Exit
+					else if(x == 0 && y > 0)
+					{
+						_townpoints[0]["exit"].set(fire.x+15, fire.y-55);
+						_movepoints[0][index++] = new coord(fire.x+25, fire.y-40);
+						_movepoints[0][index++] = new coord(fire.x+6, fire.y-43);
+						_movepoints[0][index++] = new coord(fire.x-1, fire.y-37);
+						_movepoints[0][index++] = new coord(fire.x+2, fire.y-26);
+
+						return _townpoints[0]["exit"];
+					}
+				}
+			}
+		}
+		else if(act == 1)
+		{
+			if(spot == "exit")
+			{
+				if(!this.MoveToXY(5098, 5053))
+					return null;
+
+				for(var i = 0 ; i <= 1 ; i++)
+				{
+					obj = Unit.FindUnit(NTC_UNIT_OBJECT, "Dummy");
+
+					if(obj)
+					{
+						do
+						{
+							if(obj.x == 5107 && obj.y == 5052)
+								return _townpoints[1]["exit"].set(5096, 5009);
+						} while(obj.GetNext());
+					}
+
+					if(i < 1)
+						Delay(200);
+				}
+
+				return _townpoints[1]["exit"].set(5011, 5066);
+			}
+		}
+
+		return null;
+	},
+
+	FindTownPathInt: function (act, x, y, maxsep) {
+		var _path = NTTM_CreateDijkstraInt(act, x, y, maxsep);
+
+		if(_path && _path.length)
+			return _path;
+
+		_path = this.CreateDijkstraInt(act, x, y, maxsep+5);
+
+		if(_path && _path.length)
+			return _path;
+
+		_path = this.CreateDijkstraInt(act, x, y, maxsep+10);
+
+		if(_path && _path.length)
+			return _path;
+
+		return null;
+	},
+
+	FollowTownPathInt: function (p, isPortal, isWaypoint, isStash) {
+		var i, 
+		for(i = 0 ; i < p.length ; i++)
+		{
+			if(me.classid === 1 && Config.Telekinesis)
+			{
+				if(isPortal)
+				{
+					if(Travel.UseTelekinesisPortal())
+						return true;
+				}
+				else if(isWaypoint)
+				{
+					if(Travel.UseTelekinesisWaypoint())
+						return true;
+				}
+				else if(isStash)
+				{
+					if(Travel.UseTelekinesisStash())
+						return true;
+				}
+			}
+			if(!this.TownMoveToInt(p[i]))
+				return false;
+		}
+		return true;
+	},
+
+	CreateDijkstraInt: function (act, targetx, targety, maxsep) {
+		var i, j, d,
+			v = new Array,
+			path = new Array();
+
+		for(i = 0 ; i < _movepoints[act].length ; i++)
+			v[i] = new this.VertexInt();
+
+		_movepoints[act][0] = new coord(me);
+		_movepoints[act][1] = new coord(targetx, targety);
+		
+		for(i = 0 ; i < _movepoints[act].length ; i++)
+		{
+			for(j = 0 ; j < _movepoints[act].length ; j++)
+			{
+				if(i != j)
+				{
+					d = _movepoints[act][i].dist(_movepoints[act][j]);
+
+					if(d <= maxsep)
+						v[i].push(j, d);
+				}
+			}
+		}
+		this.DijkstraInt(v, _movepoints[act].length);
+		if(!this.CreateDijkstraPathInt(v, 0, 1, _movepoints[act], path))
+			return null;
+
+		return path;
+	},
+
+	VertexInt: function () {
+		this.NumAdjacencies = 0;
+		this.Adjacent = new Array;
+		this.AdjacencyWeight = new Array;
+		this.Previous = 0;
+		this.Cost = 0;
+		this.push = this.PushMethodInt;
+	},
+
+	PushMethodInt: function (neighbor, Cost) {
+		this.Adjacent[this.NumAdjacencies] = neighbor;
+		this.AdjacencyWeight[this.NumAdjacencies] = Cost;
+		this.NumAdjacencies++;
+	},
+
+	DijkstraInt: function (v, size) {
+		var i,
+			_INFINITY = 32767,
+			Cost = new Array,
+			done = new Array,
+			to_do = size;
+
+		for(i = 0 ; i < size ; i++)
+		{
+			v[i].Cost = Cost[i] = _INFINITY;
+			v[i].Previous = -1;
+			done[i] = 0;
+		}
+
+		Cost[0] = 0;
+		while(to_do)
+		{
+			for(i = 0 ; i < size ; i++)
+			{
+				if(!done[i])
+				{
+					iMin = i;
+					break;
+				}
+			}
+
+			for(i = iMin+1 ; i < size ; i++)
+			{
+				if(!done[i] && Cost[i] < Cost[iMin])
+					iMin = i;
+			}
+
+			done[iMin] = 1;
+			to_do--;
+
+			for(i = 0 ; i < v[iMin].NumAdjacencies ; i++)
+			{
+				if(Cost[iMin]+v[iMin].AdjacencyWeight[i] < Cost[v[iMin].Adjacent[i]])
+				{
+					v[v[iMin].Adjacent[i]].Previous = iMin;
+					v[v[iMin].Adjacent[i]].Cost = Cost[v[iMin].Adjacent[i]] = Cost[iMin] + v[iMin].AdjacencyWeight[i];
+				}
+			}
+		}
+	},
+
+	CreateDijkstraPathInt: function (v, source, dest, points, path) {
+		if(source == dest)
+		{
+			index = path.length;
+			path[index] = new coord(points[dest]);
+			path[index].data = points[dest].data;
+		}
+		else
+		{
+			if(v[dest].Previous != -1)
+			{
+				this.CreateDijkstraPathInt(v, source, v[dest].Previous, points, path);
+				index = path.length;
+				path[index] = new coord(points[dest]);
+				path[index].data = points[dest].data;
+			}
+			else
+				return false;
+		}
+		return true;
+	},
+
+	OutOfAct1: function () {
+		var _roomAct1Town = GetRoom(1),
+			_roomAct1BloodMoor = GetRoom(2),
+			x = _roomAct1Town.x - _roomAct1BloodMoor.x,
+			y = _roomAct1Town.y - _roomAct1BloodMoor.y;
+
+		if(x < 0 && y < 0) {
+			Travel.WalkTo(me.x+40, me.y);
+			Common.PingDelay(200);
+			Travel.WalkTo(me.x+20, me.y);
+		}
+		else if(x > 0 && y < 0) //n
+			Travel.WalkTo(me.x-15, me.y);
+		else if(x == 0 && y < 0) //w
+			Travel.WalkTo(me.x, me.y+15);
+		else if(x == 0 && y > 0) //e
+			Travel.WalkTo(me.x, me.y-15);
+			
+		Common.PingDelay(200);
+		if(me.areaid != 1) {
+			return true;
+		} else {
+			return false;
+		}
+	},
+
+	OutOfTown2: function (idle) {
+		if(arguments.length < 1)
+			idle = false;
+		_unit = GetPresetUnits(41, NTC_UNIT_OBJECT);
+		if(!_unit){
+			if(idle){
+				while(1) {
+					Say("!Need A little help here");
+					Delay(2e3);
+				}
+			}
+			else return;
+		}
+		if (_unit[0].id == 286){
+			this.TownMove("drognan");
+			Travel.MoveTo(41, me.x, me.y - 60);
+		}
+		else{
+			this.TownMove("exit");
+			Travel.MoveTo(41, me.x - 40, me.y);
+		}
+		if(me.areaid == 41){
+			return true;
+		}
+		else
+			return false;
+	},
+
+	Act2SewerTrapDoor: function () {
+		if (!Travel.MoveToPresetUnit(40, NTC_UNIT_OBJECT, 74, 4, 4)) {
+			Print("but failed to get to it");
+		}
+		while(me.areaid == 40){ 
+			_unit = Unit.FindUnit(NTC_UNIT_OBJECT, 74, 5);
+			if(!_unit)
+				return false
+			if(_unit){
+				Travel.MoveTo(_unit.areaid, _unit.x+4, _unit.y);
+				if(GetDistance(me, _unit) > 3)
+					Travel.MoveTo(_unit.areaid, _unit.x+2, _unit.y);
+				Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _unit);
+				Common.PingDelay(1000);
+			}
+		}
+		if(me.areaid == 47){
+			return true;
+		}
+		return false;
+	},
+
+	GoToHarem: function () {
+		var i,
+			_toHarem = Unit.FindUnit(NTC_UNIT_TILE, 24)
+
+		if (!this.MoveTo("palace"))
+			return false;
+		
+		for(var i = 0 ; i < 120 ; i++)
+		{
+			if(i % 5 == 0)
+				Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _toHarem);
+				
+			Delay(200);
+			
+			while(me.areaid == 0)
+				Delay(200);
+				
+			if(me.areaid != 40)
+				return true;
+				
+			if(i % 10 == 9 && me.areaid == 40)
+				Travel.MoveTo(me.areaid, me.x, me.y-5);
+		}
+		return false;
+	},
+
+	StashGold: function () {
+		var _mygold = Common.MyGoldCarry();
+
+		if(!Common.StashGoldFull() && Common.MyGoldCarry() > 0){
+			Gold(3, _mygold);
+			for(i = 0 ; i < 2 ; i++){
+				Delay(500);
+				if(_mygold > Common.MyGoldCarry())
+					break;
+			}
+		}
+	},
+
+	CheckToStash(){
+		var i,
+			_checkItems = me.GetItems();
+
+		if(!_checkItems)
+			return false;
+		for(i = 0 ; i < _checkItems.length ; i++){
+			if(_checkItems[i].mode == 0 && _checkItems[i].itemloc == 0 && Config.Columns[_checkItems[i].y][_checkItems[i].x] > 0 
+			  && SnagIt.CheckItem(_checkItems[i])[0])
+				return true;
+		}
+		return false;
+	},
+
+	GCCheckAmu: function () {
+		if(me.GetStat(12) < 88)
+			return;
+		if(!this.GCHaveAmu() && Common.MyGold() > Config.GCAmuGold && this.GCCheckIfCrafting() && Config.GC){	
+			switch(me.act){
+				case 1: this.GCVisitGheed();
+					break;
+				case 2: this.GCVisitElzix();
+					break;
+				case 3: this.GCVisitAlkor();
+					break;
+				case 4: this.GCVisitJamella();
+					break;
+				case 5: this.GCVisitAnya();
+					break;
+			}
+		}
+	},
+	
+	GCVisitGheed: function () {
+		var _npc;
+		
+		this.MoveTo("gheed");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_GHEED, 5);
+
+		if(_npc)
+		{
+			while(!this.GCHaveAmu()){
+				if(Town.DoInteract(_npc))
+				{
+					if(Town.DoTrade(_npc, 1))
+						this.GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	},
+
+	GCVisitElzix: function () {
+		var _npc;
+		
+		this.MoveTo("elzix");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ELZIX, 5);
+		if(_npc)
+		{
+			while(!this.GCHaveAmu()){
+				if(Town.DoInteract(_npc))
+				{
+					if(Town.DoTrade(_npc, 1))
+						this.GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	},
+
+	GCVisitAlkor: function () {
+		var _npc;
+		
+		this.MoveTo("alkor");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ALKOR, 5);
+		if(_npc)
+		{
+			while(!this.GCHaveAmu()){
+				if(Town.DoInteract(_npc))
+				{
+					if(Town.DoTrade(_npc, 1))
+						this.GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	},
+
+	GCVisitJamella: function () {
+		var _npc;
+		
+		this.MoveTo("jamella");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_JAMELLA, 5);
+		if(_npc)
+		{
+			while(!this.GCHaveAmu()){
+				if(Town.DoInteract(_npc))
+				{
+					if(Town.DoTrade(_npc, 1))
+						this.GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	},
+
+
+	GCVisitAnya: function () {
+		var _npc;
+		
+		this.MoveTo("anya");
+
+		_npc = Unit.FindUnit(NTC_UNIT_NPC, NTC_NPC_ID_ANYA_TOWN, 5);
+		if(_npc)
+		{
+			while(!this.GCHaveAmu()){
+				if(Town.DoInteract(_npc))
+				{
+					if(Town.DoTrade(_npc, 1))
+						this.GCGambleCraft(_npc);
+
+					me.Cancel(1);
+				}
+				else
+					break;
+			}
+		}
+	},
+
+	GCHaveAmu: function () {
+		var i, _items;
+			
+		_items = me.GetItems();
+		if(!_items)
+			return false;
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].itemlevel >= ammyreq){
+				if(_items[i].classid == 520 && _items[i].quality == 4 && _items[i].mode == 0)			
+					return true;
+			}
+		}
+		return false;
+	},
+
+	GCGambleCraft: function (npc) {
+		var i, _items, _newitem;
+			
+		if(!npc)
+			return false;
+
+		if(!GetUIState(0x0C))
+			return false;
+
+		_items = npc.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(i = 0 ; i < _items.length ; i++){
+			
+			if(_items[i].classid == 520)
+			{
+				if(Town.CheckSpace(_items[i].xsize, _items[i].ysize))
+				{
+					Town.GetOldItemsInt();
+
+					if(Town.ShopItem(_items[i], npc, 2))
+						_newitem = Town.GetGambledItemInt();
+					else
+						return false;
+
+					if(_newitem)
+					{
+						while(!(_newitem.itemflag&0x10))
+							Delay(100);
+						if(ammyreq < 90)
+							ammyreq = 90;
+						if(_newitem.itemlevel >= ammyreq && _newitem.quality == 4){
+							me.Cancel(1);
+							this.MoveTo("stash");
+							_stash = Unit.FindUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH, 5);
+							if(_stash)
+							{
+								if(Town.DoInteract(_stash))
+									Town.ManageStash(_newitem);
+							}
+							return false;
+						}else{
+							Town.ShopItem(_newitem, npc, 1);
+						}
+					}
+				}
+			}
+		}
+		me.Cancel(1);
+		return true;
+	},
+
+	GCCheckIfCrafting: function () {	
+		for(i = 0 ; i < Config.CubingItem.length ; i++)
+			{	
+			if(Config.CubingItem[i][1] == 520)
+				return true;
+			}
+		return false;
+	}
+};

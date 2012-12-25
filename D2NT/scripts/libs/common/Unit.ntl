@@ -1,0 +1,83 @@
+Include("libs/Common_Vars.ntl");
+
+var Unit = {
+	FindUnit: function (unittype, search, retry) {
+		var i, _unit;
+
+		switch(arguments.length) {
+		case 0:
+			return null;
+		case 1:
+			search = null;
+		case 2:
+			retry = 0;
+			break;
+		}
+
+		for (i = 0 ; i <= retry ; i++) {
+			_unit = GetUnit(unittype, search);
+
+			if(_unit)
+				return _unit;
+
+			if(i < retry)
+				Delay(200);
+		}
+
+		return null;
+	},
+
+	FindMonster: function (classid, spectype) {
+		var _monster;
+
+		if(arguments.length < 1)
+			return false;
+
+		if(arguments.length < 2)
+			spectype = 0;
+
+		for(var i = 0 ; i < 2 ; i++)
+		{
+			_monster = GetUnit(NTC_UNIT_MONSTER, classid);
+
+			if(_monster)
+			{
+				if(spectype)
+				{
+					do
+					{
+						if(_monster.spectype & spectype)
+							return _monster;
+					} while(_monster.GetNext());
+				}
+				else
+					return _monster;
+			}
+
+			if(i < 1)
+				Common.PingDelay(200);
+		}
+
+		return false;
+	},
+
+	GetUnit: function (unittype, classid) {
+		var _unit;
+
+		for(var i = 0 ; i < 2 ; i++)
+		{
+			if(arguments.length < 2)
+				_unit = GetUnit(unittype);
+			else
+				_unit = GetUnit(unittype, classid);
+
+			if(_unit)
+				return _unit;
+
+			if(i < 1)
+				Common.PingDelay(200);
+		}
+
+		return false;
+	}
+};

@@ -1,0 +1,741 @@
+var eLog = "error_logs"; //error log folder name
+var mLog = "mule_logs"; // mule log folder name
+var sLog = "script_logs"; // script log folder name
+var aLog = "area_logs"; // area log folder name
+var gLog = "game_logs"; // gamename log folder name
+var iLog = "inventory_logs"; // inventory log folder name
+var cLog = "cubing_logs"; // cubing log folder name
+
+// @cubing
+const NTCU_GEM = 0;
+
+const NTCU_MAGIC = 1;
+const NTCU_MAGIC_CHARM = 2;
+
+const NTCU_CRAFT_HITPOWER_HELM = 10;
+const NTCU_CRAFT_HITPOWER_BOOTS = 11;
+const NTCU_CRAFT_HITPOWER_GLOVES = 12;
+const NTCU_CRAFT_HITPOWER_BELT = 13;
+const NTCU_CRAFT_HITPOWER_SHIELD = 14;
+const NTCU_CRAFT_HITPOWER_BODY = 15;
+const NTCU_CRAFT_HITPOWER_AMULET = 16;
+const NTCU_CRAFT_HITPOWER_RING = 17;
+const NTCU_CRAFT_HITPOWER_WEAPON = 18;
+
+const NTCU_CRAFT_BLOOD_HELM = 19;
+const NTCU_CRAFT_BLOOD_BOOTS = 20;
+const NTCU_CRAFT_BLOOD_GLOVES = 21;
+const NTCU_CRAFT_BLOOD_BELT = 22;
+const NTCU_CRAFT_BLOOD_SHIELD = 23;
+const NTCU_CRAFT_BLOOD_BODY = 24;
+const NTCU_CRAFT_BLOOD_AMULET = 25;
+const NTCU_CRAFT_BLOOD_RING = 26;
+const NTCU_CRAFT_BLOOD_WEAPON = 27;
+
+const NTCU_CRAFT_CASTER_HELM = 28;
+const NTCU_CRAFT_CASTER_BOOTS = 29;
+const NTCU_CRAFT_CASTER_GLOVES = 30;
+const NTCU_CRAFT_CASTER_BELT = 31;
+const NTCU_CRAFT_CASTER_SHIELD = 32;
+const NTCU_CRAFT_CASTER_BODY = 33;
+const NTCU_CRAFT_CASTER_AMULET = 34;
+const NTCU_CRAFT_CASTER_RING = 35;
+const NTCU_CRAFT_CASTER_WEAPON = 36;
+
+const NTCU_CRAFT_SAFETY_HELM = 37;
+const NTCU_CRAFT_SAFETY_BOOTS = 38;
+const NTCU_CRAFT_SAFETY_GLOVES = 39;
+const NTCU_CRAFT_SAFETY_BELT = 40;
+const NTCU_CRAFT_SAFETY_SHIELD = 41;
+const NTCU_CRAFT_SAFETY_BODY = 42;
+const NTCU_CRAFT_SAFETY_AMULET = 43;
+const NTCU_CRAFT_SAFETY_RING = 44;
+const NTCU_CRAFT_SAFETY_WEAPON = 45;
+
+const NTCU_SOCKET_BODYARMOR = 50;
+const NTCU_SOCKET_WEAPON = 51;
+const NTCU_SOCKET_HELM = 52;
+const NTCU_SOCKET_SHIELD = 53;
+
+const NTCU_UPGRADE_N_UNIQUE_WEAPON = 60;
+const NTCU_UPGRADE_N_UNIQUE_ARMOR = 61;
+const NTCU_UPGRADE_E_UNIQUE_WEAPON = 62;
+const NTCU_UPGRADE_E_UNIQUE_ARMOR = 63;
+
+const NTCU_UPGRADE_N_RARE_WEAPON = 64;
+const NTCU_UPGRADE_N_RARE_ARMOR = 65;
+const NTCU_UPGRADE_E_RARE_WEAPON = 66;
+const NTCU_UPGRADE_E_RARE_ARMOR = 67;
+
+const NTCU_ESSENSE = 70;
+
+const NTCU_RUNE_EL = 610;
+const NTCU_RUNE_ELD = 611;
+const NTCU_RUNE_TIR = 612;
+const NTCU_RUNE_NEF = 613;
+const NTCU_RUNE_ETH = 614;
+const NTCU_RUNE_ITH = 615;
+const NTCU_RUNE_TAL = 616;
+const NTCU_RUNE_RAL = 617;
+const NTCU_RUNE_ORT = 618;
+const NTCU_RUNE_THUL = 619;
+const NTCU_RUNE_AMN = 620;
+const NTCU_RUNE_SOL = 621;
+const NTCU_RUNE_SHAEL = 622;
+const NTCU_RUNE_DOL = 623;
+const NTCU_RUNE_HEL = 624;
+const NTCU_RUNE_IO = 625;
+const NTCU_RUNE_LUM = 626;
+const NTCU_RUNE_KO = 627;
+const NTCU_RUNE_FAL = 628;
+const NTCU_RUNE_LEM = 629;
+const NTCU_RUNE_PUL = 630;
+const NTCU_RUNE_UM = 631;
+const NTCU_RUNE_MAL = 632;
+const NTCU_RUNE_IST = 633;
+const NTCU_RUNE_GUL = 634;
+const NTCU_RUNE_VEX = 635;
+const NTCU_RUNE_OHM = 636;
+const NTCU_RUNE_LO = 637;
+const NTCU_RUNE_SUR = 638;
+const NTCU_RUNE_BER = 639;
+const NTCU_RUNE_JAH = 640;
+const NTCU_RUNE_CHAM = 641;
+
+var _NTCU_CraftRecipe = new Array();
+_NTCU_CraftRecipe.push([84, 615, 571]);
+_NTCU_CraftRecipe.push([85, 617, 571]);
+_NTCU_CraftRecipe.push([79, 618, 571]);
+_NTCU_CraftRecipe.push([85, 616, 571]);
+_NTCU_CraftRecipe.push([82, 614, 571]);
+_NTCU_CraftRecipe.push([85, 613, 571]);
+_NTCU_CraftRecipe.push([90, 619, 571]);
+_NTCU_CraftRecipe.push([86, 620, 571]);
+_NTCU_CraftRecipe.push([85, 612, 571]);
+
+_NTCU_CraftRecipe.push([84, 617, 581]);
+_NTCU_CraftRecipe.push([85, 614, 581]);
+_NTCU_CraftRecipe.push([79, 613, 581]);
+_NTCU_CraftRecipe.push([85, 616, 581]);
+_NTCU_CraftRecipe.push([82, 615, 581]);
+_NTCU_CraftRecipe.push([85, 619, 581]);
+_NTCU_CraftRecipe.push([90, 620, 581]);
+_NTCU_CraftRecipe.push([86, 621, 581]);
+_NTCU_CraftRecipe.push([85, 618, 581]);
+
+_NTCU_CraftRecipe.push([84, 613, 561]);
+_NTCU_CraftRecipe.push([85, 619, 561]);
+_NTCU_CraftRecipe.push([79, 618, 561]);
+_NTCU_CraftRecipe.push([85, 615, 561]);
+_NTCU_CraftRecipe.push([82, 614, 561]);
+_NTCU_CraftRecipe.push([85, 616, 561]);
+_NTCU_CraftRecipe.push([92, 617, 561]);
+_NTCU_CraftRecipe.push([86, 620, 561]);
+_NTCU_CraftRecipe.push([85, 612, 561]);
+
+_NTCU_CraftRecipe.push([84, 615, 576]);
+_NTCU_CraftRecipe.push([85, 618, 576]);
+_NTCU_CraftRecipe.push([79, 617, 576]);
+_NTCU_CraftRecipe.push([85, 616, 576]);
+_NTCU_CraftRecipe.push([82, 613, 576]);
+_NTCU_CraftRecipe.push([85, 614, 576]);
+_NTCU_CraftRecipe.push([90, 619, 576]);
+_NTCU_CraftRecipe.push([86, 620, 576]);
+_NTCU_CraftRecipe.push([85, 621, 576]);
+
+var _NTCU_SocketRecipe = new Array();
+_NTCU_SocketRecipe.push([616, 619, 566]);
+_NTCU_SocketRecipe.push([617, 620, 561]);
+_NTCU_SocketRecipe.push([617, 619, 571]);
+_NTCU_SocketRecipe.push([616, 620, 581]);
+
+var _NTCU_UpgradeRecipe = new Array();
+_NTCU_UpgradeRecipe.push([7, 617, 621, 576]);
+_NTCU_UpgradeRecipe.push([7, 616, 622, 586]);
+_NTCU_UpgradeRecipe.push([7, 626, 630, 576]);
+_NTCU_UpgradeRecipe.push([7, 627, 629, 586]);
+
+_NTCU_UpgradeRecipe.push([6, 618, 620, 571]);
+_NTCU_UpgradeRecipe.push([6, 617, 619, 561]);
+_NTCU_UpgradeRecipe.push([6, 628, 631, 571]);
+_NTCU_UpgradeRecipe.push([6, 627, 630, 561]);
+
+var _NTCU_Inventory = new Array(4);
+_NTCU_Inventory[0] = new Array(10);
+_NTCU_Inventory[1] = new Array(10);
+_NTCU_Inventory[2] = new Array(10);
+_NTCU_Inventory[3] = new Array(10);
+
+var _NTCU_LogString;
+
+// @common
+// Character Class
+const NTC_CHAR_CLASS_AMAZON = 0;
+const NTC_CHAR_CLASS_SORCERESS = 1;
+const NTC_CHAR_CLASS_NECROMANCER = 2;
+const NTC_CHAR_CLASS_PALADIN = 3;
+const NTC_CHAR_CLASS_BARBARIAN = 4;
+const NTC_CHAR_CLASS_DRUID = 5;
+const NTC_CHAR_CLASS_ASSASSIN = 6;
+
+// Act 1 NPCs
+const NTC_NPC_ID_AKARA = 148;
+const NTC_NPC_ID_WARRIV_ACT_1 = 155;
+const NTC_NPC_ID_CHARSI = 154;
+const NTC_NPC_ID_GHEED = 147;
+const NTC_NPC_ID_KASHYA = 150;
+const NTC_NPC_ID_CAIN_TRISTRAM = 146;
+const NTC_NPC_ID_CAIN_ACT_1 = 244;
+
+// Act 2 NPCs
+const NTC_NPC_ID_FARA = 178;
+const NTC_NPC_ID_LYSANDER = 202;
+const NTC_NPC_ID_GREIZ = 198;
+const NTC_NPC_ID_ELZIX = 199;
+const NTC_NPC_ID_MESHIF_ACT_2 = 210;
+const NTC_NPC_ID_DROGNAN = 177;
+const NTC_NPC_ID_ATMA = 176;
+const NTC_NPC_ID_WARRIV_ACT_2 = 175;
+const NTC_NPC_ID_CAIN_ACT_2 = 245;
+const NTC_NPC_ID_JERHYN = 201;
+const NTC_NPC_ID_TYRAEL_ACT_2 = 251;
+
+// Act 3 NPCs
+const NTC_NPC_ID_MESHIF_ACT_3 = 264;
+const NTC_NPC_ID_CAIN_ACT_3 = 246;
+const NTC_NPC_ID_ALKOR = 254;
+const NTC_NPC_ID_ASHEARA = 252;
+const NTC_NPC_ID_ORMUS = 255;
+const NTC_NPC_ID_HRATLI = 253;
+
+// Act 4 NPCs
+const NTC_NPC_ID_CAIN_ACT_4 = 265;
+const NTC_NPC_ID_HALBU = 257;
+const NTC_NPC_ID_TYRAEL_ACT_4 = 367;
+const NTC_NPC_ID_JAMELLA = 405;
+
+// Act 5 NPCs
+const NTC_NPC_ID_CAIN_ACT_5 = 520;
+const NTC_NPC_ID_TYRAEL_ACT_5 = 521;
+const NTC_NPC_ID_LARZUK = 511;
+const NTC_NPC_ID_ANYA_FROZEN_RIVER = 527;
+const NTC_NPC_ID_ANYA_TOWN = 512;
+const NTC_NPC_ID_MALAH = 513;
+const NTC_NPC_ID_QUALKEHK = 515;
+const NTC_NPC_ID_NIHLATHAK_TOWN = 514;
+const NTC_NPC_ID_NIHLATHAK_HALLS_OF_VAUGHT = 526;
+
+// UNIT types
+const NTC_UNIT_PLAYER = 0;
+const NTC_UNIT_NPC = 1;
+const NTC_UNIT_MERC = NTC_UNIT_NPC;
+const NTC_UNIT_MONSTER = NTC_UNIT_NPC;
+const NTC_UNIT_OBJECT = 2;
+const NTC_UNIT_MISSILE = 3;
+const NTC_UNIT_ITEM = 4;
+const NTC_UNIT_TILE = 5;
+const NTC_UNIT_STASH = 267;
+const NTC_UNIT_CUBE = 549;
+
+const NTC_AREA_ID_ACT_1 = 1;
+const NTC_AREA_ID_ACT_2 = 40;
+const NTC_AREA_ID_ACT_3 = 75;
+const NTC_AREA_ID_ACT_4 = 103;
+const NTC_AREA_ID_ACT_5 = 109;
+
+// COLOR types
+const NTC_COLOR_BASE_WHITE = 0;
+const NTC_COLOR_BASE_RED = 1;
+const NTC_COLOR_BASE_GREEN = 2;
+const NTC_COLOR_BASE_BLUE = 3;
+const NTC_COLOR_BASE_GOLD = 4;
+const NTC_COLOR_BASE_GRAY = 5;
+const NTC_COLOR_BASE_BLACK = 6;
+const NTC_COLOR_BASE_GOLD2 = 7;
+const NTC_COLOR_BASE_ORANGE = 8;
+const NTC_COLOR_BASE_YELLOW = 9;
+
+const NTC_HAND_RIGHT = 0;
+const NTC_HAND_LEFT = 1;
+
+const NTC_CLICK_LDOWN = 0;
+const NTC_CLICK_LHOLD = 1;
+const NTC_CLICK_LUP = 2;
+const NTC_CLICK_RDOWN = 3;
+const NTC_CLICK_RHOLD = 4;
+const NTC_CLICK_RUP = 5;
+
+const NTC_SHIFT_NONE = 0;
+const NTC_SHIFT_HOLD = 1;
+
+const NTC_LOG_COMMON = 0;
+const NTC_LOG_ITEM = 1;
+
+const NTC_DELAY_FRAME = 40;
+
+var NTC_ItemQualityToName = new Array(9);
+NTC_ItemQualityToName[0] = "None";
+NTC_ItemQualityToName[1] = "Low Quality";
+NTC_ItemQualityToName[2] = "Normal";
+NTC_ItemQualityToName[3] = "Superior";
+NTC_ItemQualityToName[4] = "Magic";
+NTC_ItemQualityToName[5] = "Set";
+NTC_ItemQualityToName[6] = "Rare";
+NTC_ItemQualityToName[7] = "Unique";
+NTC_ItemQualityToName[8] = "Crafted";
+
+var NTC_ItemQualityToD2Color = new Array(11);
+NTC_ItemQualityToD2Color[0] = COLOR_0;
+NTC_ItemQualityToD2Color[1] = COLOR_0;
+NTC_ItemQualityToD2Color[2] = COLOR_0;
+NTC_ItemQualityToD2Color[3] = COLOR_0;
+NTC_ItemQualityToD2Color[4] = COLOR_3;
+NTC_ItemQualityToD2Color[5] = COLOR_2;
+NTC_ItemQualityToD2Color[6] = COLOR_9;
+NTC_ItemQualityToD2Color[7] = COLOR_4;
+NTC_ItemQualityToD2Color[8] = COLOR_8;
+NTC_ItemQualityToD2Color[9] = COLOR_11;
+NTC_ItemQualityToD2Color[10] = COLOR_1;
+
+var NTC_ItemQualityToMGRColor = new Array(9);
+NTC_ItemQualityToMGRColor[0] = COLOR_6;
+NTC_ItemQualityToMGRColor[1] = COLOR_6;
+NTC_ItemQualityToMGRColor[2] = COLOR_6;
+NTC_ItemQualityToMGRColor[3] = COLOR_6;
+NTC_ItemQualityToMGRColor[4] = COLOR_3;
+NTC_ItemQualityToMGRColor[5] = COLOR_2;
+NTC_ItemQualityToMGRColor[6] = COLOR_9;
+NTC_ItemQualityToMGRColor[7] = COLOR_4;
+NTC_ItemQualityToMGRColor[8] = COLOR_8;
+
+var NTC_WPIdToAreaId = [];
+NTC_WPIdToAreaId[0] = 1;
+NTC_WPIdToAreaId[1] = 3;
+NTC_WPIdToAreaId[2] = 4;
+NTC_WPIdToAreaId[3] = 5;
+NTC_WPIdToAreaId[4] = 6;
+NTC_WPIdToAreaId[5] = 27;
+NTC_WPIdToAreaId[6] = 29;
+NTC_WPIdToAreaId[7] = 32;
+NTC_WPIdToAreaId[8] = 35;
+NTC_WPIdToAreaId[9] = 40;
+NTC_WPIdToAreaId[10] = 48;
+NTC_WPIdToAreaId[11] = 42;
+NTC_WPIdToAreaId[12] = 57;
+NTC_WPIdToAreaId[13] = 43;
+NTC_WPIdToAreaId[14] = 44;
+NTC_WPIdToAreaId[15] = 52;
+NTC_WPIdToAreaId[16] = 74;
+NTC_WPIdToAreaId[17] = 46;
+NTC_WPIdToAreaId[18] = 75;
+NTC_WPIdToAreaId[19] = 76;
+NTC_WPIdToAreaId[20] = 77;
+NTC_WPIdToAreaId[21] = 78;
+NTC_WPIdToAreaId[22] = 79;
+NTC_WPIdToAreaId[23] = 80;
+NTC_WPIdToAreaId[24] = 81;
+NTC_WPIdToAreaId[25] = 83;
+NTC_WPIdToAreaId[26] = 101;
+NTC_WPIdToAreaId[27] = 103;
+NTC_WPIdToAreaId[28] = 106;
+NTC_WPIdToAreaId[29] = 107;
+NTC_WPIdToAreaId[30] = 109;
+NTC_WPIdToAreaId[31] = 111;
+NTC_WPIdToAreaId[32] = 112;
+NTC_WPIdToAreaId[33] = 113;
+NTC_WPIdToAreaId[34] = 115;
+NTC_WPIdToAreaId[35] = 123;
+NTC_WPIdToAreaId[36] = 117;
+NTC_WPIdToAreaId[37] = 118;
+NTC_WPIdToAreaId[38] = 129;
+
+// @attack
+const NTA_DAMAGE_NONE = 0;
+const NTA_DAMAGE_PHYSICAL = 1;
+const NTA_DAMAGE_MAGIC = 2;
+const NTA_DAMAGE_FIRE = 3;
+const NTA_DAMAGE_LIGHTNING = 4;
+const NTA_DAMAGE_COLD = 5;
+const NTA_DAMAGE_POISON = 6;
+
+var _NTA_SkillHand = [];
+var _NTA_SkillDamage = [];
+var _NTA_SkillRange = [];
+var _NTA_CurseState = [];
+
+// @exp
+var _TotalExp = [0, 0, 500, 1500, 3750, 7875, 14175, 22680, 32886, 44396, 57715, 72144, 90180, 112725, 140906, 176132, 220165, 275207, 344008, 430010, 537513, 671891, 839864, 1049830, 1312287, 1640359, 2050449, 2563061, 3203826, 3902260, 4663553, 5493363, 6397855, 7383752, 8458379, 9629723, 10906488, 12298162, 13815086, 15468534, 17270791, 19235252, 21376515, 23710491, 26254525, 29027522, 32050088, 35344686, 38935798, 42850109, 47116709, 51767302, 56836449, 62361819, 68384473, 74949165, 82104680, 89904191, 98405658, 107672256, 117772849, 128782495, 140783010, 153863570, 168121381, 183662396, 200602101, 219066380, 239192444, 261129853, 285041630, 311105466, 339515048, 370481492, 404234916, 441026148, 481128591, 524840254, 572485967, 624419793, 681027665, 742730244, 809986056, 883294891, 963201521, 1050299747, 1145236814, 1248718217, 1361512946, 1484459201, 1618470619, 1764543065, 1923762030, 2097310703, 2286478756, 2492671933, 2717422497, 2962400612, 3229426756, 3520485254, 0, 0];
+var _ExpToNextLvl = [0, 500, 1000, 2250, 4125, 6300, 8505, 10206, 11510, 13319, 14429, 18036, 22545, 28181, 35226, 44033, 55042, 68801, 86002, 107503, 134378, 167973, 209966, 262457, 328072, 410090, 512612, 640765, 698434, 761293, 829810, 904492, 985897, 1074627, 1171344, 1276765, 1391674, 1516924, 1653448, 1802257, 1964461, 2141263, 2333976, 2544034, 2772997, 3022566, 3294598, 3591112, 3914311, 4266600, 4650593, 5069147, 5525370, 6022654, 6564692, 7155515, 7799511, 8501467, 9266598, 10100593, 11009646, 12000515, 13080560, 14257811, 15541015, 16939705, 18464279, 20126064, 21937409, 23911777, 26063836, 28409582, 30966444, 33753424, 36791232, 40102443, 43711663, 47645713, 51933826, 56607872, 61702579, 67255812, 73308835, 79906630, 87098226, 94937067, 103481403, 112794729, 122946255, 134011418, 146072446, 159218965, 173548673, 189168053, 206193177, 224750564, 244978115, 267026144, 291058498, 0, 0];
+
+// @snagit
+var _NTSI_IgnoredList = new Array(
+88, //Wirt's Leg
+526, // Arrows quiver
+528, // Bolts quiver
+//543, // Keys
+518, // Tome of Town Portal
+519, // Tome of Identify
+//529, // Scroll of Town Portal
+//530, // Scroll of Identify
+514, // Antidote potion
+513, // Stamina potion
+517, // Thawing potion
+80, // Rancid Gas Pot
+81, // Oil Potion
+82, // Choking Gas Pot
+83, // Exploding Pot
+84, // Strangling Gas
+85); // Fulminating Pot
+
+var ignoredClassids = [
+	80, // Rancid Gas Pot
+	81, // Oil Potion
+	82, // Choking Gas Pot
+	83, // Exploding Pot
+	84, // Strangling Gas
+	85, // Fulminating Pot
+	513, // Stamina potion
+	514, // Antidote potion
+	517, // Thawing potion
+	518, // Tome of Town Portal
+	519, // Tome of Identify
+	523, // Gold
+	526, // Arrows quiver
+	528, // Bolts quiver
+	543, // Keys
+	529, // Scroll of Town Portal
+	530, // Scroll of Identify
+	587, // minor healing
+	588, // light healing
+	589, // healing
+	590, // greater healing
+	591, // super healing
+	592, // minor mana
+	593, // light mana
+	594, // mana
+	595, // greater mana
+	596, // super mana
+	529, // tp scroll
+	530 // id scroll
+];
+// @town
+var _NTT_BeltColNeeded = new Array(4);
+_NTT_BeltColNeeded[0] = 0;
+_NTT_BeltColNeeded[1] = 0;
+_NTT_BeltColNeeded[2] = 0;
+_NTT_BeltColNeeded[3] = 0;
+
+var _NTT_BeltSize = 0;
+
+var _NTT_OldItems;
+
+var _NTT_IgnoredItems = new Array(
+"leg", // wirt's leg
+"aqv", // Arrows quiver
+"cqv", // Bolts quiver
+"key", // Keys
+"tbk", // Tome of Town Portal
+"ibk", // Tome of Identify
+"tsc", // Scroll of Town Portal
+"isc", // Scroll of Identify
+"yps", // Antidote potion
+"vps", // Stamina potion
+"wms", // Thawing potion
+"gps", // Rancid Gas Pot
+"ops", // Oil Potion
+"gpm", // Choking Gas Pot
+"opm", // Exploding Pot
+"gpl", // Strangling Gas
+"opl", // Fulminating Pot
+"hp1","hp2","hp3","hp4","hp5", // Healing potions
+"mp1","mp2","mp3","mp4","mp5", // Mana potions
+"rvs","rvl"); // Rejuvenation potions
+
+// @townmove
+var _movepoints = new Array(5);
+
+// act 1
+_movepoints[0] = new Array();
+
+// act 2
+_movepoints[1] = new Array();
+_movepoints[1][0] = new coord();
+_movepoints[1][1] = new coord();
+_movepoints[1][2] = new coord(5021,5067);
+_movepoints[1][3] = new coord(5033,5063);
+_movepoints[1][4] = new coord(5033,5052);
+_movepoints[1][5] = new coord(5046,5054);
+_movepoints[1][6] = new coord(5043,5064);
+_movepoints[1][7] = new coord(5057,5061);
+_movepoints[1][8] = new coord(5070,5060);
+_movepoints[1][9] = new coord(5084,5060);
+_movepoints[1][10] = new coord(5096,5060);
+_movepoints[1][11] = new coord(5098,5048);
+_movepoints[1][12] = new coord(5098,5035);
+_movepoints[1][13] = new coord(5097,5073);
+_movepoints[1][14] = new coord(5096,5087);
+_movepoints[1][15] = new coord(5082,5085);
+_movepoints[1][16] = new coord(5070,5081);
+_movepoints[1][17] = new coord(5070,5071);
+_movepoints[1][18] = new coord(5068,5093);
+_movepoints[1][19] = new coord(5055,5093);
+_movepoints[1][20] = new coord(5041,5091);
+_movepoints[1][21] = new coord(5036,5080);
+_movepoints[1][22] = new coord(5036,5069);
+_movepoints[1][23] = new coord(5034,5098);
+_movepoints[1][24] = new coord(5095,5100);
+_movepoints[1][25] = new coord(5104,5094);
+_movepoints[1][26] = new coord(5115,5096);
+_movepoints[1][27] = new coord(5120,5105);
+_movepoints[1][28] = new coord(5125,5117);
+_movepoints[1][29] = new coord(5115,5086);
+_movepoints[1][30] = new coord(5122,5082);
+_movepoints[1][31] = new coord(5126,5070);
+_movepoints[1][32] = new coord(5117,5060);
+_movepoints[1][33] = new coord(5104,5059);
+_movepoints[1][34] = new coord(5130,5061);
+_movepoints[1][35] = new coord(5144,5060);
+_movepoints[1][36] = new coord(5158,5060);
+_movepoints[1][37] = new coord(5171,5060);
+_movepoints[1][38] = new coord(5185,5059);
+_movepoints[1][39] = new coord(5198,5059);
+_movepoints[1][40] = new coord(5207,5050);
+_movepoints[1][41] = new coord(5207,5064);
+_movepoints[1][42] = new coord(5207,5077);
+_movepoints[1][43] = new coord(5208,5091);
+_movepoints[1][44] = new coord(5208,5103);
+_movepoints[1][45] = new coord(5207,5117);
+_movepoints[1][46] = new coord(5208,5131);
+_movepoints[1][47] = new coord(5208,5145);
+_movepoints[1][48] = new coord(5213,5153);
+_movepoints[1][49] = new coord(5217,5166);
+_movepoints[1][50] = new coord(5221,5179);
+_movepoints[1][51] = new coord(5196,5152);
+_movepoints[1][52] = new coord(5185,5144);
+_movepoints[1][53] = new coord(5176,5133);
+_movepoints[1][54] = new coord(5182,5125);
+_movepoints[1][55] = new coord(5164,5126);
+_movepoints[1][56] = new coord(5150,5126);
+_movepoints[1][57] = new coord(5134,5126);
+_movepoints[1][58] = new coord(5124,5129);
+_movepoints[1][59] = new coord(5125,5142);
+_movepoints[1][60] = new coord(5126,5156);
+_movepoints[1][61] = new coord(5126,5170);
+_movepoints[1][62] = new coord(5129,5183);
+_movepoints[1][63] = new coord(5141,5189);
+_movepoints[1][64] = new coord(5151,5199);
+_movepoints[1][65] = new coord(5114,5155);
+_movepoints[1][66] = new coord(5101,5155);
+_movepoints[1][67] = new coord(5088,5155);
+_movepoints[1][68] = new coord(5075,5150);
+_movepoints[1][69] = new coord(5062,5144);
+_movepoints[1][70] = new coord(5100,5143);
+_movepoints[1][71] = new coord(5099,5130);
+_movepoints[1][72] = new coord(5097,5118);
+_movepoints[1][73] = new coord(5106,5124);
+_movepoints[1][74] = new coord(5117,5126);
+_movepoints[1][75] = new coord(5097,5104);
+_movepoints[1][76] = new coord(5086,5126);
+_movepoints[1][77] = new coord(5074,5125);
+_movepoints[1][78] = new coord(5060,5124);
+_movepoints[1][79] = new coord(5047,5118);
+_movepoints[1][80] = new coord(5037,5109);
+_movepoints[1][81] = new coord(5186,5112);
+_movepoints[1][82] = new coord(5185,5099);
+_movepoints[1][83] = new coord(5185,5085);
+_movepoints[1][84] = new coord(5185,5073);
+_movepoints[1][85] = new coord(5097,5023);
+
+// act 3
+_movepoints[2] = new Array();
+_movepoints[2][0] = new coord();
+_movepoints[2][1] = new coord();
+_movepoints[2][2] = new coord(5120,5168);
+_movepoints[2][3] = new coord(5132,5162);
+_movepoints[2][4] = new coord(5133,5148);
+_movepoints[2][5] = new coord(5133,5136);
+_movepoints[2][6] = new coord(5133,5124);
+_movepoints[2][7] = new coord(5133,5113);
+_movepoints[2][8] = new coord(5133,5103);
+_movepoints[2][9] = new coord(5132,5092);
+_movepoints[2][10] = new coord(5144,5092);
+_movepoints[2][11] = new coord(5155,5087);
+_movepoints[2][12] = new coord(5147,5078);
+_movepoints[2][13] = new coord(5149,5064);
+_movepoints[2][14] = new coord(5156,5056);
+_movepoints[2][15] = new coord(5145,5051);
+_movepoints[2][16] = new coord(5132,5048);
+_movepoints[2][17] = new coord(5118,5047);
+_movepoints[2][18] = new coord(5106,5048);
+_movepoints[2][19] = new coord(5093,5046);
+_movepoints[2][20] = new coord(5092,5034);
+_movepoints[2][21] = new coord(5083,5029);
+_movepoints[2][22] = new coord(5085,5016);
+_movepoints[2][23] = new coord(5072,5032);
+_movepoints[2][24] = new coord(5072,5046);
+_movepoints[2][25] = new coord(5083,5054);
+_movepoints[2][26] = new coord(5083,5068);
+_movepoints[2][27] = new coord(5083,5082);
+_movepoints[2][28] = new coord(5082,5093);
+_movepoints[2][29] = new coord(5068,5092);
+_movepoints[2][30] = new coord(5055,5092);
+_movepoints[2][31] = new coord(5042,5093);
+_movepoints[2][32] = new coord(5095,5092);
+_movepoints[2][33] = new coord(5108,5092);
+_movepoints[2][34] = new coord(5121,5092);
+_movepoints[2][35] = new coord(5169,5087);
+_movepoints[2][36] = new coord(5181,5087);
+_movepoints[2][37] = new coord(5194,5087);
+_movepoints[2][38] = new coord(5206,5087);
+_movepoints[2][39] = new coord(5218,5080);
+_movepoints[2][40] = new coord(5223,5068);
+_movepoints[2][41] = new coord(5223,5058);
+_movepoints[2][42] = new coord(5156,5062);
+_movepoints[2][43] = new coord(5156,5074);
+
+// act 4
+_movepoints[3] = new Array();
+_movepoints[3][0] = new coord();
+_movepoints[3][1] = new coord();
+_movepoints[3][2] = new coord(5044,5027);
+_movepoints[3][3] = new coord(5034,5032);
+_movepoints[3][4] = new coord(5046,5037);
+_movepoints[3][5] = new coord(5059,5039);
+_movepoints[3][6] = new coord(5072,5041);
+_movepoints[3][7] = new coord(5082,5044);
+_movepoints[3][8] = new coord(5087,5054);
+_movepoints[3][9] = new coord(5087,5032);
+_movepoints[3][10] = new coord(5094,5044);
+_movepoints[3][11] = new coord(5108,5047);
+_movepoints[3][12] = new coord(5118,5052);
+_movepoints[3][13] = new coord(5128,5060);
+_movepoints[3][14] = new coord(5133,5070);
+_movepoints[3][15] = new coord(5141,5079);
+_movepoints[3][16] = new coord(5151,5084);
+_movepoints[3][17] = new coord(5158,5087);
+_movepoints[3][18] = new coord(5024,5025);
+_movepoints[3][19] = new coord(5024,5037);
+
+// act5
+_movepoints[4] = new Array();
+_movepoints[4][0] = new coord();
+_movepoints[4][1] = new coord();
+_movepoints[4][2] = new coord(5105,5043);
+_movepoints[4][3] = new coord(5104,5030);
+_movepoints[4][4] = new coord(5093,5022);
+_movepoints[4][5] = new coord(5087,5032);
+_movepoints[4][6] = new coord(5073,5032);
+_movepoints[4][7] = new coord(5072,5045);
+_movepoints[4][8] = new coord(5107,5055);
+_movepoints[4][9] = new coord(5117,5064);
+_movepoints[4][10] = new coord(5119,5077);
+_movepoints[4][11] = new coord(5122,5089);
+_movepoints[4][12] = new coord(5130,5101);
+_movepoints[4][13] = new coord(5131,5087);
+_movepoints[4][14] = new coord(5134,5073);
+_movepoints[4][15] = new coord(5133,5063);
+_movepoints[4][16] = new coord(5145,5057);
+_movepoints[4][17] = new coord(5135,5052);
+_movepoints[4][18] = new coord(5131,5042);
+_movepoints[4][19] = new coord(5116,5040);
+_movepoints[4][20] = new coord(5112,5087);
+_movepoints[4][21] = new coord(5099,5086);
+_movepoints[4][22] = new coord(5085,5087);
+_movepoints[4][23] = new coord(5083,5074);
+_movepoints[4][24] = new coord(5082,5064);
+_movepoints[4][25] = new coord(5078,5053);
+_movepoints[4][26] = new coord(5074,5079);
+_movepoints[4][27] = new coord(5064,5080);
+_movepoints[4][28] = new coord(5066,5094);
+_movepoints[4][29] = new coord(5078,5097);
+_movepoints[4][30] = new coord(5086,5099);
+_movepoints[4][31] = new coord(5088,5111);
+_movepoints[4][32] = new coord(5097,5120);
+_movepoints[4][33] = new coord(5110,5120);
+_movepoints[4][34] = new coord(5123,5118);
+_movepoints[4][35] = new coord(5133,5108);
+_movepoints[4][36] = new coord(5133,5106);
+_movepoints[4][37] = new coord(5081,5122);
+_movepoints[4][38] = new coord(5069,5114);
+_movepoints[4][39] = new coord(5056,5098);
+_movepoints[4][40] = new coord(5063,5107);
+_movepoints[4][41] = new coord(5042,5097);
+_movepoints[4][42] = new coord(5030,5096);
+_movepoints[4][43] = new coord(5126,5061);
+
+var _townpoints = new Array(5);
+
+// act 1
+_townpoints[0] = new Object();
+_townpoints[0]["gheed"] = new coord();
+_townpoints[0]["charsi"] = new coord();
+_townpoints[0]["akara"] = new coord();
+_townpoints[0]["kashya"] = new coord();
+_townpoints[0]["cain"] = new coord();
+_townpoints[0]["stash"] = new coord();
+_townpoints[0]["portalspot"] = new coord();
+_townpoints[0]["waypoint"] = new coord();
+_townpoints[0]["exit"] = new coord();
+_townpoints[0]["warriv"] = new coord();
+
+// act 2
+_townpoints[1] = new Object();
+_townpoints[1]["portalspot"] = new coord(5168,5055);
+_townpoints[1]["stash"] = new coord(5124,5082);
+_townpoints[1]["fara"] = new coord(5124,5082);
+_townpoints[1]["cain"] = new coord(5124,5082);
+_townpoints[1]["lysander"] = new coord(5118,5104);
+_townpoints[1]["waypoint"] = new coord(5070,5083);
+_townpoints[1]["greiz"] = new coord(5033,5053);
+_townpoints[1]["exit"] = new coord();
+_townpoints[1]["elzix"] = new coord(5032,5102);
+_townpoints[1]["palace"] = new coord(5055,5142);
+_townpoints[1]["sewers"] = new coord(5221,5181);
+_townpoints[1]["meshif"] = new coord(5205,5058);
+_townpoints[1]["drognan"] = new coord(5097,5035);
+_townpoints[1]["atma"] = new coord(5140,5055);
+_townpoints[1]["warriv"] = new coord(5152,5201);
+
+// act 3
+_townpoints[2] = new Object();
+_townpoints[2]["cain"] = new coord(5148,5066);
+_townpoints[2]["waypoint"] = new coord(5158,5050);
+_townpoints[2]["exit"] = new coord(5145,5044);
+_townpoints[2]["alkor"] = new coord(5083,5016);
+_townpoints[2]["asheara"] = new coord(5043,5093);
+_townpoints[2]["ormus"] = new coord(5129,5093);
+_townpoints[2]["hratli"] = new coord(5223,5048);
+_townpoints[2]["stash"] = new coord(5144,5059);
+_townpoints[2]["portalspot"] = new coord(5156,5063);
+_townpoints[2]["meshif"] = new coord(5118,5168);
+
+// act 4
+_townpoints[3] = new Object();
+_townpoints[3]["waypoint"] = new coord(5043,5018);
+_townpoints[3]["cain"] = new coord(5027,5027);
+_townpoints[3]["halbu"] = new coord(5089,5031);
+_townpoints[3]["tyrael"] = new coord(5027,5027);
+_townpoints[3]["jamella"] = new coord(5088,5054);
+_townpoints[3]["stash"] = new coord(5022,5040);
+_townpoints[3]["exit"] = new coord(5158,5086);
+_townpoints[3]["portalspot"] = new coord(5049,5038);
+
+// act 5
+_townpoints[4] = new Object();
+_townpoints[4]["portalspot"] = new coord(5097,5024);
+_townpoints[4]["exit"] = new coord(5028,5095);
+_townpoints[4]["stash"] = new coord(5129,5061);
+_townpoints[4]["larzuk"] = new coord(5141,5045);
+_townpoints[4]["malah"] = new coord(5078,5029);
+_townpoints[4]["cain"] = new coord(5119,5061);
+_townpoints[4]["qual-kehk"] = new coord(5066,5083);
+_townpoints[4]["anya"] = new coord(5112,5120);
+_townpoints[4]["portal"] = new coord(5118,5120);
+_townpoints[4]["waypoint"] = new coord(5113,5068); 
+_townpoints[4]["nihlathak"] = new coord(5071,5111);
+
+// @waypoint
+var NTVT_IsTownWpId = [1, 40, 75, 103, 109];
+var NTVT_IsAreaWithWp = [1, 3, 4, 5, 6, 27, 29, 32, 35, 40, 48, 42, 57, 43, 44, 52, 74, 46, 77, 78, 79, 
+						80, 81, 83, 101, 103, 106, 107, 109, 111, 112, 113, 115, 123, 117, 118, 129];
+var wpsDontHave = [];

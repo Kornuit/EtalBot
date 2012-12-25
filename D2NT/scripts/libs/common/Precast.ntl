@@ -1,0 +1,362 @@
+Include("libs/Common_Vars.ntl");
+
+var _minion;
+var _NTP_HaveCTA = -1;
+
+var Precast = {
+	DoPrecastCTA: function (refresh, castbo) {
+		if (arguments.length < 2)
+			castbo = true;
+
+		if (me.classid == NTC_CHAR_CLASS_BARBARIAN || Common.InTown())
+			return false;
+
+		if (refresh || !me.GetState(32) || !me.GetState(51))
+		{
+			if(this.BOSwitch())
+			{
+				if(castbo)
+				{
+					Skill.CastSkill(155, NTC_HAND_RIGHT); // Battle Command
+					Skill.CastSkill(149, NTC_HAND_RIGHT); // Battle Orders
+				}
+				
+				Common.SwapWeapons();
+				return true;
+			}
+		}
+		return false;
+	},
+
+	CastBC: function (refresh) {
+		if(me.classid == NTC_CHAR_CLASS_BARBARIAN || NTC_InTown())
+			return false;
+
+		if(refresh || !me.GetState(51))
+		{
+			if(NTP_BOSwitch())
+			{
+				Skill.CastSkill(155, NTC_HAND_RIGHT); // Battle Command
+
+				Common.SwapWeapons();
+
+				return true;
+			}
+		}
+
+		return false;
+	},
+
+	DoEnchant: function () {
+		var _haveenchant = Skill.GetSkillLevel(52),
+			_unit = Unit.FindUnit(NTC_UNIT_MERC);
+
+		if (_haveenchant && _unit ) 
+		{
+			do
+			{
+				if(Common.CheckOwner(_unit) && _unit.hp > 0)
+				{
+					if (GetDistance(me, _unit) < 25)
+					{
+						this.GetLevels(52);
+						Skill.CastSkill(52, NTC_HAND_RIGHT, _unit);
+					}
+				}
+			} while (_unit.GetNext());
+		}
+	},
+
+	DoPrecast: function (refresh, castbo) {
+		var _unit = me.GetMerc();
+		
+		if(arguments.length < 2)
+			castbo = true;
+
+		switch(me.classid)
+		{
+		case NTC_CHAR_CLASS_AMAZON:
+			this.CastBC(refresh);
+
+			if(refresh || !NTP_GetMinion(357)) {
+				this.GetLevels(32);
+				Skill.CastSkill(32, NTC_HAND_RIGHT); // Valkyrie
+				}
+
+			this.DoPrecastCTA(refresh, castbo);
+			break;
+
+		case NTC_CHAR_CLASS_SORCERESS:
+			this.DoPrecastCTA(refresh, castbo);
+
+			if(refresh || !me.GetState(38)) {
+				this.GetLevels(57);
+				Skill.CastSkill(57, NTC_HAND_RIGHT); // Thunder Storm
+				}
+				
+			if(refresh || me.GetState(30) == 0) {
+				this.GetLevels(58);			
+				Skill.CastSkill(58, NTC_HAND_RIGHT); // Energy Shield
+				}
+				
+			if(refresh || (!me.GetState(10) && !me.GetState(88) && !me.GetState(20)))
+			{
+			var coldArmor = NTConfig_ColdArmor;
+				this.GetLevels(coldArmor);
+				Skill.CastSkill(coldArmor, NTC_HAND_RIGHT);
+			}
+			
+			if((_unit != null && refresh) || (_unit != null && !_unit.GetState(16)))
+			  this.DoEnchant();  // Enchant Merc
+
+			break;
+
+		case NTC_CHAR_CLASS_NECROMANCER:
+			this.CastBC(refresh);
+			
+			if(refresh || !(this.GetMinion(289) || this.GetMinion(290) || this.GetMinion(291) || this.GetMinion(292)))
+			{
+				switch(Config.Golem)
+				{
+				case 0:
+				case "None":
+				case "Iron":
+					break;
+				case 1:
+				case "Clay":
+					this.GetLevels(75);
+					Skill.CastSkill(75, NTC_HAND_RIGHT); //Clay
+					break;
+				case 2:
+				case "Blood":
+					this.GetLevels(85);
+					Skill.CastSkill(85, NTC_HAND_RIGHT); //Blood
+					break;
+				case 3:
+				case "Fire":
+					this.GetLevels(94);
+					Skill.CastSkill(94, NTC_HAND_RIGHT); //Fire
+					break;
+				default:
+					Print(COLOR_1 + "Invalid Golem id. Check character configuration.")
+					break;
+				}
+			}
+			
+			this.DoPrecastCTA(refresh, castbo);
+
+			if(refresh || !me.GetState(14)) {
+				this.GetLevels(68);
+				Skill.CastSkill(68, NTC_HAND_RIGHT); // Bone Armor
+				}
+			break;
+
+		case NTC_CHAR_CLASS_PALADIN:
+			this.DoPrecastCTA(refresh, castbo);
+			if(refresh || !me.GetState(101))
+				this.GetLevels(117);
+				Skill.CastSkill(117, NTC_HAND_RIGHT); // Holy Shield
+			break;
+
+		case NTC_CHAR_CLASS_BARBARIAN:
+			if(refresh || !me.GetState(51) || !me.GetState(32) || !me.GetState(26))
+			{
+					
+				if(castbo)
+				{
+					this.GetLevels(155);
+					Skill.CastSkill(155, NTC_HAND_RIGHT); // Battle Command
+					Skill.CastSkill(149, NTC_HAND_RIGHT); // Battle Orders
+				}
+				this.GetLevels(138);
+				Skill.CastSkill(138, NTC_HAND_RIGHT); // Shout
+				}		
+			break;
+
+		case NTC_CHAR_CLASS_DRUID:
+			this.CastBC(refresh);
+
+			if(refresh || !this.GetMinion(428) || !this.GetMinion(420) || !this.GetMinion(421) || !this.GetMinion(430))
+				{
+				var summon = Config.Summons;
+				
+				switch(summon) {
+					case 227:
+					{
+					this.GetLevels(227);
+					for(var i = 0; i < 5; i++) {
+						Skill.CastSkill(227, NTC_HAND_RIGHT); // Summon Spirit Wolf
+						}
+					}
+					break;
+					case 237:
+					{
+					this.GetLevels(237);
+					for(var i = 0; i < 3; i++) {
+						Skill.CastSkill(237, NTC_HAND_RIGHT); // Summon Dire Wolf
+						Delay(200);
+						}
+					}
+					break;
+					case 247:
+					{
+					this.GetLevels(247);
+					Skill.CastSkill(247, NTC_HAND_RIGHT); // Summon Grizzly
+					}
+					break;
+				}
+			}
+
+			if(refresh || !this.GetMinion(426) && !this.GetMinion(427) && !this.GetMinion(425))
+			{
+				var vine = Config.Vine;
+				this.GetLevels(vine);
+				Skill.CastSkill(vine, NTC_HAND_RIGHT); // Vine
+			}
+			
+			if(refresh || !me.GetState(149)) {
+				this.GetLevels(226);
+				Skill.CastSkill(226, NTC_HAND_RIGHT); // Oak Sage
+				}
+
+			if(refresh && Config.CastRaven)
+			{
+				this.GetLevels(221);
+				for (i = 0; i < 5; i++)
+				{
+					Skill.CastSkill(221, NTC_HAND_RIGHT); // raven
+					Delay(100);
+				}
+			}
+
+			this.DoPrecastCTA(refresh, castbo);
+
+			if(refresh || !me.GetState(151)) {
+				this.GetLevels(235);
+				Skill.CastSkill(235, NTC_HAND_RIGHT); // Cyclone Armor
+				}
+
+			if(refresh || !me.GetState(144)) {
+				this.GetLevels(250);
+				Skill.CastSkill(250, NTC_HAND_RIGHT); // Hurricane
+				}
+
+			break;
+
+		case NTC_CHAR_CLASS_ASSASSIN:
+			this.CastBC(refresh);
+		
+			if(refresh || !(this.GetMinion(417) || this.GetMinion(418)))
+			{
+				switch(Config.UseShadow)
+				{
+				case 0:
+				case "None":
+					break;
+				case 1:
+				case "Warrior":
+					this.GetLevels(268);
+					Skill.CastSkill(268, NTC_HAND_RIGHT); // Shadow Warrior
+					break;
+				case 2:
+				case "Master":
+					this.GetLevels(279);
+					Skill.CastSkill(279, NTC_HAND_RIGHT); // Shadow Master
+					break;
+				}
+			}
+
+			this.DoPrecastCTA(refresh, castbo);
+
+			if((refresh || !me.GetState(157)) && Config.UseBOS) {
+				this.GetLevels(258);
+				Skill.CastSkill(258, NTC_HAND_RIGHT); // Burst of Speed
+				}
+				
+			if((refresh || !me.GetStat(181)) && Config.UseFade) {
+				this.GetLevels(267);
+				Skill.CastSkill(267, NTC_HAND_RIGHT); // Fade
+				}
+
+			if((refresh || me.GetState(158) == 0) && Config.UseBladeShield) {
+				this.GetLevels(277);
+				Skill.CastSkill(277, NTC_HAND_RIGHT); // Blade Shield
+				}
+
+			if((refresh || !me.GetState(153)) && Config.UseCloakOfShadows) {
+				this.GetLevels(264);
+				Skill.CastSkill(264, NTC_HAND_RIGHT); // Cloak of Shadows
+				}
+				
+			if(Config.Venom && (refresh ||!me.GetStat(101))) { // venom
+				this.GetLevels(278);
+				Skill.CastSkill(278, NTC_HAND_RIGHT);
+			}
+			break;
+		}
+		if(me.weaponstab == 1)
+			Common.SwapWeapons();
+	},
+
+	BOSwitch: function () {
+		if(_NTP_HaveCTA < 0)
+		{
+			var _weapon;
+
+			_NTP_HaveCTA = 0;
+
+			_weapon = me.GetItems();
+
+			if(_weapon)
+			{
+				for(var i = 0 ; i < _weapon.length ; i++)
+				{
+					if(_weapon[i].mode == 1 && (_weapon[i].itemflag&0x4000000) && _weapon[i].itemprefix == 0x5027)
+					{
+						if(_weapon[i].itemloc == 4 || _weapon[i].itemloc == 5)
+							_NTP_HaveCTA = 1;
+						else
+							_NTP_HaveCTA = 2;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if(_NTP_HaveCTA > 0)
+			return Common.SwapWeapons(_NTP_HaveCTA-1);
+
+		return false;
+	},
+
+	GetMinion: function (classID) {
+		_minion = Unit.FindUnit(NTC_UNIT_MONSTER, classID);
+		
+		if(!_minion)
+			return false;
+			
+		do
+		{
+			if(Common.CheckOwner(_minion) && _minion.hp > 0)
+				return true;
+		}while(_minion.GetNext());
+		
+		return false;
+	},
+
+	GetLevels: function (skillid) {
+		var tab1, tab2;
+
+		tab1 = Skill.GetSkillLevel(skillid);
+		Common.SwapWeapons();
+		tab2 = Skill.GetSkillLevel(skillid);
+		
+		if(tab1 > tab2) {
+			return Common.SwapWeapons();
+			}
+		else {
+			return;
+		}
+	},
+};

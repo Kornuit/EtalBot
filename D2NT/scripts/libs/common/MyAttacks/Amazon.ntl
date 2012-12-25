@@ -1,0 +1,157 @@
+
+var MyAttack = {
+	DetectAttackPattern: function () {
+		return this.AmazonAttackPatternInt();
+	},
+
+	Attack: function (target, firstorder) {
+		return this.AmazonAttackInt(target, firstorder);
+	},
+
+	AmazonAttackPatternInt: function () {
+		var _maxindex, _maxskill,
+			_avgskilllevel = new Array();
+
+		_avgskilllevel[0] = me.GetSkill(35, false);
+		_avgskilllevel[1] = parseInt((me.GetSkill(31, false) + me.GetSkill(11, false) + me.GetSkill(21, false)) / 3);
+		_avgskilllevel[2] = me.GetSkill(26, false);
+
+
+		_maxindex = -1;
+		_maxskill = 0;
+
+		for (var i = 0; i < _avgskilllevel.length; i++) {
+			if (_avgskilllevel[i] > _maxskill) {
+				_maxindex = i;
+				_maxskill = _avgskilllevel[i];
+			}
+		}
+
+		switch (_maxindex) {
+		case 0:
+			// Lightning Fury for Javazon
+			Config.AttackSkill[1] = 35;
+			Config.AttackSkill[2] = 35;
+			Config.AttackSkill[3] = 35;
+			Config.AttackSkill[4] = 35;
+			Config.AttackSkill[5] = 35;
+			Config.AttackSkill[6] = 35;
+			Config.AttackSkill[7] = 24;
+			break;
+
+		case 1:
+			// Freezing Arrow for Bowzon
+			Config.AttackSkill[1] = 31;
+			Config.AttackSkill[2] = 31;
+			Config.AttackSkill[3] = 31;
+			Config.AttackSkill[4] = 31;
+			Config.AttackSkill[5] = 31;
+			Config.AttackSkill[6] = 31;
+			Config.AttackSkill[7] = 31;
+			break;
+
+		case 2:
+			// Cold Arrow + Strafe for Bowzon
+			Config.AttackSkill[0] = 11;
+			Config.AttackSkill[1] = 26;
+			Config.AttackSkill[2] = 26;
+			Config.AttackSkill[3] = 26;
+			Config.AttackSkill[4] = 26;
+			Config.AttackSkill[5] = 26;
+			Config.AttackSkill[6] = 26;
+			Config.AttackSkill[7] = 22;
+			break;
+		}
+
+		return (Config.AttackSkill[1] && Config.AttackSkill[3]);
+	},
+
+	AmazonAttackInt: function (target, firstorder) {
+		var _primaryindex, _attackSkill;
+
+		if ((TownManager.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe, true)) || (me.hp <= parseInt(me.hpmax * Config.TPChicken,10) / 100)) {
+			if (!TownManager.VisitTown()) { return 0; }
+		}
+		_merc = Common.GetMerc();
+		if(_merc){
+			if ((TownManager.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe, true)) || (_merc.hp <= parseInt(_merc.hpmax * Config.MercTPChicken,10) / 100)) {
+				if (!TownManager.VisitTown()) { return 0; }
+			}
+		}
+
+		if (me.GetSkill(12, false) > 1) Attack.HaveArrows();
+		else Attack.IsWeaponBroken();
+
+		if (firstorder && Config.AttackSkill[0] > -1 && Attack.GetResistance(target, _NTA_SkillDamage[0]) < 100) {
+			if (GetDistance(me, target) > _NTA_SkillRange[0] || !CheckCollision(me, target, 4)) {
+				var _pos = me.GetOptimalAttackPos(target.areaid, target.x, target.y, _NTA_SkillRange[0], 4);
+
+				if (_pos) Travel.MoveTo(target.areaid, _pos[0], _pos[1], 0, false, false);
+			}
+
+			if (!Skill.CastSkill(Config.AttackSkill[0], _NTA_SkillHand[0], target)) return 2;
+
+			return 3;
+		}
+
+		_primaryindex = (target.spectype & 0x0A) ? 1 : 3;
+		_attackSkill = Attack.GetAttackType(target, _primaryindex, 91, 81, 81);
+		switch (target.classid) {
+		case 243:
+			//Diablo
+		case 544:
+			//Baal
+		case 242:
+			if (!this.AmazonCastSkillInt(9, target, _primaryindex)) return 2;
+			return 3;
+		default:
+			break;
+		}
+		if (Config.AttackSkill[_attackSkill] > -1) {
+			if (!this.AmazonCastSkillInt(_primaryindex, target, _primaryindex)) return 2;
+			return 3;
+		}
+		if (Config.AttackSkill[5] > -1 && Attack.GetResistance(target, _NTA_SkillDamage[5]) > 80) {
+			if (!this.AmazonCastSkillInt(5, target)) return 2;
+			return 3;
+		}
+		if (Attack.GetResistance(target, _NTA_SkillDamage[_primaryindex]) < 100 || (_primaryindex == 1 && NTC_GetMerc())) {
+			if (!this.AmazonCastSkillInt(_primaryindex, target)) return 2;
+			return 3;
+		}
+		return 1;
+	},
+
+	AmazonCastSkillInt: function (index, target, primaryIndex) {
+		if ((target.name == "Mephisto" || target.name == "Andariel" || target.name == "Duriel" || target.name == "Diablo" || target.name == "Baal") && Config.AttackSkill[9] > -1) {
+			index = 9;
+		}
+		var secondarySkill = 0;
+		if (me.GetSkillStatus(Config.AttackSkill[index]) != 8) {
+			if (GetDistance(me, target) > _NTA_SkillRange[index] || !CheckCollision(me, target, 4)) {
+				var _pos = me.GetOptimalAttackPos(target.areaid, target.x, target.y, _NTA_SkillRange[index], 4);
+
+				if (_pos) Travel.MoveTo(target.areaid, _pos[0], _pos[1], 0, false, false);
+			}
+
+			return Skill.CastSkill(Config.AttackSkill[index], NTC_HAND_LEFT, target);
+		}
+
+		secondarySkill = Attack.GetAttackType(target, primaryIndex + 1, 81, 81, 81);
+
+		if (Config.AttackSkill[secondarySkill] > -1) {
+			if (GetDistance(me, target) > _NTA_SkillRange[secondarySkill] || !CheckCollision(me, target, 4)) {
+				var _pos = me.GetOptimalAttackPos(target.areaid, target.x, target.y, _NTA_SkillRange[secondarySkill], 4);
+
+				if (_pos) Travel.MoveTo(target.areaid, _pos[0], _pos[1], 0, false, false);
+			}
+
+			return Skill.CastSkill(Config.AttackSkill[secondarySkill], _NTA_SkillHand[secondarySkill], target);
+		}
+
+		for (var i = 0; i < 25; i++) {
+			Delay(NTC_DELAY_FRAME);
+			if (me.GetSkillStatus(Config.AttackSkill[index]) != 8) break;
+		}
+	}
+};

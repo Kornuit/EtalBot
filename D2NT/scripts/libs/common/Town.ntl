@@ -1,0 +1,2193 @@
+Include("libs/Common_Vars.ntl");
+Include("libs/common/ColorConverter.ntl");
+
+var Town = {
+	CheckNPC: function (npc, type) {
+		var _npcclassid;
+
+		if(typeof(npc) == "number")
+			_npcclassid = npc;
+		else
+			_npcclassid = npc.classid;
+
+		if(type == 1)
+		{
+			if(_npcclassid == 147 || _npcclassid == 148 || _npcclassid == 154 || _npcclassid == 177 ||
+				_npcclassid == 178 || _npcclassid == 199 || _npcclassid == 202 || _npcclassid == 252 ||
+				_npcclassid == 253 || _npcclassid == 254 || _npcclassid == 255 || _npcclassid == 257 ||
+				_npcclassid == 405 || _npcclassid == 511 || _npcclassid == 512 || _npcclassid == 513)
+				return true;
+			else
+				return false;
+		}
+
+		if(type == 2)
+		{
+			if(_npcclassid == 150 || _npcclassid == 198 || _npcclassid == 252 || _npcclassid == 367 || _npcclassid == 515)
+				return true;
+			else
+				return false;
+		}
+
+		if(type == 3)
+		{
+			if(_npcclassid == 154 || _npcclassid == 178 || _npcclassid == 253 || _npcclassid == 257 || _npcclassid == 511)
+				return true;
+			else
+				return false;
+		}
+
+		if(type == 4)
+		{
+			if(_npcclassid == 148 || _npcclassid == 177 || _npcclassid == 198 || _npcclassid == 202 ||
+				_npcclassid == 255 || _npcclassid == 405 || _npcclassid == 513)
+				return true;
+			else
+				return false;
+		}
+
+		if(type == 5)
+		{
+			if(_npcclassid == 148 || _npcclassid == 177 || _npcclassid == 255 || _npcclassid == 405 || _npcclassid == 513)
+				return true;
+			else
+				return false;
+		}
+
+		if(type == 6)
+		{
+			if(_npcclassid == 147 || _npcclassid == 199 || _npcclassid == 254 ||
+				_npcclassid == 405 || _npcclassid == 512 || _npcclassid == 514)
+				return true;
+			else
+				return false;
+		}
+
+		if(type == 7)
+		{
+			if(_npcclassid == 147 || _npcclassid == 154 || _npcclassid == 178 || _npcclassid == 199 || _npcclassid == 252 ||
+				_npcclassid == 253 || _npcclassid == 257 || _npcclassid == 511 || _npcclassid == 512)
+				return true;
+			else
+				return false;
+		}
+
+		if(type == 8)
+		{
+			if(_npcclassid == 148 || _npcclassid == 178 || _npcclassid == 255 || _npcclassid == 513)
+				return true;
+			else
+				return false;
+		}
+
+		return false;
+	},
+
+	DoInteract: function (npc) {
+		var _uiflag = 0x08;
+
+		if(!npc)
+			return false;
+
+		if(npc.classid == NTC_UNIT_STASH)
+			_uiflag = 0x19;
+		else if(npc.classid == NTC_UNIT_CUBE)
+			_uiflag = 0x1A;
+
+		if(GetUIState(_uiflag))
+			return true;
+
+		for(var i = 0 ; i < 40 ; i++)
+		{
+			if((i % 10) == 0)
+			{
+				if(npc.classid == NTC_UNIT_CUBE)
+					me.ClickItem(1, npc);
+				else
+				{
+					if (i > 20)
+						Common.RemoveLag(npc, 700, 10);
+					else if (i > 10)
+						Common.RemoveLag(npc);
+					if (me.classid === 1 && Config.Telekinesis && _uiflag == 0x19 && Skill.GetSkillLevel(43) && GetDistance(me, npc) > 5 && GetDistance(me, npc) < 23){
+						if (i > 10)
+							Travel.MoveCloseInt(npc, Math.round(GetDistance(me, npc) / 2), false);
+						Skill.CastSkill(43, NTC_HAND_RIGHT, npc);
+					}
+					else
+						Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, npc);
+				}
+			}
+
+			Delay((i < 10) ? 100 : 200);
+
+			if(GetUIState(_uiflag))
+			{
+				Common.PingDelay(500);
+				return true;
+			}
+		}
+
+		return false;
+	},
+
+	DoTrade: function (npc, type) {
+		var i;
+
+		if(!npc)
+			return false;
+
+		if(GetUIState(0x0C))
+			return true;
+
+		if(arguments.length < 2)
+			type = 0;
+
+		for(i = 0 ; i < 20 ; i++)
+		{
+			if((i % 10) == 0)
+			{
+				if(this.CheckNPC(npc.classid, 3))
+					me.SelectNPCMenu(0x0D06);
+				else if(type == 1 && this.CheckNPC(npc.classid, 6))
+					me.SelectNPCMenu(0x0D46);
+				else
+					me.SelectNPCMenu(0x0D44);
+			}
+			Delay(200);
+			if(GetUIState(0x0C))
+			{
+				Common.PingDelay(1000);
+				return true;
+			}
+		}
+		return false;
+	},
+
+	GetCorpses: function () {
+		var i, _corpse,
+			corpsesFound = 0;
+
+		for(i = 0 ; i < 4 ; i++)
+		{
+			_corpse = Unit.FindUnit(NTC_UNIT_PLAYER);
+
+			if(_corpse)
+			{
+				do
+				{
+					if(_corpse.name == me.name && _corpse.hpmax == 0)
+					{
+						corpsesFound++;
+						Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _corpse);
+						Common.PingDelay(1000);
+						Common.SwapWeapons(0);
+						break;
+					}
+				} while(_corpse.GetNext());
+			}
+		}
+		return corpsesFound;
+	},
+
+	CheckMerc: function () {
+		if(Config.UseMerc)
+		{
+			if(Common.GetMerc())
+				return false;
+			else
+			{
+				if(Common.MyGold() < me.GetMercCost())
+					return false;
+
+				return true;
+			}
+		}
+		return false;
+	},
+
+	ReviveMerc: function () {
+		var i, _mygold;
+
+		if(!this.CheckMerc())
+			return true;
+
+		if(!GetUIState(0x08))
+			return false;
+
+		_mygold = NTC_MyGold();
+
+		if(_mygold < me.GetMercCost())
+			return false;
+
+		for(i = 0 ; i < 8 ; i++)
+		{
+			if((i % 4) == 0)
+				me.SelectNPCMenu(0x1507);
+			Delay(500);
+			if(_mygold > Common.MyGold()) {
+				Tools.MercReviveLog();
+				return true;
+			}
+		}
+		return false;
+	},
+
+	CheckRepair: function (repairpercent) {
+		var i, _max_dur, _percent,
+			_items = me.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 1 && !(_items[i].itemflag&0x400000) && !_items[i].GetStat(152))
+			{
+				if(_items[i].itemtype == 42 || _items[i].itemtype == 43 || _items[i].itemtype == 44 || _items[i].itemtype == 87)
+					_percent = Math.floor((_items[i].GetStat(70)*100) / (GetBaseStat("weapons.txt", _items[i].classid, 45)+_items[i].GetStat(254)));
+				else
+				{
+					_max_dur = _items[i].GetStat(73);
+					if(_max_dur == 0)
+						continue;
+
+					_percent = Math.floor((_items[i].GetStat(72)*100) / (_max_dur*(_items[i].GetStat(75)/100 + 1)));
+				}
+
+				if(_percent <= repairpercent)
+					return true;
+			}
+		}
+		return false;
+	},
+
+	RepairItems: function (npc) {
+		var _mygold;
+
+		if(!npc)
+			return false;
+		if(!GetUIState(0x0C))
+			return false;
+
+		_mygold = Common.MyGold();
+		for(var i = 0 ; i < 8 ; i++)
+		{
+			if((i % 4) == 0)
+				me.Repair();
+			Delay(500);
+			if(_mygold > Common.MyGold())
+				return true;
+		}
+		return false;
+	},
+
+	CheckInventory: function () {
+		var x, y, _items,
+			_itemlist = new Array(),
+			_ignorestring = _NTT_IgnoredItems.join();
+
+		if(!Common.StashGoldFull() && Common.MyGoldCarry() > Config.MinGoldToStash)
+			return true;
+
+		_invspace = new Array(4);
+		_invspace[0] = new Array(10);
+		_invspace[1] = new Array(10);
+		_invspace[2] = new Array(10);
+		_invspace[3] = new Array(10);
+
+		for(y = 0 ; y < 4 ; y++)
+		{
+			for(x = 0 ; x < 10 ; x++)
+				_invspace[y][x] = 0;
+		}
+
+		_items = me.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(var i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0)
+			{
+				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+					_itemlist.push(_items[i].code);
+
+				for(y = 0 ; y < _items[i].ysize ; y++)
+				{
+					for(x = 0 ; x < _items[i].xsize ; x++)
+						_invspace[y+_items[i].y][x+_items[i].x] = 1;
+				}
+			}
+		}
+
+		_freecols = new Array(10);
+
+		for(x = 0 ; x < 10 ; x++)
+			_freecols[x] = 0; 
+
+		for(x = 0 ; x < 10 ; x++)
+		{
+			for(y = 0 ; y < 4 ; y++)
+			{
+				if(_invspace[y][x] == 1)
+				{
+					_freecols[x] = 1;
+					break;
+				}
+			}
+		}
+
+		_numfreecols = 0;
+
+		for(x = 0 ; x < 10 ; x++)
+		{ 
+			if(_freecols[x] == 0)
+				_numfreecols++;
+		}
+
+		if(Config.FreeSpace > _numfreecols)
+		{
+			for(x = 0 ; x < _itemlist.length ; x++)
+			{
+				if(_ignorestring.indexOf(_itemlist[x]) != -1)
+					_itemlist.splice(x, 1);
+			}
+
+			if(_itemlist.length > 0)
+				return true;
+		}
+
+		return false;
+	},
+
+	CheckStash: function () {
+		var i, x, y, _items,
+			_StashHeight = (me.gametype == 0) ? 4 : 8,
+			_stashspace = new Array(_StashHeight);
+
+		for(y = 0 ; y < _StashHeight ; y++)
+			_stashspace[y] = new Array(6); 
+
+		for(y = 0 ; y < _StashHeight ; y++)
+		{
+			for(x = 0 ; x < 6 ; x++)
+				_stashspace[y][x] = 0;
+		}
+
+		_items = me.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 4)
+			{
+				for(y = 0 ; y < _items[i].ysize ; y++)
+				{
+					for(x = 0 ; x < _items[i].xsize ; x++)
+						_stashspace[y+_items[i].y][x+_items[i].x] = 1;
+				}
+			}
+		}
+
+		for(y = 0 ; y < _StashHeight ; y++)
+		{
+			for(x = 0 ; x < 6 ; x++)
+			{
+				if(_stashspace[y][x] != 1)
+					return true;
+			}
+		}
+
+		return false;
+	},
+
+	ManageStash: function (invitem) {
+		var i, x, y, z, _items, _stashall, _ignoreitem,
+			StashHeight = (me.gametype == 0) ? 4 : 8,
+			_ignorestring = _NTT_IgnoredItems.join();
+
+		if(!GetUIState(0x19))
+			return false;
+
+		if(arguments.length < 1)
+			_stashall = true;
+		else
+			_stashall = false;
+
+		if(!Common.StashGoldFull() && Common.MyGoldCarry() > 0)
+		{
+			var _mygold = Common.MyGoldCarry();
+
+			Gold(3, _mygold);
+
+			for(i = 0 ; i < 2 ; i++)
+			{
+				NTC_Delay(500);
+
+				if(_mygold > Common.MyGoldCarry())
+					break;
+			}
+		}
+
+		var _stashspace = new Array(StashHeight);
+
+		for(y = 0 ; y < StashHeight ; y++)
+			_stashspace[y] = new Array(6);
+
+		for(y = 0 ; y < StashHeight ; y++)
+		{
+			for(x = 0 ; x < 6 ; x++)
+				_stashspace[y][x] = 0;
+		}
+
+		_items = me.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 4)
+			{
+				for(y = 0 ; y < _items[i].ysize ; y++)
+				{
+					for(x = 0 ; x < _items[i].xsize ; x++)
+						_stashspace[y+_items[i].y][x+_items[i].x] = 1;
+				}
+			}
+		}
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0 && (_stashall || (_items[i].x == invitem.x && _items[i].y == invitem.y)))
+			{
+				if(_stashall)
+				{
+					_ignoreitem = (Config.Columns[_items[i].y][_items[i].x] == 0);
+
+					if(!_ignoreitem)
+					{
+						if(_ignorestring.indexOf(_items[i].code) != -1 || SnagIt.CheckItem(_items[i])[0] <= 0 || SnagIt.CheckItem(_items[i], -1)[0] == 3)
+							_ignoreitem = true;
+					}
+				} 
+				else
+					_ignoreitem = false;
+
+				if(!_ignoreitem)
+				{
+					_itemdone = false;
+					for(z = 0 ; z < 3; z++)
+					{
+						for(y = 0 ; y < StashHeight ; y++)
+						{
+							if(_itemdone)
+								break;    
+		
+							for(x = 0 ; x < (3 - _items[i].xsize) ; x++)
+							{
+								var xx = 2*z + x;
+								if(_itemdone)
+									break;
+
+								if(_stashspace[y][xx] == 0)
+								{
+									if((xx+_items[i].xsize-1) < 6 && (y+_items[i].ysize-1) < StashHeight)
+									{
+										var _havespace = true;
+
+										for(m = 0 ; m < _items[i].ysize ; m++)
+										{
+											for(n = 0 ; n < _items[i].xsize ; n++)
+											{
+												if(_stashspace[y+m][xx+n] == 1)
+												{
+													_havespace = false;
+													m = 4;
+													break;
+												}
+											}
+										}
+
+										if(_havespace)
+										{
+											if(Common.ItemToCursor(_items[i]))
+											{
+												for(n = 0 ; n < 80 ; n++)
+												{
+													if((n % 40) == 0)
+														me.ClickItem(0, xx, y, 4);
+
+													Delay(100);
+
+													if(!me.itemoncursor)
+														break;
+												}
+
+												if(n < 80)
+												{
+													for(m = 0 ; m < _items[i].ysize ; m++)
+													{
+														for(n = 0 ; n < _items[i].xsize ; n++)
+															_stashspace[y+m][xx+n] = 1;
+													}
+												}
+												Common.PingDelay(200);
+											}
+											_itemdone = true;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
+				if(!_stashall)
+					return true;
+			}
+		}
+		return true;
+	},
+
+	GetScroll: function (type) {
+		var _items;
+
+		if(arguments.length < 1)
+			type = 0;
+
+		if(type)
+			_items = me.GetItems(529);
+		else
+			_items = me.GetItems(530);
+
+		if(_items)
+		{
+			for(var i = 0 ; i < _items.length ; i++)
+			{
+				if(_items[i].mode == 0 && _items[i].itemloc == 0)
+					return _items[i];
+			}
+		}
+
+		return null;
+	},
+
+	GetTome: function (type) {
+		var _items;
+
+		if(arguments.length < 1)
+			type = 0;
+
+		if(type)
+			_items = me.GetItems(518);
+		else
+			_items = me.GetItems(519);
+
+		if(_items)
+		{
+			for(var i = 0 ; i < _items.length ; i++)
+			{
+				if(_items[i].mode == 0 && _items[i].itemloc == 0)
+					return _items[i];
+			}
+		}
+
+		return null;
+	},
+
+	FillTome: function (npc, type) {
+		var _tome;
+
+		if(arguments.length < 1)
+			return false;
+
+		if(arguments.length < 2)
+			type = 0;
+
+		_tome = this.GetTome(type);
+
+		if(_tome)
+		{
+			var _items;
+
+			if(_tome.GetStat(70) >= 20)
+				return true;
+
+			if(type)
+				_items = npc.GetItems(529);
+			else
+				_items = npc.GetItems(530);
+
+			if(_items && _items.length > 0)
+				return this.ShopItem(_items[0], npc, 3);
+		}
+
+		return false;
+	},
+
+	BuyScrolls: function (npc, type, amount) {
+		var i, _items, _npckeys,
+			_counter = 0,
+			_keys = me.GetItems(543);
+
+		if(arguments.length < 1)
+			return false;
+
+		if(arguments.length < 2)
+			type = 0;
+
+		if(arguments.length < 3)
+			amount = 1;
+
+		if(amount == 0)
+			return false;
+
+		if(type) {
+			_items = npc.GetItems(529);
+		}
+		else {
+			_items = npc.GetItems(530);
+			if(!this.CheckSpace(1,1) && _keys.length > 0) {
+				Print("No Space for ID Scroll, Selling Keystack");
+				this.ShopItem(_keys[0], npc, 1);
+			}
+		}
+
+		if(_items && _items.length > 0)
+		{
+			for(i = 0 ; i < amount ; i++)
+			{
+				if(this.ShopItem(_items[0], npc, 2))
+					_counter++;
+			}
+		}
+		return (_counter > 0);
+	},
+
+	GetKey: function () {
+		var _items;
+
+		_items = me.GetItems(543);
+
+		if(_items)
+		{
+			for(var i = 0 ; i < _items.length ; i++)
+			{
+				if(_items[i].mode == 0 && _items[i].itemloc == 0)
+					return _items[i];
+			}
+		}
+		return null;
+	},
+
+	FillKey: function (npc) {
+		var _key, _items;
+
+		if(arguments.length < 1)
+			return false;
+
+		_key = this.GetKey();
+
+		if(_key)
+		{
+			if(_key.GetStat(70) >= 12)
+				return true;
+
+			_items = npc.GetItems(543);
+
+			if(_items && _items.length > 0)
+				return this.ShopItem(_items[0], npc, 3);
+		}
+		else
+		{
+			_items = npc.GetItems(543);
+
+			if(_items && _items.length > 0)
+			{
+				return this.ShopItem(_items[0], npc, 3);
+			}
+		}
+		return false;
+	},
+
+	CheckBelt: function () {
+		var _needpotions = false;
+
+		for(var i = 0 ; i < 4 ; i++)
+		{
+			_NTT_BeltColNeeded[i] = this.GetNeededPotionsColInt(Config.BeltColType[i], i);
+
+			if(_NTT_BeltColNeeded[i] > 0 && Config.BeltColType[i] != "rv")
+				_needpotions = true;
+		}
+
+		return _needpotions;
+	},
+
+	FillBelt: function (npc) {
+		if(!npc)
+			return false;
+
+		if(!GetUIState(0x0C))
+			return false;
+
+		if(_NTT_BeltSize < 1)
+			_NTT_BeltSize = Common.GetBeltSize();
+
+		if(_NTT_BeltColNeeded[3] == _NTT_BeltSize || _NTT_BeltColNeeded[2] == _NTT_BeltSize || _NTT_BeltColNeeded[1] == _NTT_BeltSize || _NTT_BeltColNeeded[0] == _NTT_BeltSize)
+			this.BuyPotionsSlowInt(npc);
+		else
+			this.BuyPotionsFastInt(npc);
+
+		return true;
+	},
+
+	CheckHeal: function () {
+		var _merc;
+
+		if(parseInt(me.hp*100/me.hpmax) < Config.SkipHealLife || parseInt(me.mp*100/me.mpmax) < Config.SkipHealMana)
+			return true;
+
+		_merc = Common.GetMerc();
+
+		if(_merc)
+		{
+			if(parseInt(_merc.hp*100/_merc.hpmax) < Config.SkipHealLife)
+				return true;
+		}
+
+		return false;
+	},
+
+	CheckSpace: function (itemX, itemY) {
+		var i, j, x, y, _items;
+
+		_invspace = new Array(4);
+		_invspace[0] = new Array(10);
+		_invspace[1] = new Array(10);
+		_invspace[2] = new Array(10);
+		_invspace[3] = new Array(10);
+
+		for(y = 0 ; y < 4 ; y++)
+		{
+			for(x = 0 ; x < 10 ; x++)
+				_invspace[y][x] = 0;
+		}
+
+		_items = me.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0)
+			{
+				for(y = 0 ; y < _items[i].ysize ; y++)
+				{
+					for(x = 0 ; x < _items[i].xsize ; x++)
+						_invspace[y+_items[i].y][x+_items[i].x] = 1;
+				}
+			}
+		}
+
+		for(i = 0 ; i < 5-itemY ; i++)
+		{
+			invloop2:
+
+			for(j = 0 ; j < 11-itemX ; j++)
+			{
+				for(y = 0 ; y < itemY ; y++)
+				{
+					for(x = 0 ; x < itemX ; x++)
+					{
+						if(_invspace[i+y][j+x])
+							continue invloop2;
+					}
+				}
+
+				return true;
+			}
+		}
+
+		return false;
+	},
+
+	CleanPotions: function () {
+		var _items = me.GetItems();
+
+		if(!_items)
+			return;
+
+		for(var i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0 && (_items[i].itemtype == 76 || _items[i].itemtype == 77 || _items[i].itemtype == 78))
+			{
+				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+				{
+					SetUIState(0x01, true);
+
+					me.ClickItem(1, _items[i]);
+
+					Common.PingDelay(500);
+				}
+			}
+		}
+
+		me.Cancel(1);
+	},
+
+	ClearInventory: function () {
+		var _items,
+			_retval = true,
+			_ignorestring = _NTT_IgnoredItems.join();
+
+		_items = me.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(var i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0)
+			{
+				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+				{
+					if(_ignorestring.indexOf(_items[i].code) != -1 || SnagIt.CheckItem(_items[i])[0] != 0)
+						continue;
+
+					SetUIState(0x01, true);
+
+					if(this.DropItem(_items[i]))
+						Common.PingDelay(200);
+					else
+						_retval = false;
+				}
+			}
+		}
+
+		me.Cancel(1);
+
+		return _retval;
+	},
+
+	DropItem: function (item) {
+		if(!item)
+			return false;
+
+		if(Common.ItemToCursor(item))
+			return Common.ClearCursor();
+
+		return false;
+	},
+
+	ClearBelt: function () {
+		var i, _result, _needdrop, _items;
+
+		do
+		{
+			_items = me.GetItems();
+
+			if(!_items)
+			{
+				_result = false;
+				break;
+			}
+
+			_result = true;
+
+			for(i = 0 ; i < _items.length ; i++)
+			{
+				if(_items[i].mode == 2 && _items[i].x < 4)
+				{
+					_needdrop = false;
+
+					switch(_items[i].itemtype)
+					{
+					case 76:
+						if(Config.BeltColType[_items[i].x] != "hp")
+							_needdrop = true;
+						break;
+					case 77:
+						if(Config.BeltColType[_items[i].x] != "mp")
+							_needdrop = true;
+						break;
+					case 78:
+						if(Config.BeltColType[_items[i].x] != "rv")
+							_needdrop = true;
+						break;
+					default:
+						_needdrop = true;
+						break;
+					}
+
+					if(_needdrop)
+					{
+						SetUIState(0x1F, true);
+
+						if(this.DropItem(_items[i]))
+							Common.PingDelay(200);
+
+						_result = false;
+					}
+				}
+			}
+		} while(!_result);
+
+		me.Cancel(1);
+
+		return _result;
+	},
+
+	ShopItem: function (item, npc, mode) {
+		var i, _keys, _npckeys,
+			_mygold = NTC_MyGold();
+
+		if(mode > 1)
+		{
+			if(item.GetItemCost(0, npc.classid) > _mygold)
+				return false;
+		}
+
+		if(mode > 1)
+		{
+			var _havespace = false;
+
+			if(item.classid == 529 || item.classid == 530)
+			{
+				var _book = (item.classid == 530) ? this.GetTome(0) : this.GetTome(1);
+
+				if(_book && _book.GetStat(70) < 20)
+					_havespace = true;
+			}
+			
+			if (!_havespace) {
+				if (this.CheckSpace(item.xsize, item.ysize) || item.classid == 526 || item.classid == 528 || item.itemtype === 9 || item.itemtype >= 76 && item.itemtype <= 78) {
+					_havespace = true;
+				}
+			}
+			
+			if(_havespace)
+			{
+				for(i = 0 ; i < 40 ; i++)
+				{
+					if((i % 20) == 0)
+						me.ClickItem(mode > 2 ? 3 : 1, item);
+
+					Delay(100);
+
+					if(_mygold > Common.MyGold())
+					{
+						Common.PingDelay(500);
+						return true;
+					}
+				}
+			}
+		}
+		else
+		{
+			if(Common.ItemToCursor(item))
+			{
+				for(var i = 0 ; i < 40 ; i++)
+				{
+					if((i % 20) == 0)
+						me.ClickItem(0, 8, 6, 1);
+
+					Delay(100);
+
+					if(!me.itemoncursor)
+					{
+						Common.PingDelay(800);
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	},
+
+	IdItem: function (scroll, uniditem) {
+		var i, _timer;
+
+		if(arguments.length < 1 || !scroll)
+			return false;
+
+		if(arguments.length < 2 || !uniditem)
+			return false;
+
+		if(uniditem.itemflag&0x10)
+			return true;
+
+		for(i = 0 ; i < 40 ; i++)
+		{
+			if((i % 20) == 0)
+				me.ClickItem(1, scroll);
+
+			Delay(100);
+
+			if(GetCursorType() == 6)
+				break;
+		}
+
+		if(i >= 40)
+			return false;
+
+		Common.PingDelay(200);
+
+		for(i = 0 ; i < 40 ; i++)
+		{
+			if((i % 20) == 0)
+				me.ClickItem(0, uniditem);
+
+			Delay(100);
+
+			if(uniditem.itemflag&0x10)
+			{
+				Common.PingDelay(200);
+				return true;
+			}
+		}
+
+		return false;
+	},
+
+	CheckUnids: function () {
+		var _unidcount = 0,
+			_items = me.GetItems();
+
+		if(!_items)
+			return _unidcount;
+
+		for(var i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0 && !(_items[i].itemflag&0x10))
+				_unidcount++;
+		}
+
+		return _unidcount;
+	},
+
+	GetUnidItems: function () {
+		var _uniditems = new Array(),
+			_items = me.GetItems();
+
+		if(!_items)
+			return _uniditems;
+
+		for(var i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0 && !(_items[i].itemflag&0x10))
+				_uniditems.push(_items[i]);
+		}
+
+		return _uniditems;
+	},
+
+	GambleIt: function (npc) {
+		var _items, _newitem, result,
+			resultArray = new Array();
+
+		if(!npc)
+			return false;
+
+		if(!GetUIState(0x0C))
+			return false;
+
+		_items = npc.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(var i = 0 ; i < _items.length ; i++)
+		{
+			if(Common.MyGold() < Config.GambleStopGold)
+				return false;
+
+			if(this.IsItemInGambleArrayInt(_items[i].classid))
+			{
+				if(this.CheckSpace(_items[i].xsize, _items[i].ysize))
+				{
+					this.GetOldItemsInt();
+
+					if(this.ShopItem(_items[i], npc, 2))
+						_newitem = this.GetGambledItemInt();
+					else
+						return false;
+
+					if(_newitem)
+					{
+						while(!(_newitem.itemflag&0x10))
+							NTC_Delay(100);
+
+						resultArray = SnagIt.CheckItem(_newitem); 
+						result = resultArray[0];	
+							
+						switch(result)
+						{
+						case 1:
+							Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_2 + "Kept: " + NTC_ItemQualityToMGRColor[_newitem.quality] + _newitem.name.split("\n")[0]+ ";" + _newitem.itemdesc + "\n" + COLOR_2 + "iLvl: " + _newitem.itemlevel + "\n" + COLOR_2 + "Gambled: " + npc.name+ "\n" + COLOR_2 +resultArray[1]+", "+resultArray[2]);
+						case 2:
+							break;
+						default:
+							if(Config.LogSoldItemQuality != 0 && _newitem.quality >= Config.LogSoldItemQuality)
+								Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_newitem.quality] + _newitem.name.split("\n")[0]+ ";" + _newitem.itemdesc + "\n" + COLOR_2 + "iLvl: " + _newitem.itemlevel + "\n" + COLOR_2 + "Gambled: " + npc.name);
+							this.ShopItem(_newitem, npc, 1);
+							break;
+						}
+					}
+				} 
+			}
+		}
+		return true;
+	},
+
+	IsItemInGambleArrayInt: function (classid) {
+		var i;
+		for(i = 0 ; i < Config.GambleItem.length ; i++)
+		{
+			if(classid == Config.GambleItem[i])
+				return true;
+		}
+
+		return false;
+	},
+
+	GetPotionAtNPCInt: function (type, npc) {
+	   var _items;
+
+	   if(!type)
+		  return null;
+
+	   if(type == "hp" || type == "mp")
+	   {
+		  _items = npc.GetItems();
+
+		  if(_items)
+		  {
+			 var n;
+			 var i;
+
+			 for(n = 5 ; n > 0 ; n--)
+			 {
+				for(i = 0 ; i < _items.length ; i++)
+				{
+				   if(_items[i].code == (type+n))
+					  return _items[i];
+				}
+			 }
+		  }
+	   }
+	   else
+	   {
+		  if(type == "rv")
+			 return null;
+
+		  _items = npc.GetItems(type);
+
+		  if(_items && _items.length > 0)
+			 return _items[0];
+	   }
+
+	   return null;
+	},
+
+	BuyPotionsFastInt: function (npc) {
+		var i, n, _insert, _potion,
+			_typearray = new Array();
+
+		for(i = 0 ; i < 4 ; i++)
+		{
+			if(_NTT_BeltColNeeded[i] > 0)
+			{
+				if(_typearray.length == 0)
+					_typearray.push(Config.BeltColType[i]);
+				else
+				{
+					_insert = true;
+
+					for(n = 0 ; n < _typearray.length ; n++)
+					{
+						if(_typearray[n] == Config.BeltColType[i])
+							_insert = false;
+					}
+
+					if(_insert)
+						_typearray.push(Config.BeltColType[i]);
+				}
+			}
+		}
+
+		for(i = 0 ; i < _typearray.length ; i++)
+		{
+			if(_typearray[i] == "rv")
+				continue;
+
+			_potion = this.GetPotionAtNPCInt(_typearray[i], npc);
+
+			if(_potion)
+			{ 
+				if(this.ShopItem(_potion, npc, 3))
+					continue;
+				else
+					return false;
+			}
+			else
+				return false;
+		}
+
+		return true;
+	},
+
+	BuyPotionsColInt: function (npc, col) {
+		var _numpotions, _potion, _buyloop;
+
+		if(col < 0 || col > 3)
+			return false;
+
+		if(Config.BeltColType[col] == "rv")
+			return false;
+
+		_numpotions = _NTT_BeltColNeeded[col];
+
+		if(_numpotions == 0)
+			return false;
+
+		if(_numpotions > _NTT_BeltSize)
+			_numpotions = _NTT_BeltSize;
+
+		for(_buyloop = 0 ; _buyloop < _numpotions ; _buyloop++)
+		{
+			_potion = this.GetPotionAtNPCInt(Config.BeltColType[col], npc);
+
+			if(_potion)
+				this.ShopItem(_potion, npc, 2);
+			else
+				return false;
+		}
+		
+		return true;
+	},
+
+	BuyPotionsSlowInt: function (npc) {
+		var _currentcol;
+
+		for(_currentcol = 0 ; _currentcol < 4 ; _currentcol++)
+		{
+			if(_NTT_BeltColNeeded[_currentcol] == _NTT_BeltSize)
+			{
+				this.BuyPotionsColInt(npc, _currentcol);
+				_NTT_BeltColNeeded[_currentcol] = 0;
+			}
+		}
+
+		for(_currentcol = 0 ; _currentcol < 4 ; _currentcol++)
+			this.BuyPotionsColInt(npc, _currentcol);
+
+		return true;
+	},
+
+	GetNeededPotionsColInt: function (type, column) {
+		var _restartloop = true,
+			_amountneeded = 0,
+			_items;
+
+		if(!type || column > 3)
+			return false;
+
+		if(_NTT_BeltSize < 1)
+			_NTT_BeltSize = Common.GetBeltSize();
+
+		potionloop:
+		do
+		{
+			_amountneeded = _NTT_BeltSize;
+
+			_items = me.GetItems();
+
+			if(!_items)
+				continue potionloop;
+
+			for(i = 0 ; i < _items.length ; i++)
+			{
+				if(_items[i].mode == 2)
+				{
+					if(this.PotInRightColInt(_items[i].x, column, _NTT_BeltSize))
+					{
+						var _potcode = _items[i].code;
+
+						if(_potcode.indexOf(type) != -1)
+							_amountneeded--;
+						else
+						{
+							if(_potcode.indexOf("rv") != -1)
+							{
+								if(_items[i].x < 4)
+								{
+									me.Cancel(1);
+									return 0;
+								}
+								else
+									_amountneeded--;
+							}
+							else
+							{
+								SetUIState(0x1F, true);
+
+								me.ClickItem(1, _items[i]);
+
+								Common.PingDelay(500);
+								continue potionloop;
+							}
+						}
+					}
+				}
+			}
+
+			_restartloop = false;
+		} while(_restartloop);
+
+		me.Cancel(1);
+		return _amountneeded;
+	},
+
+	PotInRightColInt: function (potx, column, beltsize) {
+		var i;
+
+		for(i = 0 ; i < beltsize ; i++)
+		{
+			if(potx-i*4 == column)
+				return true;
+		}
+
+		return false;
+	},
+
+	NeedPots: function (Town) {
+		if(arguments < 1) { Town = false; }
+		var potAmount = Town ? Config.CheckPotsTown : Config.MinPots;
+		if(potAmount == 0)
+			return false;
+		var _hp = [me.GetItems("hp1"),
+			   me.GetItems("hp2"),
+			   me.GetItems("hp3"),
+			   me.GetItems("hp4"),
+			   me.GetItems("hp5")];
+		var _mp = [me.GetItems("mp1"),
+			   me.GetItems("mp2"),
+			   me.GetItems("mp3"),
+			   me.GetItems("mp4"),
+			   me.GetItems("mp5")];
+		
+		var _healthPots = 0;
+		var _manaPots = 0;
+		for (var i = 0; i < _hp.length; ++i) {
+			_healthPots += _hp[i].length;
+			_manaPots += _mp[i].length;
+		}
+		
+		if((Config.BeltColType[0] == "hp" || Config.BeltColType[1] == "hp" || Config.BeltColType[2] == "hp" || Config.BeltColType[3] == "hp") && (_healthPots < potAmount))
+			return true;
+		else if((Config.BeltColType[0] == "mp" || Config.BeltColType[1] == "mp" || Config.BeltColType[2] == "mp" || Config.BeltColType[3] == "mp") && (_manaPots < potAmount))
+			return true;
+		else 
+			return false;
+	},
+
+	GetGambledItemInt: function () {
+		var i, n, _items, _founditem;
+
+		_items = me.GetItems();
+
+		if(!_items)
+			return null;
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0)
+			{
+				_founditem = true;
+
+				for(n = 0 ; n < _NTT_OldItems.length ; n++)
+				{
+					if(_items[i].gid == _NTT_OldItems[n])
+					{
+						_founditem = false;
+						break;
+					}
+				}
+
+				if(_founditem)
+					return _items[i];
+			}
+		}
+
+		return null;
+	},
+
+	GetOldItemsInt: function () {
+		var _items;
+
+		_NTT_OldItems = new Array();
+
+		_items = me.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(var i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0)
+				_NTT_OldItems.push(_items[i].gid);
+		}
+
+		return true;
+	},
+
+	FillArrows: function (npc) {
+		var _arrows, _items, _weapon, _name,
+			_bow =false;
+
+		if(arguments.length < 1) {
+			return false;
+		}
+		
+		_weapon = me.GetItems();
+
+		if(_weapon) {
+			for(var i = 0 ; i < _weapon.length ; i++) {
+				if(_weapon[i].mode == 1) {
+					switch(_weapon[i].classid) {
+						case 68:   //Short Bow
+						case 69:   //Hunter's Bow
+						case 70:   //Longbow
+						case 71:   //Composite Bow
+						case 72:   //Short Battle Bow
+						case 73:   //Long Battle Bow
+						case 74:   //short war bow
+						case 75:   //Long War Bow
+						case 161:  //Edge Bow
+						case 162:  //Razor Bow
+						case 163:  //Cedar Bow
+						case 164:  //Double Bow
+						case 165:  //Short Siege Bow
+						case 166:  //Large Siege Bow
+						case 167:  //Rune Bow
+						case 168:  //Gothic Bow
+						case 264:  //Spider Bow
+						case 265:  //Blade Bow
+						case 266:  //Shadow Bow
+						case 267:  //Great Bow
+						case 268:  //Diamond Bow
+						case 269:  //Crusader Bow
+						case 270:  //Ward Bow
+						case 271:  //Hydra Bow
+						case 281:  //Stag Bow
+						case 282:  //Reflex Bow
+						case 291:  //Ashwood Bow
+						case 292:  //Cermonial Bow
+						case 301:  //Matriarchal Bow
+						case 302:  //Grand Matron Bow
+							_bow = true;
+							_name = _weapon[i].name.split("\n")[0];
+							break;
+
+						default:
+							_bow = false;
+							_name = _weapon[i].name.split("\n")[0];
+							break;
+					}
+				}
+			}
+		}
+		if(_bow) {
+			Print(COLOR_8 + "Buying Arrows for my " + _name);
+			Print(" ");
+			
+			_items = npc.GetItems(526);
+
+			if(_items && _items.length > 0) {
+				this.ShopItem(_items[0], npc, 2);
+				return true;
+			}
+		} else {
+			Print(COLOR_8 + "Buying Bolts for my " + _name);
+			Print(" ");			
+			_items = npc.GetItems(528);
+
+			if(_items && _items.length > 0) {
+				this.ShopItem(_items[0], npc, 2);
+				return true;
+				
+			}
+		}
+		return false;
+	},
+
+	ResetEnigma: function () {
+		var i, n, _items, _itemStillOnCursor, _holdMaxGameTime,
+			_enigmaString = "",
+			_onBody = false;
+
+		_items = me.GetItems();	
+		_enigmaString = GetLocaleString(20539);
+
+		if(!_items)
+			return false;
+			
+		_holdMaxGameTime = me.maxgametime;
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			_itemStillOnCursor = false;	
+			
+			if(_items[i].mode == 1 && _items[i].itemloc == 3 && (_items[i].itemflag&0x4000000) && (_items[i].name.split("\n")[0] == _enigmaString))
+			{
+				if(_items[i].GetStat(72) == 0) { // 0 Durability Enigma
+					Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Enigma at 0 Durability.  Halting!***");	
+					Print(COLOR_1 + "***Enigma at 0 Durability.  Halting!***");
+					TownMove.CheckAct();
+					Delay(240000);
+					ExitGame();	
+					return false;
+				}
+
+				me.maxgametime = 0;
+				Tools.LogExitStatus("T");
+				
+				
+				SetUIState(0x01, true);
+
+				for(n = 0 ; n < 320 ; n++)
+				{
+					if((n % 40) == 0)
+						me.ClickItem(3);
+
+					Delay(100);
+
+					if(me.itemoncursor)
+					{
+						
+						_itemStillOnCursor = true;
+						Common.PingDelay(200);
+						break;
+					}
+				}
+
+				if(n >= 320)
+				{
+					me.maxgametime = _holdMaxGameTime;
+					Tools.LogExitStatus("F");
+					Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Unable to pick up Enigma.  Quiting!***");
+					Print(COLOR_1 + "***Unable to pick up Enigma.  Quiting!***");
+					SetUIState(0x01, false);
+					ExitGame();				
+					break;
+				}
+				
+				n = 0;
+				while(_itemStillOnCursor && n < 300) {
+					if((n % 40) == 0)
+						me.ClickItem(3);
+
+					Delay(100);
+
+					if(!me.itemoncursor) {
+						_itemStillOnCursor = false;
+					}
+					
+					n++;
+				}
+				
+				if(_itemStillOnCursor) {
+					me.maxgametime = _holdMaxGameTime;				
+					Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Unable to equip Enigma.  Quiting!***");
+					Print(COLOR_1 + "***Unable to equip Enigma.  Quiting!***");
+					if (GetUIState(0x01))
+						SetUIState(0x01, false);
+					ExitGame();
+					return false;
+				}
+					
+
+				me.Cancel(1);
+				me.maxgametime = _holdMaxGameTime;
+				
+				NTC_Delay(100);
+				Tools.LogExitStatus("F");
+				return true;
+
+				break;
+			}
+		}
+
+		Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Unable to find Enigma.  Check NTConfig_ResetEnigma var in char config.***");
+		Print(COLOR_1 + "***Unable to find Enigma.  Check NTConfig_ResetEnigma var in char config.***");
+		Common.TimeKeeper("!Unable to find Enigma.")
+		return false;
+	},
+
+	PutBackEnigma: function () {
+		var i, n, _items, _cursorItem, _holdMaxGameTime,
+			_itemStillOnCursor = true,
+			_enigmaString = "",
+			_haveArmour = false;
+		
+		if(!Config.ResetEnigma)
+			return true;
+		
+		if(!me.itemoncursor)
+			return true;
+		
+		_items = me.GetItems();	
+		
+		_enigmaString = GetLocaleString(20539);
+		
+		_cursorItem = me.GetCursorItem();
+		
+		if(_cursorItem.name.split("\n")[0] == _enigmaString && (_cursorItem.itemflag&0x4000000)) {
+			if(!_items) {
+			}
+			else {	
+				for(i = 0 ; i < _items.length ; i++)
+				{
+					if(_items[i].itemloc == 3 && _items[i].mode == 1) { 				
+						Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Enigma on cursor and armour already equiped.  Halting!***");
+						Print(COLOR_1 + "***Enigma on cursor and armour already equiped.  Halting!***");
+						return false;
+					}
+				}
+			}
+		}
+		else {
+			return true;
+		}
+
+		n = 0;
+		_holdMaxGameTime = me.maxgametime;
+		me.maxgametime = 0;	
+		
+		Delay(500);
+		Tools.LogExitStatus("T");
+		
+		SetUIState(0x01, true);
+		
+		while(_itemStillOnCursor && n < 300) {
+			if((n % 40) == 0)
+				me.ClickItem(3);
+
+			Delay(100);
+
+			if(!me.itemoncursor) {				
+				_itemStillOnCursor = false;
+			}
+			
+			n++;
+		}	
+		
+		if(_itemStillOnCursor) {
+			if (GetUIState(0x01))
+				SetUIState(0x01, false);	
+			Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Failed to equip Enigma.  Halting!***");
+			Print(COLOR_1 + "***Failed to equip Enigma.  Halting!***");
+			return false;
+		}
+		me.Cancel(1);
+		me.maxgametime = _holdMaxGameTime;
+
+		Delay(400);
+		Tools.LogExitStatus("F");
+		return true;
+	},
+
+	LookForEnigma: function () {
+		var _groundItem, _cursorItem,
+			_enigmaString = "";
+
+		if(!Config.ResetEnigma)
+			return true;
+			
+		_enigmaString = GetLocaleString(20539);
+		
+		_groundItem = Unit.FindUnit(NTC_UNIT_ITEM);
+		if (_groundItem)
+		{
+			do
+			{			
+				if ((_groundItem.itemflag&0x4000000) && _groundItem.name.split("\n")[0] == _enigmaString)
+				{
+					if (GetDistance(me, _groundItem) > 7)
+					{
+						if(Common.InTown()) {
+							if (!TownMove.MoveToXY(_groundItem.x, _groundItem.y)) {
+								Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+								Print(COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+								return false;
+							}
+						}
+						else {
+							if (!Travel.WalkTo(_groundItem.x, _groundItem.y)) {
+								Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+								Print(COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+								return false;
+							}					
+						}
+					}
+					SetUIState(0x01, true);
+					for (i = 0; i < 300; i++)
+					{
+						if ((i % 5) == 0) {
+							if(i%2 == 0) {
+								if(Common.InTown()) {
+									if (!TownMove.MoveToXY(_groundItem.x-1, _groundItem.y)) {
+										Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+										Print(COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+										return false;
+									}
+								}
+								else {
+									if (!Travel.WalkTo(_groundItem.x-1, _groundItem.y)) {
+										Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+										Print(COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+										return false;
+									}					
+								}					
+							}
+							else {
+								if(Common.InTown()) {
+									if (!TownMove.MoveToXY(_groundItem.x+1, _groundItem.y)) {
+										Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+										Print(COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+										return false;
+									}
+								}
+								else {
+									if (!Travel.WalkTo(_groundItem.x+1, _groundItem.y)) {
+										Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+										Print(COLOR_1 + "***Failed to move to Runeword on ground.  Halting!***");
+										return false;
+									}					
+								}						
+							}
+							Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _groundItem);
+						}
+						Delay(100);
+
+						if (me.itemoncursor)
+						{
+							Common.PingDelay(200);
+						
+							return this.PutBackEnigma();
+						}
+					}
+					if (GetUIState(0x01))
+						SetUIState(0x01, false);				
+				}
+			} while (_groundItem.GetNext());
+		}
+		return true;
+	},
+
+	CheckInventoryBeforeBoss: function () {
+		var x, y, _items,
+			_itemlist = new Array(),
+			_ignorestring = _NTT_IgnoredItems.join();
+
+			_invspace = new Array(4);
+			_invspace[0] = new Array(10);
+			_invspace[1] = new Array(10);
+			_invspace[2] = new Array(10);
+			_invspace[3] = new Array(10);
+
+		for(y = 0 ; y < 4 ; y++)
+		{
+			for(x = 0 ; x < 10 ; x++)
+				_invspace[y][x] = 0;
+		}
+
+		_items = me.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(var i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0)
+			{
+				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+					_itemlist.push(_items[i].code);
+
+				for(y = 0 ; y < _items[i].ysize ; y++)
+				{
+					for(x = 0 ; x < _items[i].xsize ; x++)
+						_invspace[y+_items[i].y][x+_items[i].x] = 1;
+				}
+			}
+		}
+
+		_freecolss = new Array(10);
+
+		for(x = 0 ; x < 10 ; x++)
+			_freecolss[x] = 0; 
+
+		for(x = 0 ; x < 10 ; x++)
+		{
+			for(y = 0 ; y < 4 ; y++)
+			{
+				if(_invspace[y][x] == 1)
+				{
+					_freecolss[x] = 1;
+					break;
+				}
+			}
+		}
+
+		_numfreecolss = 0;
+
+		for(x = 0 ; x < 10 ; x++)
+		{ 
+			if(_freecolss[x] == 0)
+				_numfreecolss++;
+		}
+
+		if(Config.FreeSpaceBeforeBoss > _numfreecolss)
+		{
+			for(x = 0 ; x < _itemlist.length ; x++)
+			{
+				if(_ignorestring.indexOf(_itemlist[x]) != -1)
+					_itemlist.splice(x, 1);
+			}
+
+			if(_itemlist.length > 0)
+				return true;
+		}
+
+		return false;
+	},
+
+	CheckForFullStash: function () {
+		var i, x, y, _items,
+			_itemlist = new Array(),
+			_ignorestring = _NTT_IgnoredItems.join();
+
+			_invspace = new Array(4);
+			_invspace[0] = new Array(10);
+			_invspace[1] = new Array(10);
+			_invspace[2] = new Array(10);
+			_invspace[3] = new Array(10);
+
+		for(y = 0 ; y < 4 ; y++)
+		{
+			for(x = 0 ; x < 10 ; x++)
+				_invspace[y][x] = 0;
+		}
+
+		_items = me.GetItems();
+
+		if(!_items)
+			return false;
+
+		for(i = 0 ; i < _items.length ; i++)
+		{
+			if(_items[i].mode == 0 && _items[i].itemloc == 0)
+			{
+				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+					_itemlist.push(_items[i].code);
+
+				for(y = 0 ; y < _items[i].ysize ; y++)
+				{
+					for(x = 0 ; x < _items[i].xsize ; x++)
+						_invspace[y+_items[i].y][x+_items[i].x] = 1;
+				}
+			}
+		}
+
+		_freecolss = new Array(10);
+
+		for(x = 0 ; x < 10 ; x++)
+			_freecolss[x] = 0; 
+
+		for(x = 0 ; x < 10 ; x++)
+		{
+			for(y = 0 ; y < 4 ; y++)
+			{
+				if(_invspace[y][x] == 1)
+				{
+					_freecolss[x] = 1;
+					break;
+				}
+			}
+		}
+
+		_numfreecolss = 0;
+
+		for(x = 0 ; x < 10 ; x++)
+		{ 
+			if(_freecolss[x] == 0)
+				_numfreecolss++;
+		}
+
+		if(Config.FreeRowsQuit > _numfreecolss)
+		{
+			for(x = 0 ; x < _itemlist.length ; x++)
+			{
+				if(_ignorestring.indexOf(_itemlist[x]) != -1)
+					_itemlist.splice(x, 1);
+			}
+
+			if(_itemlist.length > 0)
+				return true;
+		}
+
+		return false;
+	},
+
+	CheckNeedTown: function (Hpshort, Mpshort) {
+		if(this.CheckBeltHp(Hpshort) || this.CheckBeltMp(Mpshort) || this.CheckMerc() || TownManager.CheckScrolls(1) < 4)
+			TownManager.VisitTown(); 
+		return;
+	},
+
+	CheckBeltHp: function (numshort) {
+		if (arguments.length < 1)
+			numshort = 1;
+		var _needpotions = false;
+
+		for(var i = 0 ; i < 4 ; i++)
+		{
+			_NTT_BeltColNeeded[i] = this.GetNeededPotionsColInt(Config.BeltColType[i], i);
+
+			if(_NTT_BeltColNeeded[i] >= numshort && Config.BeltColType[i] != "rv" && Config.BeltColType[i] != "mp")
+				_needpotions = true;
+		}
+		return _needpotions;
+	},
+
+	CheckBeltMp: function (numshort) {
+		if (arguments.length < 1)
+			numshort = 1;
+
+		var _needpotions = false;
+
+		for(var i = 0 ; i < 4 ; i++)
+		{
+			_NTT_BeltColNeeded[i] = this.GetNeededPotionsColInt(NTConfig_BeltColType[i], i);
+
+			if(_NTT_BeltColNeeded[i] >= numshort && Config.BeltColType[i] != "rv" && Config.BeltColType[i] != "hp")
+				_needpotions = true;
+		}
+
+		return _needpotions;
+	},
+
+	VisitNpc: function (npc) {  
+		if (GetUIState(0x08)){
+			return true;
+		}
+		for (var i = 0; i < 100; i++){
+			if (i > 40){
+				Common.RemoveLag(npc);
+			}
+			if ((i % 5) == 0){
+				if (i > 0){
+					me.Cancel(0);
+				}
+				Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, npc);
+				while (me.mode != 5){
+					Delay(200);
+				}
+			}
+			Delay(200);
+			if (GetUIState(0x08)){
+				Common.PingDelay(400);
+				return true;
+			}
+		}
+		return false;
+	},
+
+	CheckFreeInventorySpace: function (PrintToScreen) { 
+		var i, x, y, itemsInventory;
+		
+		if(arguments.length == 0) { PrintToScreen = false; }
+			
+		var inventorySpace = new Array(4);
+
+		for(y = 0 ; y < 4 ; y++) {
+			inventorySpace[y] = new Array(10);
+		}
+
+		for(y = 0 ; y < 4 ; y++) {
+			for(x = 0 ; x < 10 ; x++) {
+				inventorySpace[y][x] = 0;
+			}
+		}
+
+		itemsInventory = me.GetItems();
+
+		if(!itemsInventory) {
+			return false;
+		}
+		var totalUsedSpace = 0;
+		var totalLockedSpace = 0;	
+		for(i = 0 ; i < itemsInventory.length ; i++) {
+			if(itemsInventory[i].mode == 0 && itemsInventory[i].itemloc == 0) {
+				if(itemsInventory[i].classid == 603 && itemsInventory[i].quality == 7) {
+					for(y = 0 ; y < itemsInventory[i].ysize ; y++) {
+						for(x = 0 ; x < itemsInventory[i].xsize ; x++)
+							inventorySpace[y+itemsInventory[i].y][x+itemsInventory[i].x] = 4;
+							totalUsedSpace++;
+					}
+				}
+				else if(itemsInventory[i].classid == 604 && itemsInventory[i].quality == 7) {
+					for(y = 0 ; y < itemsInventory[i].ysize ; y++) {
+						for(x = 0 ; x < itemsInventory[i].xsize ; x++)
+							inventorySpace[y+itemsInventory[i].y][x+itemsInventory[i].x] = 3;
+							totalUsedSpace++;
+					}
+				}			
+				else if(itemsInventory[i].classid == 549) {
+					for(y = 0 ; y < itemsInventory[i].ysize ; y++) {
+						for(x = 0 ; x < itemsInventory[i].xsize ; x++)
+							inventorySpace[y+itemsInventory[i].y][x+itemsInventory[i].x] = 2;
+							totalUsedSpace++;
+					}
+				} else {
+					for(y = 0 ; y < itemsInventory[i].ysize ; y++) {
+						for(x = 0 ; x < itemsInventory[i].xsize ; x++)
+							inventorySpace[y+itemsInventory[i].y][x+itemsInventory[i].x] = 1;
+							totalUsedSpace++;
+					}
+				}
+			}
+		}
+		for(y = 0 ; y < 4 ; y++) {
+			for(x = 0 ; x < 10 ; x++) {
+				if(inventorySpace[y][x] == 0 && Config.Columns[y][x] == 0) { // 0 == locked, 1 == not locked.
+					inventorySpace[y][x] = 6;
+				}
+				else if(inventorySpace[y][x] == 1 && Config.Columns[y][x] == 0) { // 0 == locked, 1 == not locked.			
+					inventorySpace[y][x] = 5;
+				}
+				if(inventorySpace[y][x] >= 1 && Config.Columns[y][x] == 0) { // 0 == locked, 1 == not locked.
+					totalLockedSpace++;
+				}			
+			}
+		}
+		var totalFreeSpace = 40 - totalUsedSpace;
+		if(PrintToScreen) {
+			Print(" ");
+			Print(COLOR_14 + "INVENTORY: ");
+			for(y = 0 ; y < 4 ; y++) {
+				var printSpace = [];
+				for(x = 0 ; x < 10 ; x++) {
+					switch(inventorySpace[y][x]) {
+						case 0: // unlocked empty
+							printSpace.push(COLOR_2 + "O")
+							break;
+						case 1: // unlocked full
+							printSpace.push(COLOR_1 + "X")
+							break;
+						
+						case 2:
+							printSpace.push(COLOR_4 + "C")
+							break;
+						case 3: // where the torch is
+							printSpace.push(COLOR_4 + "T")
+							break;
+						case 4: // where the anni is
+							printSpace.push(COLOR_4 + "A")
+							break;
+						
+						case 5: // locked space that is full
+							printSpace.push(COLOR_1 + "L")
+							break;
+						case 6: // locked space that is empty
+							printSpace.push(COLOR_2 + "L")
+							break;
+					}
+					
+				}
+				Print(COLOR_4 + "|" + printSpace + COLOR_4 + "|");
+			}
+			Print(COLOR_14 + "Free Space = " + totalFreeSpace + ", Used Space = " + totalUsedSpace + ", Locked Space = " + totalLockedSpace);
+		}
+		return totalFreeSpace;
+	},
+
+	CheckFreeStashSpace: function (PrintToScreen) {
+		var i, x, y, itemsStash,
+			StashHeight = (me.gametype == 0) ? 4 : 8;
+		
+		if(arguments.length == 0) { PrintToScreen = false; }
+			
+		var _stashspace = new Array(StashHeight);
+
+		for(y = 0 ; y < StashHeight ; y++) {
+			_stashspace[y] = new Array(6);
+		}
+
+		for(y = 0 ; y < StashHeight ; y++) {
+		
+			for(x = 0 ; x < 6 ; x++) {
+				_stashspace[y][x] = 0;
+			}
+		}
+
+		itemsStash = me.GetItems();
+
+		if(!itemsStash) {
+			return false;
+		}
+		var totalUsedSpace = 0;
+		for(i = 0 ; i < itemsStash.length ; i++) {
+			if(itemsStash[i].mode == 0 && itemsStash[i].itemloc == 4) {
+				if(itemsStash[i].classid == 549) {
+					for(y = 0 ; y < itemsStash[i].ysize ; y++) {
+						for(x = 0 ; x < itemsStash[i].xsize ; x++) {
+							_stashspace[y+itemsStash[i].y][x+itemsStash[i].x] = 2;
+							totalUsedSpace++
+						}
+					}
+				} else {
+					for(y = 0 ; y < itemsStash[i].ysize ; y++) {
+						for(x = 0 ; x < itemsStash[i].xsize ; x++) {
+							_stashspace[y+itemsStash[i].y][x+itemsStash[i].x] = 1;
+							totalUsedSpace++						
+						}
+					}
+				}
+			}
+		}
+		var totalFreeSpace = (48 - totalUsedSpace);	
+		if(PrintToScreen) {
+			Print(" ");
+			Print(COLOR_14 + "STASH: ");
+			for(y = 0 ; y < StashHeight ; y++) {
+				var printSpace = [];
+				for(x = 0 ; x < 6 ; x++) {
+					switch(_stashspace[y][x]) {
+						case 0:
+							printSpace.push(COLOR_2 + "O")
+							break;
+						case 1:
+							printSpace.push(COLOR_1 + "X")
+							break;
+						
+						case 2:
+							printSpace.push(COLOR_4 + "C")
+							break;
+					}
+					
+				}
+				Print(COLOR_4 + "|" + printSpace + COLOR_4 + "|");
+			}
+			Print(COLOR_14 + "Free Space = " + totalFreeSpace + ", Used Space = " + totalUsedSpace);		
+		}
+		return totalFreeSpace;
+	}
+};
