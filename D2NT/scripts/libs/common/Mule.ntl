@@ -79,7 +79,7 @@ var Mule = {
 		{
 			if(_items[i].mode == 0 && _items[i].itemloc == 0)
 			{
-				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+				if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
 					_itemlist.push(_items[i].code);
 
 				for(y = 0 ; y < _items[i].ysize ; y++)

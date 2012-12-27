@@ -106,7 +106,7 @@ var ItemParser = {
 				var item = _items[i];
 				if((item_type != null && item_type.length > 0 && eval(item_type)) || item_type == null)
 					if((item_stats != null && item_stats.length > 0 && eval(item_stats)) || item_stats == null)
-						if(Config.Columns[_items[i].y][_items[i].x] > 0) // we check only space that is supposed to be free
+						if(NTConfig_Columns[_items[i].y][_items[i].x] > 0) // we check only space that is supposed to be free
 							_nb++;
 			}
 		}

@@ -6,13 +6,13 @@ var Runeword = {
 		var i, n, j, _baseitem, _needhel,
 			_classid = item.classid;
 
-		if(!Config.MakeRunewords)
+		if(!NTConfig_MakeRunewords)
 			return false;
 
 		if(arguments.length < 2)
 			checkonly = false;
 
-		for(i = 0 ; i < Config.Runeword.length ; i++)
+		for(i = 0 ; i < NTConfig_Runeword.length ; i++)
 		{
 			_needhel = 1;
 			_items = me.GetItems(NTRW_AliasToClassid(NTConfig_Runeword[i][0]));
@@ -22,7 +22,7 @@ var Runeword = {
 
 			for(n = 0 ; n < _items.length ; n++)
 			{
-				if(_items[n].GetStat(194) == (Config.Runeword[i].length - 1) && _items[n].quality < 4 && _items[n].mode == 0 && (_items[n].itemloc == 0 || _items[n].itemloc == 4) && !(_items[n].itemflag&0x4000000))
+				if(_items[n].GetStat(194) == (NTConfig_Runeword[i].length - 1) && _items[n].quality < 4 && _items[n].mode == 0 && (_items[n].itemloc == 0 || _items[n].itemloc == 4) && !(_items[n].itemflag&0x4000000))
 				{
 					_baseitem = _items[n];
 					break;
@@ -31,14 +31,14 @@ var Runeword = {
 
 			if(_baseitem)
 			{
-				for(j = 1 ; j < Config.Runeword[i].length ; j++)
+				for(j = 1 ; j < NTConfig_Runeword[i].length ; j++)
 				{
 					if(NTRW_AliasToClassid(NTConfig_Runeword[i][j]) == 624)
 						_needhel++;
 						
 					if(NTRW_AliasToClassid(NTConfig_Runeword[i][j]) == _classid)
 					{
-						if(this.CheckItemNum(this.AliasToClassid(Config.Runeword[i][j])) < 1 || checkonly)
+						if(this.CheckItemNum(this.AliasToClassid(NTConfig_Runeword[i][j])) < 1 || checkonly)
 							return true;
 					}
 				}
@@ -59,24 +59,24 @@ var Runeword = {
 			checkbase = false,
 			result = true;
 		
-		for(i = 0 ; i < Config.Runeword.length ; i++)
+		for(i = 0 ; i < NTConfig_Runeword.length ; i++)
 		{
 			checkbase = false;
 			checkrunes = true;
 			_needhel = 1;
 		
-			for(j = 0 ; j < Config.Runeword[i].length ; j++)
+			for(j = 0 ; j < NTConfig_Runeword[i].length ; j++)
 			{
 				if(j == 0)
 				{
-					_items = me.GetItems(this.AliasToClassid(Config.Runeword[i][0]));
+					_items = me.GetItems(this.AliasToClassid(NTConfig_Runeword[i][0]));
 					
 					if(!_items || _items.length == 0)
 						break;
 					
 					for(n = 0 ; n < _items.length ; n++)
 					{
-						if(_items[n].GetStat(194) == (Config.Runeword[i].length - 1) && _items[n].quality < 4 && (_items[n].itemloc == 0 || _items[n].itemloc == 4) && !(_items[n].itemflag&0x4000000))
+						if(_items[n].GetStat(194) == (NTConfig_Runeword[i].length - 1) && _items[n].quality < 4 && (_items[n].itemloc == 0 || _items[n].itemloc == 4) && !(_items[n].itemflag&0x4000000))
 						{
 							checkbase = true;
 							break;
@@ -86,10 +86,10 @@ var Runeword = {
 					continue;
 				}
 				
-				if(this.CheckItemNum(this.AliasToClassid(Config.Runeword[i][j])) == 0)
+				if(this.CheckItemNum(this.AliasToClassid(NTConfig_Runeword[i][j])) == 0)
 					checkrunes = false;
 					
-				if(this.AliasToClassid(Config.Runeword[i][j]) == 624)
+				if(this.AliasToClassid(NTConfig_Runeword[i][j]) == 624)
 					_needhel++;
 					
 				if(this.CheckItemNum(624) < _needhel)
@@ -129,16 +129,16 @@ var Runeword = {
 		if(!_helrune || _helrune.length < _needhel)
 			return false;
 
-		for(var i = 0 ; i < Config.Runeword.length ; i++)
+		for(var i = 0 ; i < NTConfig_Runeword.length ; i++)
 		{
 			baseitem = false;
 			_needhel = 1;
 			
 			haveitem = true;
 			
-			for(var j = 0 ; j < Config.Runeword[i].length ; j++)
+			for(var j = 0 ; j < NTConfig_Runeword[i].length ; j++)
 			{
-				if(this.AliasToClassid(Config.Runeword[i][j]) == 624)
+				if(this.AliasToClassid(NTConfig_Runeword[i][j]) == 624)
 					_needhel++;
 
 				_items = me.GetItems(this.AliasToClassid(NTConfig_Runeword[i][j]));
@@ -155,13 +155,13 @@ var Runeword = {
 
 			if(haveitem)
 			{
-				for(var j = 0 ; j < Config.Runeword[i].length ; j++)
+				for(var j = 0 ; j < NTConfig_Runeword[i].length ; j++)
 				{
-					_items = me.GetItems(this.AliasToClassid(Config.Runeword[i][j]));
+					_items = me.GetItems(this.AliasToClassid(NTConfig_Runeword[i][j]));
 					
 					for(var n = 0 ; n < _items.length ; n++)
 					{
-						if(_items[n].GetStat(194) == (Config.Runeword[i].length - 1) && _items[n].quality < 4 && _items[n].mode == 0 && (_items[n].itemloc == 0 || _items[n].itemloc == 4) && !(_items[n].itemflag&0x4000000))
+						if(_items[n].GetStat(194) == (NTConfig_Runeword[i].length - 1) && _items[n].quality < 4 && _items[n].mode == 0 && (_items[n].itemloc == 0 || _items[n].itemloc == 4) && !(_items[n].itemflag&0x4000000))
 						{
 							baseitem = _items[n];
 							break;
@@ -201,8 +201,8 @@ var Runeword = {
 				{
 					var _result = 0;
 					
-					for(var m = 0; m < Config.KeepRuneword.length && !_result; m++)
-						_result = (this.MiniNTIPCheckItem(baseitem, Config.KeepRuneword[m]) == 1);
+					for(var m = 0; m < NTConfig_KeepRuneword.length && !_result; m++)
+						_result = (this.MiniNTIPCheckItem(baseitem, NTConfig_KeepRuneword[m]) == 1);
 
 					if(!_result) 
 					{

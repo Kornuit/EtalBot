@@ -6,7 +6,7 @@ Include("libs/Common_Vars.ntl");
 
 var Attack = {
 	Initialize: function () {
-		if (Config.AttackSkill[1] == -1 || Config.AttackSkill[3] == -1) {
+		if (NTConfig_AttackSkill[1] == -1 || NTConfig_AttackSkill[3] == -1) {
 			//this.DetectAttackPattern(); // the onld detection method disabling unless someone updates the list for the default attacks
 			switch (me.classid) {
 			case NTC_CHAR_CLASS_AMAZON: Print("No attacks where set in your NTConfig_Amazon_" + me.charname + ".ntl file!"); break;
@@ -24,11 +24,11 @@ var Attack = {
 			}
 		}
 		for (var i = 0; i < NTConfig_AttackSkill.length; i++) {
-			if (Config.AttackSkill[i] > -1) {
-				_NTA_SkillHand[i] = GetBaseStat("skills.txt", Config.AttackSkill[i], 166) ? 2 : NTC_HAND_RIGHT;
-				_NTA_SkillDamage[i] = this.GetDamageType(Config.AttackSkill[i]);
+			if (NTConfig_AttackSkill[i] > -1) {
+				_NTA_SkillHand[i] = GetBaseStat("skills.txt", NTConfig_AttackSkill[i], 166) ? 2 : NTC_HAND_RIGHT;
+				_NTA_SkillDamage[i] = this.GetDamageType(NTConfig_AttackSkill[i]);
 
-				switch (Config.AttackSkill[i]) {
+				switch (NTConfig_AttackSkill[i]) {
 				case 0: //Normal Attack
 					if (this.RangedNormal()) { _NTA_SkillRange[i] = 20; } 
 					else { _NTA_SkillRange[i] = 2; }
@@ -224,7 +224,7 @@ var Attack = {
 					_NTA_SkillRange[i] = 3;
 					break;
 				case 245: //Tornado
-					_NTA_SkillRange[i] = Config.NadoDist;
+					_NTA_SkillRange[i] = NTConfig_NadoDist;
 					break;
 				case 248: //Fury      
 					_NTA_SkillRange[i] = 3;
@@ -256,8 +256,8 @@ var Attack = {
 		
 		if (me.classid == NTC_CHAR_CLASS_NECROMANCER) {
 			for (var i = 0 ; i < 2 ; i+= 1) {
-				if (Config.Curse[i] > 0) {
-					switch (Config.Curse[i]) {
+				if (NTConfig_Curse[i] > 0) {
+					switch (NTConfig_Curse[i]) {
 						case 0: //nothing
 							_NTA_CurseState[i] = 0;
 							break;
@@ -292,7 +292,7 @@ var Attack = {
 							_NTA_CurseState[i] = 61;
 							break;
 						default:
-							Config.Curse[i] = 0;
+							NTConfig_Curse[i] = 0;
 							Print("Invalid curse id");
 							break;
 					}
@@ -304,13 +304,13 @@ var Attack = {
 	KillMonster: function (classid) {
 		var _target;
 
-		if (Config.AttackSkill[1] < 0) { return false; }
+		if (NTConfig_AttackSkill[1] < 0) { return false; }
 
 		_target = Unit.FindUnit(NTC_UNIT_MONSTER, classid, 5);
 
 		if (!_target) { return false; }
 		
-		if (Config.PrioritizeWeakerFoes && Config.PrioritizeWeakerFoesAreaDisable.indexOf(me.areaid) < 0) {
+		if (NTConfig_PrioritizeWeakerFoes && NTConfig_PrioritizeWeakerFoesAreaDisable.indexOf(me.areaid) < 0) {
 				this.ClearPosition(20, true, 2);
 		}
 
@@ -321,16 +321,16 @@ var Attack = {
 					break;
 				}
 				if(_attackcount == 0) {
-					if(TownManager.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe, true)) {
+					if(TownManager.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe, true)) {
 						TownManager.VisitTown();
-					} else if (TownManager.CheckSafe(Config.CheckSelfSafe, Config.CheckMercSafe, true)){
+					} else if (TownManager.CheckSafe(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe, true)){
 						TownManager.VisitTown();
 					}
 				}
 				if((_attackcount % 5) == 0) {
-					if(TownManager.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe, true)) {
+					if(TownManager.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe, true)) {
 						TownManager.VisitTown();
-					} else if(TownManager.CheckSafe(Config.CheckSelfSafe, Config.CheckMercSafe, true)){
+					} else if(TownManager.CheckSafe(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe, true)){
 						TownManager.VisitTown();
 					}
 				}
@@ -350,11 +350,11 @@ var Attack = {
 		var _spectype = [0x0A, 0x01],
 		var _attackcount = 0;
 
-		if (Config.PrioritizeWeakerFoes && Config.PrioritizeWeakerFoesAreaDisable.indexOf(me.areaid) < 0) {
+		if (NTConfig_PrioritizeWeakerFoes && NTConfig_PrioritizeWeakerFoesAreaDisable.indexOf(me.areaid) < 0) {
 			_spectype = [0x10, 0x01, 0x04, 0x0A];
 		}	
 		
-		if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0) { return false; }
+		if (NTConfig_AttackSkill[1] < 0 || NTConfig_AttackSkill[3] < 0) { return false; }
 
 		switch (arguments.length) {
 		case 0:
@@ -367,7 +367,7 @@ var Attack = {
 			safelevel = 0;
 			break;
 		default:
-			if ((Config.CheckSelfSafe.length < 1) && (Config.CheckMercSafe.length < 1)) { safelevel = 0; }
+			if ((NTConfig_CheckSelfSafe.length < 1) && (NTConfig_CheckMercSafe.length < 1)) { safelevel = 0; }
 			break;
 		}
 
@@ -394,7 +394,7 @@ var Attack = {
 										_mingid = _target.gid;
 										_mindistance = _distance;
 									}
-									if ((Config.MonstersToAttackFirst.indexOf(_target.classid) > -1) && _distance < _minshamandistance) {
+									if ((NTConfig_MonstersToAttackFirst.indexOf(_target.classid) > -1) && _distance < _minshamandistance) {
 										_minshamangid = _target.gid;
 										_minshamandistance = _distance;
 									}
@@ -411,12 +411,12 @@ var Attack = {
 					if (_target) {
 						if (_gid_attackcount[_minshamangid] == undefined) { _gid_attackcount[_minshamangid] = 1; }
 						else { _gid_attackcount[_minshamangid]++; }
-						if (Config.HighMaxAttack || this.HighMaxAttackAreas()) {
-							if (_gid_attackcount[_minshamangid] > Config.HighMaxAttacks) {
+						if (NTConfig_HighMaxAttack || this.HighMaxAttackAreas()) {
+							if (_gid_attackcount[_minshamangid] > NTConfig_HighMaxAttacks) {
 								_skiplist.push(_minshamangid);
 							}
-						} else if (!Config.HighMaxAttack || !this.HighMaxAttackAreas()) {
-							if (_gid_attackcount[_minshamangid] > Config.LowMaxAttacks) {
+						} else if (!NTConfig_HighMaxAttack || !this.HighMaxAttackAreas()) {
+							if (_gid_attackcount[_minshamangid] > NTConfig_LowMaxAttacks) {
 								Print(COLOR_1 + "I can't hit him!!! -> skipped");
 								_skiplist.push(_minshamangid);
 							}
@@ -447,12 +447,12 @@ var Attack = {
 					if (_target) {
 						if (_gid_attackcount[_mingid] == undefined) { _gid_attackcount[_mingid] = 1; }
 						else { _gid_attackcount[_mingid]++; }
-						if (Config.HighMaxAttack || this.HighMaxAttackAreas()) {
-							if (_gid_attackcount[_mingid] > Config.HighMaxAttacks) {
+						if (NTConfig_HighMaxAttack || this.HighMaxAttackAreas()) {
+							if (_gid_attackcount[_mingid] > NTConfig_HighMaxAttacks) {
 								_skiplist.push(_mingid);
 							}
-						} else if (!Config.HighMaxAttack || !this.HighMaxAttackAreas()) {
-							if (_gid_attackcount[_mingid] > Config.LowMaxAttacks) {
+						} else if (!NTConfig_HighMaxAttack || !this.HighMaxAttackAreas()) {
+							if (_gid_attackcount[_mingid] > NTConfig_LowMaxAttacks) {
 								Print(COLOR_1 + "I can't hit him!!! -> skipped");
 								_skiplist.push(_mingid);
 							}
@@ -482,31 +482,31 @@ var Attack = {
 		}
 
 		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-			if (_attackcount > 2 && ((parseFloat(me.hp * 100 / me.hpmax) < Config.UseRedemptionHP) || (parseInt(me.mp * 100 / me.mpmax, 10) < Config.UseRedemptionMP))) {
+			if (_attackcount > 2 && ((parseFloat(me.hp * 100 / me.hpmax) < NTConfig_UseRedemptionHP) || (parseInt(me.mp * 100 / me.mpmax, 10) < NTConfig_UseRedemptionMP))) {
 				if (Skill.PutSkill(124, NTC_HAND_RIGHT)) { Common.PingDelay(1000); }
 			}
 		} else if (me.classid == NTC_CHAR_CLASS_NECROMANCER) {
-			MyAttack.SkeletonArmy(Config.SkeletonArmy);
-			MyAttack.MageArmy(Config.MageArmy);
-			MyAttack.ReviveArmy(Config.ReviveArmy);
+			MyAttack.SkeletonArmy(NTConfig_SkeletonArmy);
+			MyAttack.MageArmy(NTConfig_MageArmy);
+			MyAttack.ReviveArmy(NTConfig_ReviveArmy);
 		} else if (me.classid == NTC_CHAR_CLASS_BARBARIAN) {
-			if (Config.UseFindItem && _attackcount > 2) {
+			if (NTConfig_UseFindItem && _attackcount > 2) {
 				if (!this.CheckForCloseMonsters(10)) {
-					MyAttack.FindItem(Config.FindItemRange);
+					MyAttack.FindItem(NTConfig_FindItemRange);
 				}
 			}
 		}
 
-		if (Config.OpenChest) {
+		if (NTConfig_OpenChest) {
 			_target = Chest.GetSpecialChest();
 
 			if (_target && GetDistance(_orgx, _orgy, _target.x, _target.y) <= range && Chest.OpenChest(_target)) { _attackcount++; _sorcattack++; }
 		}
-		if (Config.OpenChestsInAreaClearing && Config.AreasToOpenChestClearing.indexOf(me.areaid) != -1) {
+		if (NTConfig_OpenChestsInAreaClearing && NTConfig_AreasToOpenChestClearing.indexOf(me.areaid) != -1) {
 			Chest.OpenChestsInAreaNear(_orgx, _orgy, range);
 		}
 
-		if(Config.IdInField){
+		if(NTConfig_IdInField){
 			if (!Tools.CheckSpace(NTConfig_FreeSpaceXY[0], NTConfig_FreeSpaceXY[1])) { 
 				this.FieldID(); 
 			}
@@ -520,9 +520,9 @@ var Attack = {
 			} 
 		}
 		
-		if(TownManager.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe, true)) {
+		if(TownManager.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe, true)) {
 			TownManager.VisitTown();
-		} else if(TownManager.CheckSafe(Config.CheckSelfSafe, Config.CheckMercSafe, true)) {
+		} else if(TownManager.CheckSafe(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe, true)) {
 			TownManager.VisitTown();
 		}
 
@@ -544,7 +544,7 @@ var Attack = {
 			safelevel = 2;
 			break;
 		default:
-			if ((Config.CheckSelfSafe.length < 1) && (Config.CheckMercSafe.length < 1)) { safelevel = 0; }
+			if ((NTConfig_CheckSelfSafe.length < 1) && (NTConfig_CheckMercSafe.length < 1)) { safelevel = 0; }
 			break;
 		}
 
@@ -583,11 +583,11 @@ var Attack = {
 			_spectype = [0x0A, 0x01],
 			_attackcount = 0;
 
-		if (Config.PrioritizeWeakerFoes && Config.PrioritizeWeakerFoesAreaDisable.indexOf(me.areaid) < 0) {
+		if (NTConfig_PrioritizeWeakerFoes && NTConfig_PrioritizeWeakerFoesAreaDisable.indexOf(me.areaid) < 0) {
 			_spectype = [0x10, 0x01, 0x04, 0x0A];
 		}	
 		
-		if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0) return false;
+		if (NTConfig_AttackSkill[1] < 0 || NTConfig_AttackSkill[3] < 0) return false;
 
 		_room = me.GetRoom();
 
@@ -599,7 +599,7 @@ var Attack = {
 		case 1:
 			safelevel = 0;
 		default:
-			if ((Config.CheckSelfSafe.length < 1) && (Config.CheckMercSafe.length < 1)) safelevel = 0;
+			if ((NTConfig_CheckSelfSafe.length < 1) && (NTConfig_CheckMercSafe.length < 1)) safelevel = 0;
 			break;
 		}
 
@@ -618,7 +618,7 @@ var Attack = {
 						if (_skiplist.indexOf(_target.gid) < 0) {
 							if (_target.IsAttackable() && (_target.spectype & _spectype[i])) {
 								if (_room.UnitInRoom(_target) && this.IsValidMonster(_target)) {
-									if (Config.MonstersToAttackFirst.indexOf(_target.classid) > -1) {
+									if (NTConfig_MonstersToAttackFirst.indexOf(_target.classid) > -1) {
 										_distance = GetDistance(me, _target);
 
 										if (_distance < _minshamandistance) {
@@ -647,12 +647,12 @@ var Attack = {
 
 						if (_gid_attackcount[_minshamangid] == undefined) _gid_attackcount[_minshamangid] = 1;
 						else _gid_attackcount[_minshamangid]++;
-						if (Config.HighMaxAttack || this.HighMaxAttackAreas()) {
-							if (_gid_attackcount[_minshamangid] > Config.HighMaxAttacks) {
+						if (NTConfig_HighMaxAttack || this.HighMaxAttackAreas()) {
+							if (_gid_attackcount[_minshamangid] > NTConfig_HighMaxAttacks) {
 								_skiplist.push(_minshamangid);
 							}
-						} else if (!Config.HighMaxAttack || !this.HighMaxAttackAreas()) {
-							if (_gid_attackcount[_minshamangid] > Config.LowMaxAttacks) {
+						} else if (!NTConfig_HighMaxAttack || !this.HighMaxAttackAreas()) {
+							if (_gid_attackcount[_minshamangid] > NTConfig_LowMaxAttacks) {
 								Print(COLOR_1 + "I can't hit him!!! -> skipped");
 								_skiplist.push(_minshamangid);
 							}
@@ -682,12 +682,12 @@ var Attack = {
 
 						if (_gid_attackcount[_mingid] == undefined) _gid_attackcount[_mingid] = 1;
 						else _gid_attackcount[_mingid]++;
-						if (Config.HighMaxAttack || this.HighMaxAttackAreas()) {
-							if (_gid_attackcount[_mingid] > Config.HighMaxAttacks) {
+						if (NTConfig_HighMaxAttack || this.HighMaxAttackAreas()) {
+							if (_gid_attackcount[_mingid] > NTConfig_HighMaxAttacks) {
 								_skiplist.push(_mingid);
 							}
-						} else if (!Config.HighMaxAttack || !this.HighMaxAttackAreas()) {
-							if (_gid_attackcount[_mingid] > Config.LowMaxAttacks) {
+						} else if (!NTConfig_HighMaxAttack || !this.HighMaxAttackAreas()) {
+							if (_gid_attackcount[_mingid] > NTConfig_LowMaxAttacks) {
 								Print(COLOR_1 + "I can't hit him!!! -> skipped");
 								_skiplist.push(_mingid);
 							}
@@ -714,33 +714,33 @@ var Attack = {
 		}
 
 		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-			if (_attackcount > 2 && (parseInt(me.hp * 100 / me.hpmax) < Config.UseRedemptionHP || parseInt(me.mp * 100 / me.mpmax) < Config.UseRedemptionMP)) {
+			if (_attackcount > 2 && (parseInt(me.hp * 100 / me.hpmax) < NTConfig_UseRedemptionHP || parseInt(me.mp * 100 / me.mpmax) < NTConfig_UseRedemptionMP)) {
 				if (Skill.PutSkill(124, NTC_HAND_RIGHT)) Common.PingDelay(1000);
 			}
 		} else if (me.classid == NTC_CHAR_CLASS_NECROMANCER) {
-			MyAttack.SkeletonArmy(Config.SkeletonArmy);
-			MyAttack.MageArmy(Config.MageArmy);
-			MyAttack.ReviveArmy(Config.ReviveArmy);
+			MyAttack.SkeletonArmy(NTConfig_SkeletonArmy);
+			MyAttack.MageArmy(NTConfig_MageArmy);
+			MyAttack.ReviveArmy(NTConfig_ReviveArmy);
 		} else if (me.classid == NTC_CHAR_CLASS_BARBARIAN) {
-			if (Config.UseFindItem && _attackcount > 2) {
+			if (NTConfig_UseFindItem && _attackcount > 2) {
 				if (!this.CheckForCloseMonsters(10)) {
-					MyAttack.FindItem(Config.FindItemRange);
+					MyAttack.FindItem(NTConfig_FindItemRange);
 				}
 			}
 		}
 
-		if (Config.OpenChest) {
+		if (NTConfig_OpenChest) {
 			_target = Chest.GetSpecialChest();
 
 			if (_target && _room.UnitInRoom(_target) && Chest.OpenChest(_target)) _attackcount++;
 			_sorcattack++;
 		}
 
-		if (Config.OpenChestsInAreaClearing && Config.AreasToOpenChestClearing.indexOf(me.areaid) != -1) {
+		if (NTConfig_OpenChestsInAreaClearing && NTConfig_AreasToOpenChestClearing.indexOf(me.areaid) != -1) {
 			Chest.OpenChestsInAreaNear(me.x, me.y, 20);
 		}
 		
-		if(Config.IdInField){
+		if(NTConfig_IdInField){
 			if (!Tools.CheckSpace(NTConfig_FreeSpaceXY[0], NTConfig_FreeSpaceXY[1])) { 
 				this.FieldID(); 
 			}
@@ -754,9 +754,9 @@ var Attack = {
 			}
 		}
 
-		if(TownManager.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe, true)) {
+		if(TownManager.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe, true)) {
 			TownManager.VisitTown();
-		} else if(TownManager.CheckSafe(Config.CheckSelfSafe, Config.CheckMercSafe, true)) {
+		} else if(TownManager.CheckSafe(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe, true)) {
 			TownManager.VisitTown();
 		}
 		return true;
@@ -783,7 +783,7 @@ var Attack = {
 
 		if (monster.name == GetLocaleString(3162) && GetDistance(me.x, me.y, monster.x, monster.y) < 20) if (!CheckCollision(me.areaid, monster.x, monster.y, 0) || !CheckCollision(me.areaid, monster.x, monster.y, 1) || !CheckCollision(me.areaid, monster.x, monster.y, 5)) return false;
 
-		if (Config.SkipRegularMonsters) if (monster.spectype == 1 && me.areaid != 131) return false;
+		if (NTConfig_SkipRegularMonsters) if (monster.spectype == 1 && me.areaid != 131) return false;
 
 		if (me.classid == NTC_CHAR_CLASS_DRUID) {
 			if (!me.GetState(144)) Skill.CastSkill(250, NTC_HAND_RIGHT);
@@ -792,129 +792,129 @@ var Attack = {
 
 		}
 
-		if (Config.AreasToNotSkipImmunes.indexOf(me.areaid) == -1) {
+		if (NTConfig_AreasToNotSkipImmunes.indexOf(me.areaid) == -1) {
 			skippedImuneBoss = false;
-			if (Config.SkipSingle[0]) {
+			if (NTConfig_SkipSingle[0]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_PHYSICAL) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipSingle[1]) {
+			if (NTConfig_SkipSingle[1]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_MAGIC) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipSingle[2]) {
+			if (NTConfig_SkipSingle[2]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_FIRE) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipSingle[3]) {
+			if (NTConfig_SkipSingle[3]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_LIGHTNING) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipSingle[4]) {
+			if (NTConfig_SkipSingle[4]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_COLD) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipSingle[5]) {
+			if (NTConfig_SkipSingle[5]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_POISON) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[0]) {
+			if (NTConfig_SkipDual[0]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_PHYSICAL) > 95 && this.GetResistance(monster, NTA_DAMAGE_MAGIC) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[1]) {
+			if (NTConfig_SkipDual[1]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_PHYSICAL) > 95 && this.GetResistance(monster, NTA_DAMAGE_FIRE) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[2]) {
+			if (NTConfig_SkipDual[2]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_PHYSICAL) > 95 && this.GetResistance(monster, NTA_DAMAGE_LIGHTNING) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[3]) {
+			if (NTConfig_SkipDual[3]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_PHYSICAL) > 95 && this.GetResistance(monster, NTA_DAMAGE_COLD) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[4]) {
+			if (NTConfig_SkipDual[4]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_PHYSICAL) > 95 && this.GetResistance(monster, NTA_DAMAGE_POISON) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[5]) {
+			if (NTConfig_SkipDual[5]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_MAGIC) > 95 && this.GetResistance(monster, NTA_DAMAGE_FIRE) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[6]) {
+			if (NTConfig_SkipDual[6]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_MAGIC) > 95 && this.GetResistance(monster, NTA_DAMAGE_LIGHTNING) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[7]) {
+			if (NTConfig_SkipDual[7]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_MAGIC) > 95 && this.GetResistance(monster, NTA_DAMAGE_COLD) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[8]) {
+			if (NTConfig_SkipDual[8]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_MAGIC) > 95 && this.GetResistance(monster, NTA_DAMAGE_POISON) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[9]) {
+			if (NTConfig_SkipDual[9]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_FIRE) > 95 && this.GetResistance(monster, NTA_DAMAGE_LIGHTNING) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[10]) {
+			if (NTConfig_SkipDual[10]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_FIRE) > 95 && this.GetResistance(monster, NTA_DAMAGE_COLD) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[11]) {
+			if (NTConfig_SkipDual[11]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_FIRE) > 95 && this.GetResistance(monster, NTA_DAMAGE_POISON) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[12]) {
+			if (NTConfig_SkipDual[12]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_LIGHTNING) > 95 && this.GetResistance(monster, NTA_DAMAGE_COLD) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[13]) {
+			if (NTConfig_SkipDual[13]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_LIGHTNING) > 95 && this.GetResistance(monster, NTA_DAMAGE_POISON) > 95) {
 					skippedImmuneBoss = true;
 					return false;
 				}
 			}
-			if (Config.SkipDual[14]) {
+			if (NTConfig_SkipDual[14]) {
 				if (this.GetResistance(monster, NTA_DAMAGE_COLD) > 95 && this.GetResistance(monster, NTA_DAMAGE_POISON) > 95) {
 					skippedImmuneBoss = true;
 					return false;
@@ -1001,7 +1001,7 @@ var Attack = {
 			_holdResistMax = [resistMaxPrimary, resistMaxSecondary, resistMaxTertiary];
 
 		for (i = 0, _currIndex = startIndex; i < 3; i++, _currIndex += 2) {
-			if (Config.AttackSkill[_currIndex] > -1) {
+			if (NTConfig_AttackSkill[_currIndex] > -1) {
 				_resistArray[i] = this.GetResistance(target, _NTA_SkillDamage[_currIndex]);
 				if(_resistArray[i] < 100) {
 					switch(_NTA_SkillDamage[_currIndex])
@@ -1053,8 +1053,8 @@ var Attack = {
 		var i,
 			_presentarea = me.areaid;
 
-		for (i = 0; i < Config.HighMaxAttackAreas.length; i++) {
-			if (_presentarea == Config.HighMaxAttackAreas[i]) {
+		for (i = 0; i < NTConfig_HighMaxAttackAreas.length; i++) {
+			if (_presentarea == NTConfig_HighMaxAttackAreas[i]) {
 				return true;
 			}
 		}
@@ -1066,7 +1066,7 @@ var Attack = {
 			_spectype = [0x0A],
 			_attackcount = 0;
 
-		if (Config.AttackSkill[1] < 0 || Config.AttackSkill[3] < 0) return false;
+		if (NTConfig_AttackSkill[1] < 0 || NTConfig_AttackSkill[3] < 0) return false;
 
 		switch (arguments.length) {
 		case 0:
@@ -1076,7 +1076,7 @@ var Attack = {
 		case 2:
 			safelevel = 0;
 		default:
-			if (Config.CheckSelfSafe.length < 1 && Config.CheckMercSafe.length < 1) safelevel = 0;
+			if (NTConfig_CheckSelfSafe.length < 1 && NTConfig_CheckMercSafe.length < 1) safelevel = 0;
 			break;
 		}
 
@@ -1135,22 +1135,22 @@ var Attack = {
 		}
 
 		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-			if (_attackcount > 2 && (parseInt(me.hp * 100 / me.hpmax) < Config.UseRedemptionHP || parseInt(me.mp * 100 / me.mpmax) < Config.UseRedemptionMP)) {
+			if (_attackcount > 2 && (parseInt(me.hp * 100 / me.hpmax) < NTConfig_UseRedemptionHP || parseInt(me.mp * 100 / me.mpmax) < NTConfig_UseRedemptionMP)) {
 				if (Skill.PutSkill(124, NTC_HAND_RIGHT)) Common.PingDelay(1000);
 			}
 		} else if (me.classid == NTC_CHAR_CLASS_NECROMANCER) {
-			MyAttack.SkeletonArmy(Config.SkeletonArmy);
-			MyAttack.MageArmy(Config.MageArmy);
-			MyAttack.ReviveArmy(Config.ReviveArmy);
+			MyAttack.SkeletonArmy(NTConfig_SkeletonArmy);
+			MyAttack.MageArmy(NTConfig_MageArmy);
+			MyAttack.ReviveArmy(NTConfig_ReviveArmy);
 		} else if (me.classid == NTC_CHAR_CLASS_BARBARIAN) {
-			if (Config.UseFindItem && _attackcount > 2) {
+			if (NTConfig_UseFindItem && _attackcount > 2) {
 				if (!this.CheckForCloseMonsters(10)) {
-					MyAttack.FindItem(Config.FindItemRange);
+					MyAttack.FindItem(NTConfig_FindItemRange);
 				}
 			}
 		}
 
-		if (Config.OpenChest) {
+		if (NTConfig_OpenChest) {
 			_target = Chest.GetSpecialChest();
 
 			if (_target && GetDistance(_orgx, _orgy, _target.x, _target.y) <= range && Chest.OpenChest(_target)) _attackcount++;
@@ -1161,9 +1161,9 @@ var Attack = {
 
 		switch (safelevel) {
 		case 1:
-			return TownManager.CheckSafe(Config.CheckSelfSafe, Config.CheckMercSafe);
+			return TownManager.CheckSafe(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
 		case 2:
-			return TownManager.CheckSafe(Config.CheckSelfSafe, Config.CheckMercSafe);
+			return TownManager.CheckSafe(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
 		}
 
 		return true;
@@ -1197,8 +1197,8 @@ var Attack = {
 		_LifeMax = me.hpmax;
 		_ManaMax = me.mpmax;
 
-		if (Config.DanceStartHp > 0 || Config.DanceStartMp > 0) {
-			if (parseInt(me.hp * 100 / _LifeMax) < Config.DanceStartHp || parseInt(me.mp * 100 / _ManaMax) < Config.DanceStartMp) {
+		if (NTConfig_DanceStartHp > 0 || NTConfig_DanceStartMp > 0) {
+			if (parseInt(me.hp * 100 / _LifeMax) < NTConfig_DanceStartHp || parseInt(me.mp * 100 / _ManaMax) < NTConfig_DanceStartMp) {
 				return true;
 			}
 		} else {
@@ -1216,13 +1216,13 @@ var Attack = {
 			}
 		}
 		if (me.x - target.x >= 0 && me.y - target.y >= 0) { 
-			this.Deploy(target.x - Config.BounceRange, target.y - Config.BounceRange, 5, 5);
+			this.Deploy(target.x - NTConfig_BounceRange, target.y - NTConfig_BounceRange, 5, 5);
 		} else if (me.x - target.x >= 0 && me.y - target.y < 0) {
-			this.Deploy(target.x - Config.BounceRange, target.y + Config.BounceRange, 5, 5);
+			this.Deploy(target.x - NTConfig_BounceRange, target.y + NTConfig_BounceRange, 5, 5);
 		} else if (me.x - target.x < 0 && me.y - target.y >= 0) {
-			this.Deploy(target.x + Config.BounceRange, target.y + Config.BounceRange, 5, 5);	
+			this.Deploy(target.x + NTConfig_BounceRange, target.y + NTConfig_BounceRange, 5, 5);	
 		} else {
-			this.Deploy(target.x + Config.BounceRange, target.y - Config.BounceRange, 5, 5);
+			this.Deploy(target.x + NTConfig_BounceRange, target.y - NTConfig_BounceRange, 5, 5);
 		}
 		_sorcattack = 0;
 	},
@@ -1306,11 +1306,11 @@ var Attack = {
 			case 2:
 				break;
 			default:
-				if(Config.LogSoldItemQuality != 0 && items[i].quality >= Config.LogSoldItemQuality) {	
+				if(NTConfig_LogSoldItemQuality != 0 && items[i].quality >= NTConfig_LogSoldItemQuality) {	
 					Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Field id Dropped " + NTC_ItemQualityToMGRColor[items[i].quality] + items[i].name.split("\n")[0]+ ";" + items[i].itemdesc + COLOR_2 + "\n iLvl: " + items[i].itemlevel + COLOR_2 + "\n Area: " + _location.name);
 				}
 				if(NTConfig_AnnounceDroppedItems){
-					Say(Common.RandomSelect(NTConfig.DropMessages) + NTC_ItemQualityToName[items[i].quality] + " " + items[i].name.split("\n")[0]);
+					Say(Common.RandomSelect(NTNTConfig_DropMessages) + NTC_ItemQualityToName[items[i].quality] + " " + items[i].name.split("\n")[0]);
 					Delay(100);
 				}
 				Tools.DropItem(items[i]);

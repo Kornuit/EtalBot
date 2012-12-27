@@ -26,7 +26,7 @@ function NTMain () {
 	Common.IncludeConfig("NTBot/char_configs");
 	Include("libs/common/Exp.ntl");
 
-	LoadConfig();
+	NT_LoadConfig();
 	Exp.InitializeStats();
 
 	this.ClearMessages = function () {
@@ -45,6 +45,13 @@ function NTMain () {
 		}
 	};
 
+	this.ScriptLoadError = function () {
+		while (true) {
+			Print(COLOR_4 + "Failed to build script list. Pausing until max game time........");
+			Delay(10001);
+		}
+	}
+
 	this.CheckForFriends = function () {
 		var _player = GetPlayerUnit();
 		if (_player) {
@@ -52,7 +59,7 @@ function NTMain () {
 				if (_player.name === me.name)
 					continue;
 
-				if (Config.ExitWith.indexOf(_player.name) != -1) {
+				if (NTConfig_ExitWith.indexOf(_player.name) != -1) {
 					joinCheck = true;
 				}
 			} while (_player.GetNext());
@@ -62,15 +69,15 @@ function NTMain () {
 	this.CheckLeave = function () {
 		var _player,
 			leaveWith = "";
-		for (i in Config.ExitWith) {
+		for (i in NTConfig_ExitWith) {
 			_player = GetPlayerUnit();
 			if(_player) {
 				do {
 					if(_player.name === me.name)
 						continue;
 
-					if (_player.name === Config.ExitWith[i]) {
-						leaveWith = Config.ExitWith[i];
+					if (_player.name === NTConfig_ExitWith[i]) {
+						leaveWith = NTConfig_ExitWith[i];
 						return leaveWith;
 					}
 				} while (_player.GetNext());
@@ -99,6 +106,19 @@ function NTMain () {
 			}
 		}
 		return _name;
+	};
+
+	this.ScriptMsgEvents = function (msg) {
+		var _area;
+
+		switch(msg)
+		{
+		case "HOSTILE":
+		case "STOP":
+		case "GO":
+			Common.SendMsgToScript(Scripts[i], "pause");
+			break;
+		}
 	};
 
 	this.BuildScriptList = function () {
@@ -135,8 +155,8 @@ function NTMain () {
 
 	if(!me.gamename) { Say("/players 5"); }
 
-	if(Config.FreeSpace == 0)
-		Print(COLOR_2 + "Please don't forget to set Config.FreeSpace in your character config to avoid your inv filling");
+	if(NTConfig_FreeSpace == 0)
+		Print(COLOR_2 + "Please don't forget to set NTConfig_FreeSpace in your character config to avoid your inv filling");
 
 	this.ClearMessages();
 	this.CheckForFriends();
@@ -144,8 +164,8 @@ function NTMain () {
 	SnagIt.LoadNIPFiles("NTBot/item_configs");
 	Tools.LogExitStatus("F");
 	
-	if(Config.StartDelay > 0);
-		Delay(Config.StartDelay);
+	if(NTConfig_StartDelay > 0);
+		Delay(NTConfig_StartDelay);
 
 	GetPath(me.areaid, me.x, me.y, me.x, me.y, true);
 
@@ -156,7 +176,7 @@ function NTMain () {
 		ExitGame();
 	}
 
-	if(Config.CheckPassword && !me.gamepassword){
+	if(NTConfig_CheckPassword && !me.gamepassword){
 		Print(COLOR_1 + "1No password found exiting game");
 		Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Exiting Game- No Password");
 		Delay(2000);
@@ -167,7 +187,10 @@ function NTMain () {
 	if (Corpses > 0 || InitLife < 10)
 		Tools.DeathLog(Corpses, InitLife);
 
-	this.BuildScriptList();
+	if (!this.BuildScriptList()) {
+		File.Log("ScriptLoadError.txt", "Failed to build script list for " + me.name);
+		this.ScriptLoadError();
+	}
 
 	if(_scriptList.length > 0)
 	{
@@ -183,24 +206,24 @@ function NTMain () {
 			ExitGame();
 		}
 
-		if(Config.GoWestFromLut){
+		if(NTConfig_GoWestFromLut){
 			GoWestFromLutGholein();
 		}
 
 		Load("NTBot/tools/ToolsThread.ntj");
 
-		if(Config.HostileHandler)
+		if(NTConfig_HostileHandler)
 			Load("NTBot/tools/HostHandler.ntj");
 
-		if(Config.Announcer)
+		if(NTConfig_Announcer)
 			Load("NTBot/tools/LevelAnnouncer.ntj");
 
 		if(DPSMeter)
 			Load("NTBot/tools/DPS.ntj");
 
-		RegisterEvent(EVENT_GAMEMSG, NT_GameMsgEvents);
-		RegisterEvent(EVENT_KEYDOWN, NT_KeyEvents);
-		RegisterEvent(EVENT_SCRIPTMSG, NT_ScriptMsgEvents);
+		RegisterEvent(EVENT_GAMEMSG, this.GameMsgEvents);
+		RegisterEvent(EVENT_KEYDOWN, this.KeyEvents);
+		RegisterEvent(EVENT_SCRIPTMSG, this.ScriptMsgEvents);
 
 		SetStatusText(Rev + " Loading....");
 
@@ -226,6 +249,7 @@ function NTMain () {
 						if (_checkAct) {
 							try {
 								SetStatusText(Rev + "    Running:  " + i);
+								TownManager.Manager();
 								etal[i]();
 							} catch (error) {
 								File.Log("logs/scripterrors/" + me.name + "_scripterror.txt", "Failed to load " + i);
@@ -257,7 +281,7 @@ function NTMain () {
 			Delay(150);
 		}
 		Common.CancelMenus();
-		Delay(Config.LeechExitDelay);
+		Delay(NTConfig_LeechExitDelay);
 		ExitGame();
 	}
 
@@ -265,13 +289,14 @@ function NTMain () {
 	{
 		SoJElapsedTime += 1;
 		TownMove.CheckAct();
-		SetStatusText(COLOR_4 + "Waiting for SoJ sales... " + COLOR_0 + (Config.SoJWaitTime*60-SoJElapsedTime));
+		SetStatusText(COLOR_4 + "Waiting for SoJ sales... " + COLOR_0 + (NTConfig_SoJWaitTime*60-SoJElapsedTime));
 
-		if(SoJElapsedTime >= Config.SoJWaitTime*60)
+		if(SoJElapsedTime >= NTConfig_SoJWaitTime*60)
 			SoJNotify = false;
 	}
 
 	Exp.ComputeStats(false);
+	Common.StopScript(Scripts[i]);
 
 	ExitGame();
 }
@@ -348,8 +373,8 @@ function GameMsgEvents(msg, type)
 		logfile.WriteLine(date + " - " + msg + " ( " + _area.name + " ) ");
 		logfile.Close();
 	}
-	else if(type == 0 && msg.indexOf(Config.Leader) != -1){
-		Common.CheckPlayer(Config.Leader);
+	else if(type == 0 && msg.indexOf(NTConfig_Leader) != -1){
+		Common.CheckPlayer(NTConfig_Leader);
 		if((_leaderareaid == 130 || _leaderareaid == 131) && msg.indexOf(NTConfig_TakeTpBaal) != -1){
 			File.OverWrite("logs/messagecomands/"+me.charname+"-baal.txt", 1, "takebtp")
 		}
@@ -463,55 +488,6 @@ function KeyEvents(keycode)
 			NTE_ComputeStats(false);
 			ExitGame();
 			break;
-	}
-}
-
-function ScriptMsgEvents(msg)
-{
-	var _area;
-
-	switch(msg)
-	{
-	case "QuitGame":
-		NTC_StopScript(NTConfig_Script[CurScriptIndex]);
-		NTC_CancelMenus();
-		LastScript = true;
-		break;
-	case "HOSTILE":
-		NTC_SendMsgToScript(NTConfig_Script[CurScriptIndex], "pause");
-		break;
-	case "SCRIPT_END":
-		if(++CurScriptIndex < NTConfig_Script.length)
-		{
-			NTTM_CheckAct();
-			Load("NTBot/bots/" + NTConfig_Script[CurScriptIndex]);
-			SetStatusText(Rev + "   " + NTConfig_Script[CurScriptIndex]);
-			NTC_LogCurScript(NTConfig_Script[CurScriptIndex]);
-		}
-		else{
-			LastScript = true;
-		}
-		break;
-	default:
-		Print(COLOR_1 + NTConfig_Script[CurScriptIndex] + " : " + msg + " failed");
-
-		_area = GetArea();
-
-		if(_area)
-			NTC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + NTConfig_Script[CurScriptIndex] + " : " + msg + " failed (" + _area.name + ")");
-		else
-			NTC_SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + NTConfig_Script[CurScriptIndex] + " : " + msg + " failed (unknown area)");
-
-		if(++CurScriptIndex < NTConfig_Script.length)
-		{
-			NTTM_CheckAct();
-			Load("NTBot/bots/" + NTConfig_Script[CurScriptIndex]);
-			SetStatusText(Rev + "  "  + NTConfig_Script[CurScriptIndex]);
-			NTC_LogCurScript(NTConfig_Script[CurScriptIndex]);
-		}
-		else
-			LastScript = true;
-		break;
 	}
 }
 

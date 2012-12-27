@@ -12,7 +12,7 @@ var SnagIt = {
 	LoadNIPFiles: function (filepath) {
 		var i;
 		for(i = 0 ; i < ConfigNIPFilePath.length ; i++) {
-			ItemParser.OpenFile(filepath + "/" + Config.NIPFilePath[i]);
+			ItemParser.OpenFile(filepath + "/" + NTConfig_NIPFilePath[i]);
 		}
 
 		_NTSI_BeltSize = Common.GetBeltSize();
@@ -26,11 +26,11 @@ var SnagIt = {
 
 			if((_mode >= 1 && _mode <= 3) || _mode == 5 || _mode == 6) { break; }
 
-			NTC_Delay(NTC_DELAY_FRAME);
+			Delay(NTC_DELAY_FRAME);
 		}
 
-		if(i < parseInt(Config.SnagDelay / NTC_DELAY_FRAME)) {
-			Common.PingDelay(Config.SnagDelay - (i*NTC_DELAY_FRAME));
+		if(i < parseInt(NTConfig_SnagDelay / NTC_DELAY_FRAME)) {
+			Common.PingDelay(NTConfig_SnagDelay - (i*NTC_DELAY_FRAME));
 		}
 
 		Include("libs/common/Itemlogger.ntl");
@@ -63,7 +63,7 @@ var SnagIt = {
 
 				if (_skipitem) { continue; }
 
-				if (GetDistance(me, _item) <= Config.SnagRange) {
+				if (GetDistance(me, _item) <= NTConfig_SnagRange) {
 
 					resultArray = this.CheckItem(_item, false);
 					_value = resultArray[0];
@@ -71,8 +71,8 @@ var SnagIt = {
 					if(_value) { _checkeditems.push(new this.ItemInt(_item, _value, resultArray)); }
 
 					else {
-						if (Config.LogIgnoredItems) {
-							if ((_item.quality == 2 && _item.classid > 609) || (_item.quality >= Config.LogItemQuality && (_item.classid != 515 && _item.classid != 523 && _item.classid != 516 && _item.classid != 587 && _item.classid != 588 && _item.classid != 589 && _item.classid != 590 && _item.classid != 591 && _item.classid != 592 && _item.classid != 593 && _item.classid != 594 && _item.classid != 595 && _item.classid != 596))) {
+						if (NTConfig_LogIgnoredItems) {
+							if ((_item.quality == 2 && _item.classid > 609) || (_item.quality >= NTConfig_LogItemQuality && (_item.classid != 515 && _item.classid != 523 && _item.classid != 516 && _item.classid != 587 && _item.classid != 588 && _item.classid != 589 && _item.classid != 590 && _item.classid != 591 && _item.classid != 592 && _item.classid != 593 && _item.classid != 594 && _item.classid != 595 && _item.classid != 596))) {
 								Print(COLOR_5 + "Ignored: " + NTC_ItemQualityToD2Color[_item.quality] + _item.name);
 								_IgnoredItems.push(_item.gid);
 							}
@@ -165,7 +165,7 @@ var SnagIt = {
 						if(!_checkeditem.Retry) {
 							_checkeditem.Retry = true;
 							Tools.ClearInventory();
-							if(Config.IdInField && this.FieldItemsToId()){ // id in field add
+							if(NTConfig_IdInField && this.FieldItemsToId()){ // id in field add
 								Attack.FieldID(); 
 							}
 							else if(!TownManger.VisitTown()){
@@ -191,7 +191,7 @@ var SnagIt = {
 	PickUpItemInt: function (snagitem) {
 		var i, _classid, _result,
 		_itemType = snagitem.itemtype,
-		_isTelekinesis = me.classid === 1 && Config.Telekinesis && Skill.GetSkillLevel(43) && (_itemType == 4 || (_itemType > 75 && _itemType < 82));
+		_isTelekinesis = me.classid === 1 && NTConfig_Telekinesis && Skill.GetSkillLevel(43) && (_itemType == 4 || (_itemType > 75 && _itemType < 82));
 
 		_classid = snagitem.classid;
 
@@ -316,7 +316,7 @@ var SnagIt = {
 
 			for(i = 0 ; i < 4 ; i++)
 			{
-				if(_code.indexOf(Config.BeltColType[i]) != -1)
+				if(_code.indexOf(NTConfig_BeltColType[i]) != -1)
 					_potnum += _NTSI_BeltSize;
 			}
 
@@ -334,7 +334,7 @@ var SnagIt = {
 						for(i = 0 ; i < _items.length ; i++) {
 							if(_items[i].mode == 2 && _items[i].code == "rvs") {
 								SetUIState(0x1F, true);
-								if (Config.DropExtraRejuvs)
+								if (NTConfig_DropExtraRejuvs)
 								Tools.DropItem(_items[i]);
 								else
 								me.ClickItem (1, _items[i]);
@@ -342,7 +342,7 @@ var SnagIt = {
 								return false; 
 							}                                               
 						}
-						if (!Config.DropExtraRejuvs) {
+						if (!NTConfig_DropExtraRejuvs) {
 							for(i = 0 ; i < _items.length ; i++) {
 								if (_items[i].mode == 2 && _items[i].code == "rvl" && _code == "rvl") {
 									SetUIState(0x1F, true);
@@ -396,7 +396,7 @@ var SnagIt = {
 		var area, item, string, result,
 			resultArray = new Array();
 
-		if (!Config.FastPickit) {
+		if (!NTConfig_FastPickit) {
 			return;
 		}
 		
@@ -409,7 +409,7 @@ var SnagIt = {
 					result = resultArray[0];
 					
 					if (result) {
-						if (GetDistance(me, item) <= Config.SnagRange && !this.IsLimitedItemInt(item) && Town.CheckSpace(item.xsize, item.ysize)) {
+						if (GetDistance(me, item) <= NTConfig_SnagRange && !this.IsLimitedItemInt(item) && Town.CheckSpace(item.xsize, item.ysize)) {
 							if(item.classid == 515 || item.classid == 516) {
 								string = (COLOR_2 + "Fast Pick" + COLOR_8 + ":: " + NTC_ItemQualityToD2Color[9] + item.name);
 							} 
@@ -446,8 +446,8 @@ var ignoredGids = [];
 
 	CheckKurastChest: function () {
 		var i;
-		for(i = 0 ; i < Config.Script.length; i++) {
-			if(Config.Script[i].toLowerCase().indexOf("chest") != -1) {
+		for(i = 0 ; i < NTConfig_Script.length; i++) {
+			if(NTConfig_Script[i].toLowerCase().indexOf("chest") != -1) {
 				return true;
 			}
 		}

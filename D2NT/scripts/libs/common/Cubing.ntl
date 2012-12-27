@@ -7,7 +7,7 @@ var Cubing = {
 			_result = false,
 			_isEthereal = ((item.itemflag & 0x400000) == 0x400000);
 
-		if(!Config.Cubing)
+		if(!NTConfig_Cubing)
 			return false;
 
 		_classid = item.classid;
@@ -526,7 +526,7 @@ var Cubing = {
 		var _count;
 		var _items;
 
-		if(!Config.Cubing)
+		if(!NTConfig_Cubing)
 			return false;
 
 		for(i = 0 ; i < NTConfig_CubingItem.length ; i++)
@@ -579,7 +579,7 @@ var Cubing = {
 	CheckCubing: function () {
 		var i, n;
 
-		if(!Config.Cubing)
+		if(!NTConfig_Cubing)
 			return false;
 
 		for(i = 0 ; i < NTConfig_CubingItem.length ; i++)
@@ -663,7 +663,7 @@ var Cubing = {
 		var _items, result;
 		var resultArray = new Array();
 		
-		if(!Config.Cubing){
+		if(!NTConfig_Cubing){
 			return false;
 		}
 
@@ -802,11 +802,11 @@ var Cubing = {
 					return false;
 
 				NTC_PingDelay(800);
-				if(Config.CubeProcessToManager > 0){
-					if(Config.CubeProcessToManager == 1){
+				if(NTConfig_CubeProcessToManager > 0){
+					if(NTConfig_CubeProcessToManager == 1){
 						Common.SendLogToOOG(NTC_LOG_ITEM, _NTCU_LogString);
 					}
-					else if (Config.CubeProcessToManager == 2) {
+					else if (NTConfig_CubeProcessToManager == 2) {
 						Common.SendLogToOOG(NTC_LOG_COMMON, _NTCU_LogString);
 					}
 				}
@@ -820,8 +820,8 @@ var Cubing = {
 						result = resultArray[0];
 						if(result != 0)
 						{
-							if(Config.LogCraftedItems) {
-								if(Config.IndependantLog) {
+							if(NTConfig_LogCraftedItems) {
+								if(NTConfig_IndependantLog) {
 									ItemLogger.WriteILog(crafted_itm[0], me, _isEthereal, 12, false, '', true);
 								} else {
 									ItemLogger.WriteLog(crafted_itm[0], me, _isEthereal, 12, false, '', true);
@@ -831,20 +831,20 @@ var Cubing = {
 						}
 						else
 						{
-							if(Config.LogCraftedItems) {
-								if(Config.IndependantLog) {
+							if(NTConfig_LogCraftedItems) {
+								if(NTConfig_IndependantLog) {
 									ItemLogger.WriteILog(crafted_itm[0], me, _isEthereal, 13, false, '', true);
 								} else {
 									ItemLogger.WriteLog(crafted_itm[0], me, _isEthereal, 13, false, '', true);
 								}
 							}
-							if(Config.LogSoldItemQuality != 0) {
+							if(NTConfig_LogSoldItemQuality != 0) {
 								Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[crafted_itm[0].quality] + crafted_itm[0].name.split("\n")[0]+ ";" + crafted_itm[0].itemdesc + "\n" +  COLOR_2 + "iLvl: " + crafted_itm[0].itemlevel + COLOR_2 + "\n Crafted");
 							}
 						}
 					}
 				}
-				if(Config.LogCraftingString)
+				if(NTConfig_LogCraftingString)
 					File.Log("logs/CraftLog/" + me.name + "_CraftingString.txt", _NTCU_LogString);
 				var crafted_itm = NTCU_GetCubeContents();
 				if (crafted_itm.length == 1)

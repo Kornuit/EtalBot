@@ -27,7 +27,7 @@ var Waypoint = {
 					Travel.GetCloserInt(thisWp);
 					Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, thisWp);
 					if(me.TakeWaypoint(checkNextPrev)) {
-						Common.PingDelay(Config.AreaDelay);
+						Common.PingDelay(NTConfig_AreaDelay);
 						if(!Common.nTown()) {
 							Precast.DoPrecast();
 						}

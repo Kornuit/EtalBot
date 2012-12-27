@@ -17,7 +17,7 @@ var Travel = {
 
 		if(arguments.length < 6) { canswitch = true; }
 
-		if(Config.ResetEnigma && Skill.GetSkillLevel(54) < 1) {
+		if(NTConfig_ResetEnigma && Skill.GetSkillLevel(54) < 1) {
 			Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "Teleport Bug Found!");
 			Print(COLOR_1 + "Teleport Bug Found!");
 			Town.ResetEnigma();		
@@ -34,7 +34,7 @@ var Travel = {
 
 		if(!_path) { return (Common.InTown() && (this.WalkTo(x, y) || Town.MoveToXY(x, y))); }
 		
-		if(Config.SwitchTele && _path.length > 2 && canswitch && _teleport){
+		if(NTConfig_SwitchTele && _path.length > 2 && canswitch && _teleport){
 			if(Common.SwapWeapons(1)){
 				if(debugMove){ 
 					switchedtoTele = me.weaponstab == 1;
@@ -58,7 +58,7 @@ var Travel = {
 			}
 			
 			if(!Common.InTown()) { 
-				if((Config.CheckSelfSafe.indexOf("01") != -1) && Town.NeedPots()) {
+				if((NTConfig_CheckSelfSafe.indexOf("01") != -1) && Town.NeedPots()) {
 						Print("I need some more potions!");
 						return TownManager.VisitTown();		
 				}
@@ -83,7 +83,7 @@ var Travel = {
 				_retry++;
 				_attacked = false;
 			}
-			else if((!_attacked) && (!Config.SwitchTele))
+			else if((!_attacked) && (!NTConfig_SwitchTele))
 			{
 				Attack.ClearPosition(10, true);
 				_attacked = true;
@@ -94,7 +94,7 @@ var Travel = {
 			}
 		}
 		
-		if(Config.SwitchTele && canswitch){
+		if(NTConfig_SwitchTele && canswitch){
 			if(Common.SwapWeapons(0)){
 				if(debugMove) {
 					switchedToAttack = me.weaponstab == 0;
@@ -223,10 +223,10 @@ var Travel = {
 
 		Skill.CastSkill(54, NTC_HAND_RIGHT, x, y);
 
-		if(Config.TeleGrab == 1){
-			Config.TeleGrab++;
+		if(NTConfig_TeleGrab == 1){
+			NTConfig_TeleGrab++;
 			SnagIt.PickItems();
-			Config.TeleGrab--;
+			NTConfig_TeleGrab--;
 		}
 
 		Shrine.CatchShrine();
@@ -328,7 +328,7 @@ var Travel = {
 		if(me.areaid == _prearea)
 			return false;
 
-		Common.PingDelay(Config.AreaDelay);
+		Common.PingDelay(NTConfig_AreaDelay);
 
 		return true;
 	},
@@ -366,7 +366,7 @@ var Travel = {
 		if(me.areaid == _prearea)
 			return false;
 
-		Common.PingDelay(Config.AreaDelay);
+		Common.PingDelay(NTConfig_AreaDelay);
 
 		return true;
 	},
@@ -387,7 +387,7 @@ var Travel = {
 		if (!_unit)
 			return false;
 
-		_isTelekinesis = me.classid === 1 && Config.Telekinesis && Common.InTown() && Skill.GetSkillLevel(43);
+		_isTelekinesis = me.classid === 1 && NTConfig_Telekinesis && Common.InTown() && Skill.GetSkillLevel(43);
 		
 		for (i = 0; i < 3; i++) {
 			if (_isTelekinesis) {
@@ -410,7 +410,7 @@ var Travel = {
 
 					if (GetUIState(0x14)) {
 						Waypoint.CheckWps();
-						if(Config.VoyageToMissingWps && wpsDontHave.indexOf(areaId) != -1) {
+						if(NTConfig_VoyageToMissingWps && wpsDontHave.indexOf(areaId) != -1) {
 							Common.CancelMenus();
 							Delay(500);
 							Print("You don't have the " + GetArea(areaId).name + " wp");
@@ -427,7 +427,7 @@ var Travel = {
 							}
 						}
 						else if (me.TakeWaypoint(areaId)) { 
-							Common.PingDelay(Config.AreaDelay);
+							Common.PingDelay(NTConfig_AreaDelay);
 							return true;
 						}
 
@@ -456,7 +456,7 @@ var Travel = {
 
 		if(this.ChangeAreaInt(how, dest, ownername, portal))
 		{
-			Common.PingDelay(Config.AreaDelay);
+			Common.PingDelay(NTConfig_AreaDelay);
 			return true;
 		}
 		return false;
@@ -588,7 +588,7 @@ var Travel = {
 		{
 			if((i % 10) == 0)
 			{
-				if (me.classid === 1 && Config.Telekinesis && Common.InTown() && Skill.GetSkillLevel(43) && GetDistance(me, _portal) > 5 && GetDistance(me, _portal) < 23)
+				if (me.classid === 1 && NTConfig_Telekinesis && Common.InTown() && Skill.GetSkillLevel(43) && GetDistance(me, _portal) > 5 && GetDistance(me, _portal) < 23)
 				{
 					if (i > 10)
 						this.MoveCloseInt(_portal, Math.round(GetDistance(me, _portal) / 2), false);
@@ -613,7 +613,7 @@ var Travel = {
 			
 				if(me.areaid != _prearea)
 				{
-					Common.PingDelay(Config.AreaDelay);
+					Common.PingDelay(NTConfig_AreaDelay);
 					return true;
 				}
 			

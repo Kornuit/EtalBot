@@ -18,17 +18,17 @@ var TownManager = {
 		Common.ClearCursor();
 		Town.CleanPotions();
 		_TMGR_BuyPotsInt = Town.CheckBelt();
-		_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+		_TMGR_BuyPots = NTConfig_CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
 		
-		_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);
+		_TMGR_BuyID = (NTConfig_IdInField && this.CheckScrolls(0) < 10);
 		
 		_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
-		_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && TownManager.CheckKeys() < 6);
+		_TMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && TownManager.CheckKeys() < 6);
 		_TMGR_DoHeal = Town.CheckHeal();
 		_TMGR_DoID = Town.CheckUnids();
-		_TMGR_DoRepair = Town.CheckRepair(Config.Repair);
+		_TMGR_DoRepair = Town.CheckRepair(NTConfig_Repair);
 		_TMGR_DoRevive = Town.CheckMerc();
-		_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+		_TMGR_RemoveCurse = this.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
 		_TMGR_Simple = simple;
 		_TMGR_BuyArrows = this.CheckBow();
 
@@ -37,18 +37,18 @@ var TownManager = {
 		switch(me.act)
 		{
 		case 1:
-			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct()) 
+			if(NTConfig_IdentAtCain && _TMGR_DoID && this.SkipCainAct()) 
 				this.VisitCain(simple);
 
 			_TMGR_DoHeal = Town.CheckHeal();
-			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_RemoveCurse = this.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
 			_TMGR_DoID = Town.CheckUnids();
-			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+			_TMGR_BuyPots = NTConfig_CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
 		
-			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);
+			_TMGR_BuyID = (NTConfig_IdInField && this.CheckScrolls(0) < 10);
 			
 			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
-			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+			_TMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && this.CheckKeys() < 6);
 
 			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoID || _TMGR_BuyPots || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey) {
 				this.VisitAkara();
@@ -65,7 +65,7 @@ var TownManager = {
 			if(_TMGR_DoRepair || _TMGR_BuyArrows) 
 				this.VisitCharsi();
 			TownMove.GCCheckAmu();
-			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold) 
+			if(!simple && NTConfig_Gamble && Common.MyGold() > NTConfig_GambleStartGold) 
 			{
 				this.VisitGheed();
 
@@ -77,18 +77,18 @@ var TownManager = {
 			break;
 
 		case 2:
-			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct())
+			if(NTConfig_IdentAtCain && _TMGR_DoID && this.SkipCainAct())
 				this.VisitCain(simple);
 			
 			_TMGR_DoHeal = Town.CheckHeal(); 
-			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_RemoveCurse = this.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
 			_TMGR_DoID = Town.CheckUnids();
-			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+			_TMGR_BuyPots = NTConfig_CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
 			
-			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);// id in field add
+			_TMGR_BuyID = (NTConfig_IdInField && this.CheckScrolls(0) < 10);// id in field add
 			
 			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
-			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+			_TMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && this.CheckKeys() < 6);
 
 			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoRepair || _TMGR_BuyArrows)
 				this.VisitFara();
@@ -104,7 +104,7 @@ var TownManager = {
 			if(_TMGR_DoRevive)
 				this.VisitGreiz();
 			TownMove.GCCheckAmu();
-			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold)
+			if(!simple && NTConfig_Gamble && Common.MyGold() > NTConfig_GambleStartGold)
 			{
 				this.VisitElzix();
 
@@ -116,18 +116,18 @@ var TownManager = {
 			break;
 
 		case 3:
-			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct())
+			if(NTConfig_IdentAtCain && _TMGR_DoID && this.SkipCainAct())
 				this.VisitCain(simple);
 
 			_TMGR_DoHeal = Town.CheckHeal(); 
-			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_RemoveCurse = this.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
 			_TMGR_DoID = Town.CheckUnids();
-			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+			_TMGR_BuyPots = NTConfig_CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
 			
-			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);// id in field add
+			_TMGR_BuyID = (NTConfig_IdInField && this.CheckScrolls(0) < 10);// id in field add
 			
 			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
-			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+			_TMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && this.CheckKeys() < 6);
 
 			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoID || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyPots)
 				this.VisitOrmus();
@@ -141,7 +141,7 @@ var TownManager = {
 			if(_TMGR_DoRepair || _TMGR_BuyKey || _TMGR_BuyArrows)
 				this.VisitHratli();
 			TownMove.GCCheckAmu();
-			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold)
+			if(!simple && NTConfig_Gamble && Common.MyGold() > NTConfig_GambleStartGold)
 			{
 				this.VisitAlkor();
 
@@ -153,18 +153,18 @@ var TownManager = {
 			break;
 
 		case 4:
-			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct())
+			if(NTConfig_IdentAtCain && _TMGR_DoID && this.SkipCainAct())
 				this.VisitCain(simple);
 
 			_TMGR_DoHeal = Town.CheckHeal(); 
-			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_RemoveCurse = this.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
 			_TMGR_DoID = Town.CheckUnids();
-			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+			_TMGR_BuyPots = NTConfig_CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
 			
-			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);// id in field add
+			_TMGR_BuyID = (NTConfig_IdInField && this.CheckScrolls(0) < 10);// id in field add
 			
 			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
-			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+			_TMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && this.CheckKeys() < 6);
 
 			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoID || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey || _TMGR_BuyPots)
 				this.VisitJamella(false);
@@ -178,7 +178,7 @@ var TownManager = {
 			if(_TMGR_DoRevive)
 				this.VisitTyrael();
 			TownMove.GCCheckAmu();
-			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold)
+			if(!simple && NTConfig_Gamble && Common.MyGold() > NTConfig_GambleStartGold)
 			{
 				this.VisitJamella(true);
 
@@ -190,18 +190,18 @@ var TownManager = {
 			break;
 
 		case 5:
-			if(Config.IdentAtCain && _TMGR_DoID && this.SkipCainAct())
+			if(NTConfig_IdentAtCain && _TMGR_DoID && this.SkipCainAct())
 				this.VisitCain(simple);
 
 			_TMGR_DoHeal = Town.CheckHeal(); 
-			_TMGR_RemoveCurse = this.CheckCurse(Config.CheckSelfSafe, Config.CheckMercSafe);
+			_TMGR_RemoveCurse = this.CheckCurse(NTConfig_CheckSelfSafe, NTConfig_CheckMercSafe);
 			_TMGR_DoID = Town.CheckUnids();
-			_TMGR_BuyPots = Config.CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
+			_TMGR_BuyPots = NTConfig_CheckPotsTown ? Town.NeedPots(true) : Town.CheckBelt();
 			
-			_TMGR_BuyID = (Config.IdInField && this.CheckScrolls(0) < 10);// id in field add
+			_TMGR_BuyID = (NTConfig_IdInField && this.CheckScrolls(0) < 10);// id in field add
 			
 			_TMGR_BuyTP = (this.CheckScrolls(1) < 4);
-			_TMGR_BuyKey = ((Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests || Config.UseKeysForPlaceHolder) && this.CheckKeys() < 6);
+			_TMGR_BuyKey = ((NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests || NTConfig_UseKeysForPlaceHolder) && this.CheckKeys() < 6);
 
 			if(_TMGR_DoHeal || _TMGR_RemoveCurse || _TMGR_DoID || _TMGR_BuyTP || _TMGR_BuyID || _TMGR_BuyKey || _TMGR_BuyPots)
 				this.VisitMalah();
@@ -215,7 +215,7 @@ var TownManager = {
 			if(_TMGR_DoRevive)
 				this.VisitQualKehk();
 			TownMove.GCCheckAmu();
-			if(!simple && Config.Gamble && Common.MyGold() > Config.GambleStartGold)
+			if(!simple && NTConfig_Gamble && Common.MyGold() > NTConfig_GambleStartGold)
 			{
 				this.VisitAnya();
 
@@ -227,13 +227,13 @@ var TownManager = {
 			break;
 		}
 		
-		if (Config.AutoMule && Mule.CheckMuleStash() < Config.MuleStash && Mule.CheckMuleInventory() < Config.MuleInv && !Mule.StatusSet()) {
+		if (NTConfig_AutoMule && Mule.CheckMuleStash() < NTConfig_MuleStash && Mule.CheckMuleInventory() < NTConfig_MuleInv && !Mule.StatusSet()) {
 			File.OverWrite("logs/mulelogs/" + me.account + "_charstatus.txt", 1, "Main");
 			File.OverWrite("logs/mulelogs/" + me.account + "_mulingstatus.txt", 1, "true");
 			Common.SendLogToOOG(NTC_LOG_COMMON, 'Automuling triggered.' + COLOR_2 + 'Stash Capacity is ' + COLOR_4 + Mule.CheckMuleStash() + COLOR_2 + ' Inventory Capacity is ' + COLOR_4 + Mule.CheckMuleInventory());
 			Delay(500);
 
-			if(!Config.FinishRun) {
+			if(!NTConfig_FinishRun) {
 				Delay(500);
 				Print(COLOR_4 + "Calculating stats for game!");
 				Exp.ComputeStats(false);
@@ -256,13 +256,13 @@ var TownManager = {
 		if(!TownMove.MoveTo("portalspot", true))
 			return false;
 			
-		if(me.classid == Common.CHAR_CLASS_ASSASSIN && Config.UseFade)
+		if(me.classid == Common.CHAR_CLASS_ASSASSIN && NTConfig_UseFade)
 			Common.CastSkill(267, NTC_HAND_RIGHT);
 
 		if(!Travel.UsePortal("BluePortal", _prearea))
 			return false;
 
-		if(Config.PublicMode)
+		if(NTConfig_PublicMode)
 			Travel.MakeTP();
 
 		return true;
@@ -279,7 +279,7 @@ var TownManager = {
 		{
 			if(Town.DoInteract(_stash))
 			{
-				if(Config.MakeRunewords)
+				if(NTConfig_MakeRunewords)
 					Runeword.MakeRuneword();
 
 				Town.ManageStash();
@@ -384,7 +384,7 @@ var TownManager = {
 			Skill.PutSkill(0, NTC_HAND_RIGHT);
 		if(_npc)
 		{
-			while(Common.MyGold() > Config.GambleStopGold)
+			while(Common.MyGold() > NTConfig_GambleStopGold)
 			{
 				if(Town.DoInteract(_npc))
 				{
@@ -499,7 +499,7 @@ var TownManager = {
 
 		if(_npc)
 		{
-			while(Common.MyGold() > Config.GambleStopGold)
+			while(Common.MyGold() > NTConfig_GambleStopGold)
 			{
 				if(Town.DoInteract(_npc))
 				{
@@ -597,7 +597,7 @@ var TownManager = {
 
 		if(_npc)
 		{
-			while(Common.MyGold() > Config.GambleStopGold)
+			while(Common.MyGold() > NTConfig_GambleStopGold)
 			{
 				if(Town.DoInteract(_npc))
 				{
@@ -625,7 +625,7 @@ var TownManager = {
 		{
 			if(gamble)
 			{
-				while(Common.MyGold() > Config.GambleStopGold)
+				while(Common.MyGold() > NTConfig_GambleStopGold)
 				{
 					if(Town.DoInteract(_npc))
 					{
@@ -791,7 +791,7 @@ var TownManager = {
 
 		if(_npc)
 		{
-			while(Common.MyGold() > Config.GambleStopGold)
+			while(Common.MyGold() > NTConfig_GambleStopGold)
 			{
 				if(Town.DoInteract(_npc))
 				{
@@ -958,7 +958,7 @@ var TownManager = {
 					case 2:
 						break;
 					default:
-						if(Config.LogSoldItemQuality != 0 && _items[i].quality >= Config.LogSoldItemQuality) {
+						if(NTConfig_LogSoldItemQuality != 0 && _items[i].quality >= NTConfig_LogSoldItemQuality) {
 							Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 +"Sold: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location);
 						}
 						Town.ShopItem(_items[i], npc, 1);
@@ -967,7 +967,7 @@ var TownManager = {
 				}
 				else	
 				{
-					if(Config.LogSoldItemQuality != 0 && _items[i].quality >= Config.LogSoldItemQuality) {
+					if(NTConfig_LogSoldItemQuality != 0 && _items[i].quality >= NTConfig_LogSoldItemQuality) {
 							Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_items[i].quality] + _items[i].name.split("\n")[0]+ ";" + _items[i].itemdesc + COLOR_2 + "\n iLvl: " + _items[i].itemlevel + COLOR_2 + "\n Area: " + _location);
 						}
 					Town.ShopItem(_items[i], npc, 1);
@@ -976,7 +976,7 @@ var TownManager = {
 				break;
 			}
 		}
-		if(Config.UseKeysForPlaceHolder || Config.OpenChest || Config.OpenChestsInArea || Config.OpenHallsSuperChests){
+		if(NTConfig_UseKeysForPlaceHolder || NTConfig_OpenChest || NTConfig_OpenChestsInArea || NTConfig_OpenHallsSuperChests){
 			_npckeys = npc.GetItems(543);
 			_keys = me.GetItems(543);
 			if(_keys.length < 1 && _npckeys.length > 0) { 
@@ -1061,7 +1061,7 @@ var TownManager = {
 	},
 
 	SkipCainAct: function () {
-		if(Config.DontCainAct.indexOf(me.act) > -1)
+		if(NTConfig_DontCainAct.indexOf(me.act) > -1)
 			return false;
 		else
 			return true;
@@ -1127,7 +1127,7 @@ var TownManager = {
 			}
 		}
 		
-		if(this.CheckUnidsGotStashed() > 0 && !Config.AlwaysUseCain) {
+		if(this.CheckUnidsGotStashed() > 0 && !NTConfig_AlwaysUseCain) {
 			Print(COLOR_1 + "That is not suppose to get identified...skipping cain.....");
 			return;
 		}
@@ -1192,7 +1192,7 @@ var TownManager = {
 			me.Cancel(1);
 		}
 
-		if((_dropitems.length > 0 && !Config.DropCainItems) || (_dropitems.length > 0 && Common.MyGold() <= Config.PocketChange)){
+		if((_dropitems.length > 0 && !NTConfig_DropCainItems) || (_dropitems.length > 0 && Common.MyGold() <= NTConfig_PocketChange)){
 			switch(me.act){ 
 
 				case 1:
@@ -1205,7 +1205,7 @@ var TownManager = {
 						if(Town.DoInteract(_npc)){
 							Town.DoTrade(_npc, 1)
 							for(var i = 0; i < _dropitems.length; i++){
-								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality){ 
+								if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality){ 
 									_location = Common.GetLocation(_TMGR_Simple);
 									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
 								}
@@ -1247,7 +1247,7 @@ var TownManager = {
 							Town.DoTrade(_npc, 1)
 							for(var i = 0; i < _dropitems.length; i++){
 								_location = Common.GetLocation(_TMGR_Simple);
-								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality){
+								if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality){
 									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
 								}
 								Town.ShopItem(_dropitems[i], _npc, 1); 
@@ -1274,7 +1274,7 @@ var TownManager = {
 							Town.DoTrade(_npc, 1)
 							for(var i = 0; i < _dropitems.length; i++){  
 								_location = Common.GetLocation(_TMGR_Simple);
-								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality){
+								if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality){
 									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
 								}
 								Town.ShopItem(_dropitems[i], _npc, 1); 
@@ -1301,7 +1301,7 @@ var TownManager = {
 							Town.DoTrade(_npc)
 							for(var i = 0; i < _dropitems.length; i++) {
 								_location = Common.GetLocation(_TMGR_Simple);
-								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality) {
+								if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality) {
 									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
 								}
 								Town.ShopItem(_dropitems[i], _npc, 1); 
@@ -1330,7 +1330,7 @@ var TownManager = {
 							Town.DoTrade(_npc, 1)
 							for(var i = 0; i < _dropitems.length; i++) {
 								_location = Common.GetLocation(_TMGR_Simple);
-								if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality) {
+								if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality) {
 									Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
 								}
 								Town.ShopItem(_dropitems[i], _npc, 1); 
@@ -1349,15 +1349,15 @@ var TownManager = {
 					break;
 			}	
 		}
-		else if(_dropitems.length > 0 && Config.DropCainItems){
+		else if(_dropitems.length > 0 && NTConfig_DropCainItems){
 			SetUIState(0x01, true);
 			for(i = 0; i < _dropitems.length; i++){
 				_location = Common.GetLocation(_TMGR_Simple);
-				if(Config.LogSoldItemQuality != 0 && _dropitems[i].quality >= Config.LogSoldItemQuality) {
+				if(NTConfig_LogSoldItemQuality != 0 && _dropitems[i].quality >= NTConfig_LogSoldItemQuality) {
 					Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Dropped: " + NTC_ItemQualityToMGRColor[_dropitems[i].quality] + _dropitems[i].name.split("\n")[0]+ ";" + _dropitems[i].itemdesc + COLOR_2 + "\n iLvl: " + _dropitems[i].itemlevel + COLOR_2 + "\n Area: " + _location);
 				}
-				if(Config.AnnounceDroppedItems){ 
-					Say(Common.RandomSelect(Config.dropMessages)  + " " + _dropitems[i].name.split("\n")[0]);
+				if(NTConfig_AnnounceDroppedItems){ 
+					Say(Common.RandomSelect(NTConfig_dropMessages)  + " " + _dropitems[i].name.split("\n")[0]);
 					Delay(100);
 				}
 				Town.DropItem(_dropitems[i])

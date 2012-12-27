@@ -116,7 +116,7 @@ var Precast = {
 			
 			if(refresh || !(this.GetMinion(289) || this.GetMinion(290) || this.GetMinion(291) || this.GetMinion(292)))
 			{
-				switch(Config.Golem)
+				switch(NTConfig_Golem)
 				{
 				case 0:
 				case "None":
@@ -178,7 +178,7 @@ var Precast = {
 
 			if(refresh || !this.GetMinion(428) || !this.GetMinion(420) || !this.GetMinion(421) || !this.GetMinion(430))
 				{
-				var summon = Config.Summons;
+				var summon = NTConfig_Summons;
 				
 				switch(summon) {
 					case 227:
@@ -209,7 +209,7 @@ var Precast = {
 
 			if(refresh || !this.GetMinion(426) && !this.GetMinion(427) && !this.GetMinion(425))
 			{
-				var vine = Config.Vine;
+				var vine = NTConfig_Vine;
 				this.GetLevels(vine);
 				Skill.CastSkill(vine, NTC_HAND_RIGHT); // Vine
 			}
@@ -219,7 +219,7 @@ var Precast = {
 				Skill.CastSkill(226, NTC_HAND_RIGHT); // Oak Sage
 				}
 
-			if(refresh && Config.CastRaven)
+			if(refresh && NTConfig_CastRaven)
 			{
 				this.GetLevels(221);
 				for (i = 0; i < 5; i++)
@@ -248,7 +248,7 @@ var Precast = {
 		
 			if(refresh || !(this.GetMinion(417) || this.GetMinion(418)))
 			{
-				switch(Config.UseShadow)
+				switch(NTConfig_UseShadow)
 				{
 				case 0:
 				case "None":
@@ -268,27 +268,27 @@ var Precast = {
 
 			this.DoPrecastCTA(refresh, castbo);
 
-			if((refresh || !me.GetState(157)) && Config.UseBOS) {
+			if((refresh || !me.GetState(157)) && NTConfig_UseBOS) {
 				this.GetLevels(258);
 				Skill.CastSkill(258, NTC_HAND_RIGHT); // Burst of Speed
 				}
 				
-			if((refresh || !me.GetStat(181)) && Config.UseFade) {
+			if((refresh || !me.GetStat(181)) && NTConfig_UseFade) {
 				this.GetLevels(267);
 				Skill.CastSkill(267, NTC_HAND_RIGHT); // Fade
 				}
 
-			if((refresh || me.GetState(158) == 0) && Config.UseBladeShield) {
+			if((refresh || me.GetState(158) == 0) && NTConfig_UseBladeShield) {
 				this.GetLevels(277);
 				Skill.CastSkill(277, NTC_HAND_RIGHT); // Blade Shield
 				}
 
-			if((refresh || !me.GetState(153)) && Config.UseCloakOfShadows) {
+			if((refresh || !me.GetState(153)) && NTConfig_UseCloakOfShadows) {
 				this.GetLevels(264);
 				Skill.CastSkill(264, NTC_HAND_RIGHT); // Cloak of Shadows
 				}
 				
-			if(Config.Venom && (refresh ||!me.GetStat(101))) { // venom
+			if(NTConfig_Venom && (refresh ||!me.GetStat(101))) { // venom
 				this.GetLevels(278);
 				Skill.CastSkill(278, NTC_HAND_RIGHT);
 			}

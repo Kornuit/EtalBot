@@ -62,8 +62,8 @@ var Chest = {
 			unit = GetPresetUnits(me.areaid);
 			if(unit){
 				for (j = 0; j < unit.length; j++){
-					for (c = 0; c < Config.Chestids.length; c++){
-						if (Config.Chestids[c] == unit[j].id){
+					for (c = 0; c < NTConfig_Chestids.length; c++){
+						if (NTConfig_Chestids[c] == unit[j].id){
 							ChestLocs.push([unit[j].roomx*5+unit[j].x,unit[j].roomy*5+unit[j].y])
 							ChestIdstest.push(unit[j].id)
 						}
@@ -81,7 +81,7 @@ var Chest = {
 				do{
 					if(GetDistance(me.x,me.y,chest.x,chest.y)<3){
 						if(this.OpenChest(chest)){
-							if(Config.CheckChestid)
+							if(NTConfig_CheckChestid)
 								Print(COLOR_17 + chest.name + " = " + chest.classid);
 						}
 						SnagIt.PickItems();
@@ -119,7 +119,7 @@ var Chest = {
 				do{
 					if(GetDistance(me.x,me.y,chest.x,chest.y)<3){
 						if(this.OpenChest(chest)){
-							if(Config.CheckChestid)
+							if(NTConfig_CheckChestid)
 								Print(COLOR_17 + chest.name + " = " + chest.classid);
 						}
 						SnagIt.PickItems();
@@ -139,7 +139,7 @@ var Chest = {
 		{
 			do
 			{
-				if(_chest.mode == 0 && GetDistance(_orgx, _orgy, _chest.x, _chest.y) < range  && (Config.Chestids.indexOf(_chest.classid) > -1) &&_chest.name != GetLocaleString(5386) && _NTL_ChestSkipList.indexOf(_chest.gid) == -1)
+				if(_chest.mode == 0 && GetDistance(_orgx, _orgy, _chest.x, _chest.y) < range  && (NTConfig_Chestids.indexOf(_chest.classid) > -1) &&_chest.name != GetLocaleString(5386) && _NTL_ChestSkipList.indexOf(_chest.gid) == -1)
 					_lootableChests.push(new Lootable(_chest.x, _chest.y, _chest.gid));
 			} while(_chest.GetNext());
 
@@ -169,7 +169,7 @@ var Chest = {
 					if(_chest)
 					{
 						if(this.OpenChest(_chest)){
-							if(Config.CheckChestid)
+							if(NTConfig_CheckChestid)
 								Print(COLOR_17 + _chest.name + " = " + _chest.classid);
 							SnagIt.PickItems();
 						}
@@ -294,16 +294,16 @@ var Shrine = {
 
 	CheckShrines: function (_shrine) {
 		var i;
-		for (i = 0; i < Config.Shrines.length; i++) {
-			if (_shrine.shrinetype == Config.Shrines[i] && (!me.GetState(128) && !me.GetState(129) && !me.GetState(130) && !me.GetState(131) && !me.GetState(132) && !me.GetState(133) && !me.GetState(134) && !me.GetState(135) && !me.GetState(136) && !me.GetState(137) && !me.GetState(138))) {
+		for (i = 0; i < NTConfig_Shrines.length; i++) {
+			if (_shrine.shrinetype == NTConfig_Shrines[i] && (!me.GetState(128) && !me.GetState(129) && !me.GetState(130) && !me.GetState(131) && !me.GetState(132) && !me.GetState(133) && !me.GetState(134) && !me.GetState(135) && !me.GetState(136) && !me.GetState(137) && !me.GetState(138))) {
 				lastShrineLoc = i;
 				return true;
 			}
-			else if (_shrine.shrinetype == Config.Shrines[i] && (_shrine.shrinetype == 1 || _shrine.shrinetype == 2 || _shrine.shrinetype == 3 || _shrine.shrinetype == 18 || _shrine.shrinetype == 20 || _shrine.shrinetype == 2)){
+			else if (_shrine.shrinetype == NTConfig_Shrines[i] && (_shrine.shrinetype == 1 || _shrine.shrinetype == 2 || _shrine.shrinetype == 3 || _shrine.shrinetype == 18 || _shrine.shrinetype == 20 || _shrine.shrinetype == 2)){
 				lastShrineLoc = i;
 				return true;
 			}
-			else if (_shrine.shrinetype == Config.Shrines[i] && (me.GetState(128) || me.GetState(129)|| me.GetState(130)|| me.GetState(131)|| me.GetState(132)|| me.GetState(133)|| me.GetState(134)|| me.GetState(135)|| me.GetState(136)|| me.GetState(137)|| me.GetState(138)) && i <= lastShrineLoc) {
+			else if (_shrine.shrinetype == NTConfig_Shrines[i] && (me.GetState(128) || me.GetState(129)|| me.GetState(130)|| me.GetState(131)|| me.GetState(132)|| me.GetState(133)|| me.GetState(134)|| me.GetState(135)|| me.GetState(136)|| me.GetState(137)|| me.GetState(138)) && i <= lastShrineLoc) {
 				lastShrineLoc = i;
 				return true;
 			}
@@ -332,7 +332,7 @@ var Shrine = {
 						File.Log("logs/shrinelog/"+me.charname+"_shrinelog.txt", " MyCatchShrine[" + shrine.shrinetype + "] " + "ObjectName[" + shrine.name + "] " + "ClassId[" + shrine.classid+ "] ");				
 					}
 					if (Tracker.MoveCloseInt(shrine, 20)){
-						if (shrine.shrinetype == 15 && Config.ShareExpShrine){
+						if (shrine.shrinetype == 15 && NTConfig_ShareExpShrine){
 							Tracker.MoveTo(me.areaid, shrine.x+3, shrine.y+3);
 							Attack.ClearPosition(20, false, 0);
 							Tracker.MoveTo(me.areaid, shrine.x+3, shrine.y+3);
@@ -345,7 +345,7 @@ var Shrine = {
 						else if (NTC_CHAR_CLASS_SORCERESS && _isTelekinesis) {
 							Skill.CastSkill(43, NTC_HAND_RIGHT, shrine); 
 						}
-						else if (!_isTelekinesis || !Config.Telekinesis) {
+						else if (!_isTelekinesis || !NTConfig_Telekinesis) {
 							Tracker.GetCloserInt(shrine);
 							Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, shrine);
 						}
@@ -367,7 +367,7 @@ var Shrine = {
 		if(ThisShrine){
 			while(!me.GetState(137) && !ThisShrine.mode){
 				if(Tracker.GetCloserIntS(ThisShrine)){
-					if(Config.LogShrines){
+					if(NTConfig_LogShrines){
 						File.Log("logs/shrinelog/"+me.charname+"_leechshrinelog.txt", " LBXP Shrine Type[" + ThisShrine.shrinetype + "] " + "ObjectName[" + ThisShrine.name + "] " + "ClassId[" + ThisShrine.classid+ "] ");				
 					}
 					Common.DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, ThisShrine);
@@ -410,7 +410,7 @@ var Shrine = {
 							ThisShrine = shrine;
 							XpSearchContinue = false;									
 							FoundShrineArea = me.areaid;									
-							if(Config.ClearAroundShrine)
+							if(NTConfig_ClearAroundShrine)
 								Attack.ClearPos(2, 15, 500, true);
 							if(GetDistance(me, shrine) > 2)
 								Tracker.MoveTo(shrine.areaid, shrine.x+1, shrine.y);

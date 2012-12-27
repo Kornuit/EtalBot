@@ -449,7 +449,7 @@ var TownMove = {
 		var i, 
 		for(i = 0 ; i < p.length ; i++)
 		{
-			if(me.classid === 1 && Config.Telekinesis)
+			if(me.classid === 1 && NTConfig_Telekinesis)
 			{
 				if(isPortal)
 				{
@@ -709,7 +709,7 @@ var TownMove = {
 		if(!_checkItems)
 			return false;
 		for(i = 0 ; i < _checkItems.length ; i++){
-			if(_checkItems[i].mode == 0 && _checkItems[i].itemloc == 0 && Config.Columns[_checkItems[i].y][_checkItems[i].x] > 0 
+			if(_checkItems[i].mode == 0 && _checkItems[i].itemloc == 0 && NTConfig_Columns[_checkItems[i].y][_checkItems[i].x] > 0 
 			  && SnagIt.CheckItem(_checkItems[i])[0])
 				return true;
 		}
@@ -719,7 +719,7 @@ var TownMove = {
 	GCCheckAmu: function () {
 		if(me.GetStat(12) < 88)
 			return;
-		if(!this.GCHaveAmu() && Common.MyGold() > Config.GCAmuGold && this.GCCheckIfCrafting() && Config.GC){	
+		if(!this.GCHaveAmu() && Common.MyGold() > NTConfig_GCAmuGold && this.GCCheckIfCrafting() && NTConfig_GC){	
 			switch(me.act){
 				case 1: this.GCVisitGheed();
 					break;
@@ -919,9 +919,9 @@ var TownMove = {
 	},
 
 	GCCheckIfCrafting: function () {	
-		for(i = 0 ; i < Config.CubingItem.length ; i++)
+		for(i = 0 ; i < NTConfig_CubingItem.length ; i++)
 			{	
-			if(Config.CubingItem[i][1] == 520)
+			if(NTConfig_CubingItem[i][1] == 520)
 				return true;
 			}
 		return false;

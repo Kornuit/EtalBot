@@ -109,7 +109,7 @@ var Town = {
 						Common.RemoveLag(npc, 700, 10);
 					else if (i > 10)
 						Common.RemoveLag(npc);
-					if (me.classid === 1 && Config.Telekinesis && _uiflag == 0x19 && Skill.GetSkillLevel(43) && GetDistance(me, npc) > 5 && GetDistance(me, npc) < 23){
+					if (me.classid === 1 && NTConfig_Telekinesis && _uiflag == 0x19 && Skill.GetSkillLevel(43) && GetDistance(me, npc) > 5 && GetDistance(me, npc) < 23){
 						if (i > 10)
 							Travel.MoveCloseInt(npc, Math.round(GetDistance(me, npc) / 2), false);
 						Skill.CastSkill(43, NTC_HAND_RIGHT, npc);
@@ -191,7 +191,7 @@ var Town = {
 	},
 
 	CheckMerc: function () {
-		if(Config.UseMerc)
+		if(NTConfig_UseMerc)
 		{
 			if(Common.GetMerc())
 				return false;
@@ -287,7 +287,7 @@ var Town = {
 			_itemlist = new Array(),
 			_ignorestring = _NTT_IgnoredItems.join();
 
-		if(!Common.StashGoldFull() && Common.MyGoldCarry() > Config.MinGoldToStash)
+		if(!Common.StashGoldFull() && Common.MyGoldCarry() > NTConfig_MinGoldToStash)
 			return true;
 
 		_invspace = new Array(4);
@@ -311,7 +311,7 @@ var Town = {
 		{
 			if(_items[i].mode == 0 && _items[i].itemloc == 0)
 			{
-				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+				if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
 					_itemlist.push(_items[i].code);
 
 				for(y = 0 ; y < _items[i].ysize ; y++)
@@ -347,7 +347,7 @@ var Town = {
 				_numfreecols++;
 		}
 
-		if(Config.FreeSpace > _numfreecols)
+		if(NTConfig_FreeSpace > _numfreecols)
 		{
 			for(x = 0 ; x < _itemlist.length ; x++)
 			{
@@ -467,7 +467,7 @@ var Town = {
 			{
 				if(_stashall)
 				{
-					_ignoreitem = (Config.Columns[_items[i].y][_items[i].x] == 0);
+					_ignoreitem = (NTConfig_Columns[_items[i].y][_items[i].x] == 0);
 
 					if(!_ignoreitem)
 					{
@@ -720,9 +720,9 @@ var Town = {
 
 		for(var i = 0 ; i < 4 ; i++)
 		{
-			_NTT_BeltColNeeded[i] = this.GetNeededPotionsColInt(Config.BeltColType[i], i);
+			_NTT_BeltColNeeded[i] = this.GetNeededPotionsColInt(NTConfig_BeltColType[i], i);
 
-			if(_NTT_BeltColNeeded[i] > 0 && Config.BeltColType[i] != "rv")
+			if(_NTT_BeltColNeeded[i] > 0 && NTConfig_BeltColType[i] != "rv")
 				_needpotions = true;
 		}
 
@@ -750,14 +750,14 @@ var Town = {
 	CheckHeal: function () {
 		var _merc;
 
-		if(parseInt(me.hp*100/me.hpmax) < Config.SkipHealLife || parseInt(me.mp*100/me.mpmax) < Config.SkipHealMana)
+		if(parseInt(me.hp*100/me.hpmax) < NTConfig_SkipHealLife || parseInt(me.mp*100/me.mpmax) < NTConfig_SkipHealMana)
 			return true;
 
 		_merc = Common.GetMerc();
 
 		if(_merc)
 		{
-			if(parseInt(_merc.hp*100/_merc.hpmax) < Config.SkipHealLife)
+			if(parseInt(_merc.hp*100/_merc.hpmax) < NTConfig_SkipHealLife)
 				return true;
 		}
 
@@ -828,7 +828,7 @@ var Town = {
 		{
 			if(_items[i].mode == 0 && _items[i].itemloc == 0 && (_items[i].itemtype == 76 || _items[i].itemtype == 77 || _items[i].itemtype == 78))
 			{
-				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+				if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
 				{
 					SetUIState(0x01, true);
 
@@ -856,7 +856,7 @@ var Town = {
 		{
 			if(_items[i].mode == 0 && _items[i].itemloc == 0)
 			{
-				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+				if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
 				{
 					if(_ignorestring.indexOf(_items[i].code) != -1 || SnagIt.CheckItem(_items[i])[0] != 0)
 						continue;
@@ -910,15 +910,15 @@ var Town = {
 					switch(_items[i].itemtype)
 					{
 					case 76:
-						if(Config.BeltColType[_items[i].x] != "hp")
+						if(NTConfig_BeltColType[_items[i].x] != "hp")
 							_needdrop = true;
 						break;
 					case 77:
-						if(Config.BeltColType[_items[i].x] != "mp")
+						if(NTConfig_BeltColType[_items[i].x] != "mp")
 							_needdrop = true;
 						break;
 					case 78:
-						if(Config.BeltColType[_items[i].x] != "rv")
+						if(NTConfig_BeltColType[_items[i].x] != "rv")
 							_needdrop = true;
 						break;
 					default:
@@ -1105,7 +1105,7 @@ var Town = {
 
 		for(var i = 0 ; i < _items.length ; i++)
 		{
-			if(Common.MyGold() < Config.GambleStopGold)
+			if(Common.MyGold() < NTConfig_GambleStopGold)
 				return false;
 
 			if(this.IsItemInGambleArrayInt(_items[i].classid))
@@ -1134,7 +1134,7 @@ var Town = {
 						case 2:
 							break;
 						default:
-							if(Config.LogSoldItemQuality != 0 && _newitem.quality >= Config.LogSoldItemQuality)
+							if(NTConfig_LogSoldItemQuality != 0 && _newitem.quality >= NTConfig_LogSoldItemQuality)
 								Common.SendLogToOOG(NTC_LOG_ITEM, COLOR_1 + "Sold: " + NTC_ItemQualityToMGRColor[_newitem.quality] + _newitem.name.split("\n")[0]+ ";" + _newitem.itemdesc + "\n" + COLOR_2 + "iLvl: " + _newitem.itemlevel + "\n" + COLOR_2 + "Gambled: " + npc.name);
 							this.ShopItem(_newitem, npc, 1);
 							break;
@@ -1148,9 +1148,9 @@ var Town = {
 
 	IsItemInGambleArrayInt: function (classid) {
 		var i;
-		for(i = 0 ; i < Config.GambleItem.length ; i++)
+		for(i = 0 ; i < NTConfig_GambleItem.length ; i++)
 		{
-			if(classid == Config.GambleItem[i])
+			if(classid == NTConfig_GambleItem[i])
 				return true;
 		}
 
@@ -1205,19 +1205,19 @@ var Town = {
 			if(_NTT_BeltColNeeded[i] > 0)
 			{
 				if(_typearray.length == 0)
-					_typearray.push(Config.BeltColType[i]);
+					_typearray.push(NTConfig_BeltColType[i]);
 				else
 				{
 					_insert = true;
 
 					for(n = 0 ; n < _typearray.length ; n++)
 					{
-						if(_typearray[n] == Config.BeltColType[i])
+						if(_typearray[n] == NTConfig_BeltColType[i])
 							_insert = false;
 					}
 
 					if(_insert)
-						_typearray.push(Config.BeltColType[i]);
+						_typearray.push(NTConfig_BeltColType[i]);
 				}
 			}
 		}
@@ -1249,7 +1249,7 @@ var Town = {
 		if(col < 0 || col > 3)
 			return false;
 
-		if(Config.BeltColType[col] == "rv")
+		if(NTConfig_BeltColType[col] == "rv")
 			return false;
 
 		_numpotions = _NTT_BeltColNeeded[col];
@@ -1262,7 +1262,7 @@ var Town = {
 
 		for(_buyloop = 0 ; _buyloop < _numpotions ; _buyloop++)
 		{
-			_potion = this.GetPotionAtNPCInt(Config.BeltColType[col], npc);
+			_potion = this.GetPotionAtNPCInt(NTConfig_BeltColType[col], npc);
 
 			if(_potion)
 				this.ShopItem(_potion, npc, 2);
@@ -1369,7 +1369,7 @@ var Town = {
 
 	NeedPots: function (Town) {
 		if(arguments < 1) { Town = false; }
-		var potAmount = Town ? Config.CheckPotsTown : Config.MinPots;
+		var potAmount = Town ? NTConfig_CheckPotsTown : NTConfig_MinPots;
 		if(potAmount == 0)
 			return false;
 		var _hp = [me.GetItems("hp1"),
@@ -1390,9 +1390,9 @@ var Town = {
 			_manaPots += _mp[i].length;
 		}
 		
-		if((Config.BeltColType[0] == "hp" || Config.BeltColType[1] == "hp" || Config.BeltColType[2] == "hp" || Config.BeltColType[3] == "hp") && (_healthPots < potAmount))
+		if((NTConfig_BeltColType[0] == "hp" || NTConfig_BeltColType[1] == "hp" || NTConfig_BeltColType[2] == "hp" || NTConfig_BeltColType[3] == "hp") && (_healthPots < potAmount))
 			return true;
-		else if((Config.BeltColType[0] == "mp" || Config.BeltColType[1] == "mp" || Config.BeltColType[2] == "mp" || Config.BeltColType[3] == "mp") && (_manaPots < potAmount))
+		else if((NTConfig_BeltColType[0] == "mp" || NTConfig_BeltColType[1] == "mp" || NTConfig_BeltColType[2] == "mp" || NTConfig_BeltColType[3] == "mp") && (_manaPots < potAmount))
 			return true;
 		else 
 			return false;
@@ -1625,8 +1625,8 @@ var Town = {
 			}
 		}
 
-		Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Unable to find Enigma.  Check NTConfig_ResetEnigma var in char config.***");
-		Print(COLOR_1 + "***Unable to find Enigma.  Check NTConfig_ResetEnigma var in char config.***");
+		Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_1 + "***Unable to find Enigma.  Check NTConfig_ResetEnigma var in char NTConfig_***");
+		Print(COLOR_1 + "***Unable to find Enigma.  Check NTConfig_ResetEnigma var in char NTConfig_***");
 		Common.TimeKeeper("!Unable to find Enigma.")
 		return false;
 	},
@@ -1637,7 +1637,7 @@ var Town = {
 			_enigmaString = "",
 			_haveArmour = false;
 		
-		if(!Config.ResetEnigma)
+		if(!NTConfig_ResetEnigma)
 			return true;
 		
 		if(!me.itemoncursor)
@@ -1708,7 +1708,7 @@ var Town = {
 		var _groundItem, _cursorItem,
 			_enigmaString = "";
 
-		if(!Config.ResetEnigma)
+		if(!NTConfig_ResetEnigma)
 			return true;
 			
 		_enigmaString = GetLocaleString(20539);
@@ -1818,7 +1818,7 @@ var Town = {
 		{
 			if(_items[i].mode == 0 && _items[i].itemloc == 0)
 			{
-				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+				if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
 					_itemlist.push(_items[i].code);
 
 				for(y = 0 ; y < _items[i].ysize ; y++)
@@ -1854,7 +1854,7 @@ var Town = {
 				_numfreecolss++;
 		}
 
-		if(Config.FreeSpaceBeforeBoss > _numfreecolss)
+		if(NTConfig_FreeSpaceBeforeBoss > _numfreecolss)
 		{
 			for(x = 0 ; x < _itemlist.length ; x++)
 			{
@@ -1895,7 +1895,7 @@ var Town = {
 		{
 			if(_items[i].mode == 0 && _items[i].itemloc == 0)
 			{
-				if(Config.Columns[_items[i].y][_items[i].x] > 0)
+				if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
 					_itemlist.push(_items[i].code);
 
 				for(y = 0 ; y < _items[i].ysize ; y++)
@@ -1931,7 +1931,7 @@ var Town = {
 				_numfreecolss++;
 		}
 
-		if(Config.FreeRowsQuit > _numfreecolss)
+		if(NTConfig_FreeRowsQuit > _numfreecolss)
 		{
 			for(x = 0 ; x < _itemlist.length ; x++)
 			{
@@ -1959,9 +1959,9 @@ var Town = {
 
 		for(var i = 0 ; i < 4 ; i++)
 		{
-			_NTT_BeltColNeeded[i] = this.GetNeededPotionsColInt(Config.BeltColType[i], i);
+			_NTT_BeltColNeeded[i] = this.GetNeededPotionsColInt(NTConfig_BeltColType[i], i);
 
-			if(_NTT_BeltColNeeded[i] >= numshort && Config.BeltColType[i] != "rv" && Config.BeltColType[i] != "mp")
+			if(_NTT_BeltColNeeded[i] >= numshort && NTConfig_BeltColType[i] != "rv" && NTConfig_BeltColType[i] != "mp")
 				_needpotions = true;
 		}
 		return _needpotions;
@@ -1977,7 +1977,7 @@ var Town = {
 		{
 			_NTT_BeltColNeeded[i] = this.GetNeededPotionsColInt(NTConfig_BeltColType[i], i);
 
-			if(_NTT_BeltColNeeded[i] >= numshort && Config.BeltColType[i] != "rv" && Config.BeltColType[i] != "hp")
+			if(_NTT_BeltColNeeded[i] >= numshort && NTConfig_BeltColType[i] != "rv" && NTConfig_BeltColType[i] != "hp")
 				_needpotions = true;
 		}
 
@@ -2067,13 +2067,13 @@ var Town = {
 		}
 		for(y = 0 ; y < 4 ; y++) {
 			for(x = 0 ; x < 10 ; x++) {
-				if(inventorySpace[y][x] == 0 && Config.Columns[y][x] == 0) { // 0 == locked, 1 == not locked.
+				if(inventorySpace[y][x] == 0 && NTConfig_Columns[y][x] == 0) { // 0 == locked, 1 == not locked.
 					inventorySpace[y][x] = 6;
 				}
-				else if(inventorySpace[y][x] == 1 && Config.Columns[y][x] == 0) { // 0 == locked, 1 == not locked.			
+				else if(inventorySpace[y][x] == 1 && NTConfig_Columns[y][x] == 0) { // 0 == locked, 1 == not locked.			
 					inventorySpace[y][x] = 5;
 				}
-				if(inventorySpace[y][x] >= 1 && Config.Columns[y][x] == 0) { // 0 == locked, 1 == not locked.
+				if(inventorySpace[y][x] >= 1 && NTConfig_Columns[y][x] == 0) { // 0 == locked, 1 == not locked.
 					totalLockedSpace++;
 				}			
 			}

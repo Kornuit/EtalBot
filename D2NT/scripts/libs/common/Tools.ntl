@@ -117,7 +117,7 @@ var Tools = {
 		Print(COLOR_2 + me.name + " stats sent to Manager Common Log!");
 		
 		var Merc = NTC_GetMerc();
-		if(Merc && Config.MercStats){
+		if(Merc && NTConfig_MercStats){
 			var MercResi = [(Merc.GetStat(39) + DiffMod), (Merc.GetStat(43) + DiffMod), (Merc.GetStat(41) + DiffMod), (Merc.GetStat(45) + DiffMod)];
 			var MercStatMgr =  COLOR_5 + Merc.name + "'s Stats (Merc)" + ";";
 				MercStatMgr += COLOR_1 + "--------------------------------" + "\n";
@@ -338,17 +338,17 @@ var Tools = {
 	},
 
 var _TLAliases = new Array();
-var Config.CheckCodes = true;
+var NTConfig_CheckCodes = true;
 
 	NipCheck: function () {
 		var woops, item, msg;
 		Print(COLOR_3 + "[Frickaline's NIP Checker 1.0.0] - Load");
 		
-		if (Config.NIPFilePath && Config.NIPFilePath.length > 0)
+		if (NTConfig_NIPFilePath && NTConfig_NIPFilePath.length > 0)
 		{
-			msg = Config.NIPFilePath.length + 
+			msg = NTConfig_NIPFilePath.length + 
 				" nip file" + 
-				(Config.NIPFilePath.length == 1 ? "" : "s") + 
+				(NTConfig_NIPFilePath.length == 1 ? "" : "s") + 
 				" found.";
 			Print(msg);
 			
@@ -371,7 +371,7 @@ var Config.CheckCodes = true;
 			nips = 0,
 			parseResult = 0;
 		
-		for (nipfile = 0 ; nipfile < Config.NIPFilePath.length ; nipfile++)
+		for (nipfile = 0 ; nipfile < NTConfig_NIPFilePath.length ; nipfile++)
 		{
 			fileNameNip = "NTBot/item_configs/" + ConfigNIPFilePath[nipfile];
 			nip = FileOpen(fileNameNip, 0);
@@ -390,7 +390,7 @@ var Config.CheckCodes = true;
 				}
 				snags.Close();
 				
-				fileNameOutput = "NTBot/item_configs/TLNipCheck_" + Config.NIPFilePath[nipfile].replace("/", "_") + ".txt";
+				fileNameOutput = "NTBot/item_configs/TLNipCheck_" + NTConfig_NIPFilePath[nipfile].replace("/", "_") + ".txt";
 				output = FileOpen(fileNameOutput, 1);
 				if (output)
 				{
@@ -420,7 +420,7 @@ var Config.CheckCodes = true;
 						}
 					}
 					
-					msg = "File (" + eval(nipfile+1) + "/" + Config.NIPFilePath.length + ") " + Config.NIPFilePath[nipfile];
+					msg = "File (" + eval(nipfile+1) + "/" + NTConfig_NIPFilePath.length + ") " + NTConfig_NIPFilePath[nipfile];
 					msg += fail > 0 ? COLOR_1 + " FAIL" : COLOR_2 +" OK";
 					msg += fail > 0 ? COLOR_0 : COLOR_2;
 					msg += " (" + pass + "/" + nips + ")";
@@ -521,9 +521,9 @@ var Config.CheckCodes = true;
 	},
 
 	TLInventory: function () {
-		Config.TLInventory_SkipEquipped   = false;         // true = just log stash and inventory
-		Config.TLInventory_Delimeter      = "-";            // output file delimiter - see function TTL_WriteIt()
-		Config.TLInventory_SortOrder      = "QUALITY|TYPE|CLASS|NAME";
+		NTConfig_TLInventory_SkipEquipped   = false;         // true = just log stash and inventory
+		NTConfig_TLInventory_Delimeter      = "-";            // output file delimiter - see function TTL_WriteIt()
+		NTConfig_TLInventory_SortOrder      = "QUALITY|TYPE|CLASS|NAME";
 		
 		Print(COLOR_3 + "[Toothless Inventory] - Load");
 	   
@@ -554,7 +554,7 @@ var Config.CheckCodes = true;
 				ignore += "-box";
 			 
 				if(ignore.indexOf(item.code) == -1) {
-					if(!Config.TLInventory_SkipEquipped)
+					if(!NTConfig_TLInventory_SkipEquipped)
 						logged.push(item);
 					else if (item.mode == 0)
 						logged.push(item);
@@ -813,7 +813,7 @@ var Config.CheckCodes = true;
 	},
 
 	DropItems: function () {
-		var _script = Common.FindScript(Config.CurrentScript + ".ntj");
+		var _script = Common.FindScript(NTConfig_CurrentScript + ".ntj");
 		if (_script.running && Common.InTown())
 			return;
 		
@@ -832,7 +832,7 @@ var Config.CheckCodes = true;
 			return false;	
 		
 		for(i = 0 ; i < _items.length ; i++) {		
-			if(_items[i].itemloc == 0  && !SnagIt.IsIgnoredItemInt(_items[i].classid) && Config.Columns[_items[i].y][_items[i].x] > 0) {
+			if(_items[i].itemloc == 0  && !SnagIt.IsIgnoredItemInt(_items[i].classid) && NTConfig_Columns[_items[i].y][_items[i].x] > 0) {
 				this.DropItem(_items[i]);		
 			}
 		}
@@ -898,8 +898,8 @@ var Config.CheckCodes = true;
 		var i,
 			_presentarea = me.areaid
 
-		for (i = 0; i < Config.DontOpenChestAreas.length; i++) {
-			if (_presentarea == Config.DontOpenChestAreas[i]){
+		for (i = 0; i < NTConfig_DontOpenChestAreas.length; i++) {
+			if (_presentarea == NTConfig_DontOpenChestAreas[i]){
 				return false;
 			}
 		}
@@ -1549,13 +1549,13 @@ var Config.CheckCodes = true;
 		logMessage += COLOR_1 + "--------------------------------------------------";
 		
 		if (_type == "EtalLifeChicken") {
-			var _threshold = parseInt(me.hpmax * Config.EtalLifeChicken,10) / 100;
-			logMessage += COLOR_9 + "\n " + "EtalLifeChicken ("+Config.EtalLifeChicken+"% / "+_threshold+" hp) triggered";
+			var _threshold = parseInt(me.hpmax * NTConfig_EtalLifeChicken,10) / 100;
+			logMessage += COLOR_9 + "\n " + "EtalLifeChicken ("+NTConfig_EtalLifeChicken+"% / "+_threshold+" hp) triggered";
 		}
 		
 		if (_type == "EtalManaChicken") {
-			var _threshold = parseInt(me.mpmax * Config.EtalManaChicken,10) / 100;
-			logMessage += COLOR_9 + "\n " + "EtalManaChicken ("+Config.EtalManaChicken+"% / "+_threshold+" mp) triggered";
+			var _threshold = parseInt(me.mpmax * NTConfig_EtalManaChicken,10) / 100;
+			logMessage += COLOR_9 + "\n " + "EtalManaChicken ("+NTConfig_EtalManaChicken+"% / "+_threshold+" mp) triggered";
 		}
 		
 		if (me.hp <= 0) logMessage += COLOR_8 + "\n ** Character Death **";
