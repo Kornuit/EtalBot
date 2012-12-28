@@ -1,5 +1,7 @@
-
-
+var EntryConfig = }
+	"Diabolic5": { AutoMule: false, Channel: "KnowEtal", JoinMsg: "", ChatMsgs: ["Running EtalBot v0.1", "Testing entries", "So far, so good"],
+								LvlRestrict: 99, MaxPlayers: 8 }
+};
 var debug = true;
 ////////////////////////////////////////
 //        Connection Settings:        //
@@ -34,23 +36,68 @@ var DelayConfig = {
 		waitBeforeNextLineChatMax: 1500		// Maximum ammount of time to add after each text line
 	};
 // DONT EDIT ANYTHING BELOW THIS
-/*
-// D2NT Manager Command
-const D2NT_MGR_LOADING = 1;
-const D2NT_MGR_READY = 2;
-const D2NT_MGR_LOGIN = 3;
-const D2NT_MGR_CREATE_GAME = 4;
-const D2NT_MGR_INGAME = 5;
-const D2NT_MGR_RESTART = 6;
-const D2NT_MGR_CHICKEN = 7;
-const D2NT_MGR_PRINT_STATUS = 8;
-const D2NT_MGR_PRINT_LOG = 9;
-*/
 Include("libs/controlInfo.ntl");
 Include("libs/common/File.ntl");
 var controlData = new controlInfo();
+var inGameAt = 0;
+var _lastGameTime = 0;
+var _newGameTime = 0;
+var chatActionsDone = false;
+var ftjNotice = false;
 
 function NTMain() {
+	/*
+	 Delay(1000);
+
+	var _ingame = false;
+
+	controlData.clickDelay = clickDelay;
+	controlData.textDelay = textDelay;
+	controlData.clickDelayRandom = clickDelayRandom;
+	controlData.textDelayRandom = textDelayRandom;
+
+	while(1)
+	{
+		if(me.ingame)
+		{
+			if(!inGameAt)
+				inGameAt = GetTickCount();
+
+			if(!_ingame)
+			{
+				RunGC(); // run garbage collector between each game
+
+				if(Load("NTBot/NTBotGame.ntj"))
+				{
+					ftjNotice = false;
+					_ingame = true;
+
+					File.OverWrite("logs/running_comms/" + me.name + "_gametime.txt", GetTickCount());
+
+					if(me.playtype > 0)
+						sendEventToOOG(D2NT_MGR_INGAME, "In Game[IP:" + me.gameserverip.split(".")[3] + "]", 0);
+					else
+						sendEventToOOG(D2NT_MGR_INGAME, "In Game", 0);
+				}
+			}
+
+			Delay(1000);
+		}
+		else
+		{
+			if(_ingame)
+			{
+				_ingame = false;
+
+				sendEventToOOG(D2NT_MGR_READY, "", 0);
+			}
+
+			Entry.LocationAction(controlData.getLocation());
+
+			Delay(500);
+		}
+	}
+	*/
 	while (1) {
 		Entry.Debug("My profile is " + me.account);
 
@@ -80,5 +127,367 @@ var Entry = {
 
 	SendEventToOOG: function (locationId, statusString, pendingTime) {
 		return SendCopyData("D2NT Manager", null, (locationId << 16) | pendingTime, statusString);
+	},
+
+	LocationAction: function (location) {
+		switch(location.id)
+		{
+		case 3: // Lobby Chat
+			if (ftjNotice) {
+				File.OverWrite("logs/running_comms/" + me.name + "_gametime.txt", GetTickCount());
+				ftjNotice = false;
+				break;
+			}
+
+			if (EntryConfig[me.account].Channel !== "") {
+				if (!chatActionsDone) {
+					chatActionsDone = true;
+					Say("/join " + EntryConfig[me.account].Channel);
+
+					Delay(1000);
+
+					if (EntryConfig[me.account].JoinMsg !== "") {
+						Say("/join " + EntryConfig[me.account].JoinMsg);
+					}
+
+					if (EntryConfig[me.account].ChatMsgs !== "") {
+						for (i in EntryConfig[me.account].ChatMsgs) {
+							Say(EntryConfig[me.account].ChatMsgs[i]);
+							Delay(200);
+						}
+					}
+				}
+			}
+			_control = controlData.get(controlData.controls.lobby.button.create); // fixes creation stuck button bug out of unmodded d2nt
+			if(_control && _control.pressed)
+			{
+				controlData.click(controlData.controls.lobby.button.join);
+				Delay(500);
+			}
+
+			controlData.click(controlData.controls.lobby.button.create);
+			_control = controlData.get(controlData.controls.lobby.create.button.useCharacterDifference);
+			if(_control && !_control.pressed)
+			{
+				controlData.click(controlData.controls.lobby.create.button.useCharacterDifference);//checks the use character diff box...does this every time so no go
+			}
+			controlData.setText(controlData.controls.lobby.create.editBox.characterDifference,(EntryConfig[me.account].LvlRestrict)); //level restriction
+			controlData.setText(controlData.controls.lobby.create.editBox.maxNumberOfPlayers, (EntryConfig[me.account].MaxPlayers)); //max players
+			_lastGameTime = File.Read("logs/running_comms/" + me.name + "_gametime.txt");
+			_newGameTime = _lastGameTime + DelayConfig.gameMinLength;
+			while (GetTickCount() < _newGameTime) {
+				var _time = parseInt((_newGameTime - GetTickCount())/1000)
+				sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name, _time);
+				Delay(1000);
+			}
+			sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name, 0);
+			break;
+		case 1:	// Lobby
+			if (ftjNotice) {
+				File.OverWrite("logs/running_comms/" + me.name + "_gametime.txt", GetTickCount());
+				ftjNotice = false;
+				break;
+			}
+
+			if (EntryConfig[me.account].Channel !== "") {
+				controlData.click(controlData.controls.lobby.button.enterChat);
+				return true;
+			}
+			_control = controlData.get(controlData.controls.lobby.button.create); // fixes creation stuck button bug out of unmodded d2nt
+			if(_control && _control.pressed)
+			{
+				controlData.click(controlData.controls.lobby.button.join);
+				Delay(500);
+			}
+
+			controlData.click(controlData.controls.lobby.button.create);
+			_control = controlData.get(controlData.controls.lobby.create.button.useCharacterDifference);
+			if(_control && !_control.pressed)
+			{
+				controlData.click(controlData.controls.lobby.create.button.useCharacterDifference);//checks the use character diff box...does this every time so no go
+			}
+			controlData.setText(controlData.controls.lobby.create.editBox.characterDifference,(EntryConfig[me.account].LvlRestrict)); //level restriction
+			controlData.setText(controlData.controls.lobby.create.editBox.maxNumberOfPlayers, (EntryConfig[me.account].MaxPlayers)); //max players
+			_lastGameTime = File.Read("logs/running_comms/" + me.name + "_gametime.txt");
+			_newGameTime = _lastGameTime + DelayConfig.gameMinLength;
+			while (GetTickCount() < _newGameTime && !ftjNotice) {
+				var _time = parseInt((_newGameTime - GetTickCount())/1000)
+				sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name, _time);
+				Delay(1000);
+			}
+			sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name, 0);
+			break;
+
+		case 2: // Waiting In Line
+			if(GetTickCount()-lastGameMade > waitInLineTimeout)
+				controlData.click(controlData.controls.lobby.inLine.button.cancel);
+			break;
+
+		case 4: // Create Game
+			sendEventToOOG(D2NT_MGR_CREATE_GAME, location.name, 0);
+
+			locationTimeout(5000, location);
+
+			lastGameMade = GetTickCount();
+			lastGameStatus = 1; // pending creation
+			break;
+
+		case 5: // Join Game
+			break;
+
+		case 6: // Ladder
+			break;
+
+		case 7: // Channel List
+			break;
+
+		case 8: // Main Menu
+			if(controlData.getCurrentRealmIndex() == me.gatewayid)
+			{
+				outputGameLength();
+				controlData.click(controlData.gameTypes[me.playtype]);
+			}
+			else
+				controlData.click(controlData.controls.mainMenu.button.gateway);
+			break;
+
+		case 9: // Login
+			sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name, 0);
+			Delay(loginDelay);
+
+			controlData.setText(controlData.controls.login.editBox.accountName, me.account);
+
+			sendEventToOOG(D2NT_MGR_LOGIN, location.name, 0);
+
+			locationTimeout(5000, location);
+			break;
+
+		case 10: // Login Error (this is a fatal error, so stop)
+			sendEventToOOG(D2NT_MGR_RESTART, location.name, 10);
+			Delay(3500);
+			break;
+
+		case 11: // Unable To Connect
+			timeoutDelay(unableToConnectRetry*60*1000, location)
+			controlData.click(controlData.controls.login.unableToConnect.button.ok);
+			break;
+
+		case 12: // Character Select
+			var _time, _control;
+
+			sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name, 0);
+
+			for(_time = 0 ; _time < characterScreenTimeout ; _time += 500)
+			{
+				_control = controlData.get(controlData.controls.characterSelect.textBox.characterInfo[me.charloc]);
+				if(_control && _control.GetText() != undefined)
+					break;
+
+				Delay(500);
+			}
+
+			if(_time < characterScreenTimeout)
+			{
+				Delay(characterSelectDelay);
+
+				controlData.click(controlData.controls.characterSelect.textBox.characters[me.charloc], 0, 0, 1);
+				controlData.click(controlData.controls.characterSelect.textBox.characterInfo[me.charloc], 0, 0, 1);
+
+				// reset last game made, so it doesnt make a game immediately
+				inGameAt = 0;
+				setNextGameMake();
+			}
+			else
+			{
+				controlData.click(controlData.controls.characterSelect.button.exit);
+				timeoutDelay(realmDownRetry*60*1000, location);
+			}
+			break;
+
+		case 13: // Realm Down - Character Select screen
+			controlData.click(controlData.controls.characterSelect.button.exit);
+			timeoutDelay(realmDownRetry*60*1000, location);
+			break;
+
+		case 14: // Character Select - Disconnected
+			timeoutDelay(disconnectedRetry*60*1000, location);
+			controlData.click(controlData.controls.characterSelect.disconnected.button.ok);
+			break;
+
+		case 15: // New Character
+			break;	
+
+		case 16: // Character Select - Please Wait popup
+			if(!locationTimeout(pleaseWaitTimeout, location))
+				controlData.click(controlData.controls.characterSelect.pleaseWait.button.cancel);
+			break;
+
+		case 17: // Lobby - Lost Connection - just click okay, since we're toast anyway
+			controlData.click(controlData.controls.lobby.lostConnection.button.ok);
+			break;
+
+		case 18: // D2 Splash
+			controlData.click(controlData.controls.d2Splash.textBox.copyright);
+			break;
+
+		case 19: // Login - Cdkey In Use
+			timeoutDelay(cdkeyInUseRetry*60*1000, location);
+			controlData.click(controlData.controls.login.cdkeyInUse.button.ok);
+			break;
+
+		case 20: // Single Player - Select Difficulty
+			controlData.click(controlData.singlePlayerDifficulties[me.diff]);
+			break;
+
+		case 21: // Main Menu - Connecting
+			if(!locationTimeout(connectingToBnetTimeout, location))
+				controlData.click(controlData.controls.mainMenu.connecting.button.cancel);
+			break;
+
+		case 22: // Login - Invalid Cdkey (classic or xpac)
+			sendEventToOOG(D2NT_MGR_RESTART, location.name, 3600);
+			Delay(3500);
+			break;	
+
+		case 23: // Character Select - Connecting
+			if(!locationTimeout(characterScreenTimeout, location))
+				controlData.click(controlData.controls.characterSelect.button.exit);
+			break;
+
+		case 24: // Server Down - not much to do but wait..
+			break;
+
+		case 25: // Lobby - Please Wait
+			if(!locationTimeout(pleaseWaitTimeout, location))
+				controlData.click(controlData.controls.lobby.pleaseWait.button.cancel);
+			break;
+
+		case 26: // Lobby - Game Name Exists
+			sendEventToOOG(D2NT_MGR_PRINT_LOG, COLOR_1 + "Game already exists", 0);
+
+			inGameAt = 0;
+			lastGameStatus = 0;
+			setNextGameMake();
+
+			locationTimeout(15000, location);
+			break;
+
+		case 27: // Gateway Select
+			controlData.clickRealmEntry(me.gatewayid);
+			controlData.click(controlData.controls.gateway.button.ok);
+			break;
+
+		case 28: // Lobby - Game Does Not Exist
+			inGameAt = Random(gameDoesNotExistDelayMin, gameDoesNotExistDelayMax);
+			lastGameStatus = 0;
+			setNextGameMake();
+
+			locationTimeout(gameDoesNotExistTimeout, location);
+			break;
+		default:
+			sendEventToOOG(D2NT_MGR_INGAME, "Encountered unknown location " + controlData.getLocation(), 0);
+			Delay(500);
+			break;
+		}
+	},
+
+function sendEventToOOG(locationId, statusString, pendingTime)
+{
+	return SendCopyData("D2NT Manager", null, (locationId<<16)|pendingTime, statusString);
+}
+
+function setNextGameMake()
+{
+	lastGameMade = GetTickCount();
+	nextGameMake = lastGameMade + createGameThreshold + Random(0-createGameThresholdRandom, createGameThresholdRandom) + inGameAt;
+	inGameAt = 0;
+	chatActionsDone = false;
+}
+
+function outputGameLength()
+{
+	if(inGameAt)
+	{
+		duration = GetTickCount() - inGameAt;
+
+		inGameAt = (duration < gameMinLength ? gameMinLength - duration : 0);
 	}
+}
+
+function locationTimeout(time, location)
+{
+	endtime = GetTickCount() + time;
+
+	while(controlData.getLocation().id == location.id && endtime > GetTickCount())
+	{
+		sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name + " (" + parseInt((endtime-GetTickCount())/1000) + "s)", 0);
+		Delay(500);
+	}
+
+	return (controlData.getLocation().id != location.id);
+}
+
+function timeoutDelay(time, location)
+{
+	endtime = GetTickCount() + time;
+
+	while(endtime > GetTickCount())
+	{
+		sendEventToOOG(D2NT_MGR_PRINT_STATUS, location.name + " (" + parseInt((endtime-GetTickCount())/1000) + "s)", 0);
+		Delay(1000);
+	}
+}
+
+function getRandomString(_length)
+{
+	_retString = "";
+	_charSet = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+	while(_length--)
+	{
+		_retString += _charSet.charAt(Random(0, _charSet.length-1));
+		Delay(1);
+	}
+
+	return _retString;
+}
+function getGameName(lastGameString)
+{
+   if(!lastGameString)
+      return "";
+   else
+      return (lastGameString.split("-")[0] + "-");
+}
+
+function getGameCounter(lastGameString, simple)
+{
+   var myCount;
+   if(!lastGameString)
+      return "-1";
+   else
+   {
+      switch(lastGameString.split("-")[1])
+      {
+         case "08":
+            myCount = 9;
+            break;
+         case "09":
+            myCount = 10;
+            break;
+		case "99":
+			myCount = 00;
+			break;
+         default:
+            myCount = parseInt(lastGameString.split("-")[1]) + 1;
+            break;
+      }
+      if(!simple)
+      {
+         if(myCount <= 9)
+            return ('0' + myCount);
+      }
+      return myCount;
+   }
+}
+
 };
