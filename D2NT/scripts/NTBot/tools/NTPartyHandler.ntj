@@ -1,0 +1,69 @@
+
+function NTMain() {
+	Include("libs/common/NTCommon.ntl");
+	Include("libs/common/NTCubing.ntl");
+	Include("libs/common/NTUtilities.ntl");
+	Common.IncludeConfig("NTBot/char_configs");
+
+	var _count = 0;
+	var _player, _mypartyid;
+	var _ping = 0;
+
+	NT_LoadConfig();
+
+	while(1){
+		if(_count++ > 10){
+			if(NTConfig_PublicMode === "all"){
+				_player = GetPlayerUnit();
+
+				if(_player){
+					_mypartyid = _player.partyid;
+
+					while(_player.GetNext()){
+						if(me.quitonhostile){
+							if(GetPlayerFlag(me.gid, _player.gid, 9)){
+								Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_2 + "Hostile players detected.");
+								Delay(250);
+								ExitGame();
+							}
+						}
+						if(_player.partyid == 65535 || _player.partyid != _mypartyid){
+							if(_player.partyflag == 2){
+								me.ClickParty(_player, 2);
+								break;
+							}
+							if(_player.partyid == 65535){
+								if(_player.partyflag == 4)
+									continue;
+								me.ClickParty(_player, 2);
+							}
+						}
+					}
+				}
+			} else if (NTConfig_PublicMode === "leader") {
+				_player = GetPlayerUnit();
+
+				if(_player){
+					_mypartyid = _player.partyid;
+					while(_player.GetNext()){
+						if(me.quitonhostile){
+							if(GetPlayerFlag(me.gid, _player.gid, 9)){
+								Common.SendLogToOOG(NTC_LOG_COMMON, COLOR_2 + "Hostile players detected.");
+								Delay(250);
+								ExitGame();
+							}
+						}
+						if(_player.name == NTConfig_Leader && _player.partyflag == 2
+						&& (_player.partyid == 65535 || _player.partyid != _mypartyid)){
+
+						me.ClickParty(_player, 2);
+						break;
+						}
+					}
+				}
+			}
+			_count = 0;
+		}
+		Delay(200);
+	}
+}
