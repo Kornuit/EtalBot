@@ -12,7 +12,7 @@ var File = {
 		return true;
 	},
 
-	OverWrite: function (msg) {
+	OverWrite: function (path, msg) {
 		var _file;
 
 		_file = FileOpen(path, 1);

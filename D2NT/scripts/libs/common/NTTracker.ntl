@@ -1,3 +1,12 @@
 var Tracker = {
-	For a tracking system while running the bot.
+	Create: function () {
+		var _stats = '{ "Gamename": "" , "GameStatus": "", "Deaths": 0, "Muling": false, "TorchMuling": false, "LastScript": "", "FreeSpaceStash": 0, "FreeSpaceInventory": 0 }'; 
+		if (!File.Exists("tracking/" + me.name + "_tracker.ntl") {
+			File.OverWrite("tracking/" + me.name + "_tracker.ntl", _stats);
+			return true;
+		}
+	},
+
+	GetStatus: function (which) {
+	};
 };
