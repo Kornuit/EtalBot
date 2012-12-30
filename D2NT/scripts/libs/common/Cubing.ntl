@@ -1,6 +1,9 @@
 Include("libs/Common_Vars.ntl");
 
 var Cubing = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Cubing file loaded...");
+	},
 
 	CheckItem: function (item, result) {
 		var i, n, _index, _classid, _gid, _calclevel,

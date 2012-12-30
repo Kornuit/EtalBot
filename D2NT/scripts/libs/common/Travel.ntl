@@ -3,6 +3,10 @@ var debugMove = false;
 
 Include("libs/common/vector_funcs.ntl");
 var Travel = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Travel file loaded...");
+	},
+
 	MoveTo(areaid, x, y, retry, clearpath, canswitch) {
 		var i, n, _teleport,
 			_path = undefined,

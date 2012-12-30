@@ -11,6 +11,10 @@ var Tools = {
 	var AntiIdleAct5 = ["stash", "cain", "malah", "larzuk", "qual-kehk"];
 	var AntiIdlePreMsg = ["!I'm gonna go see ", "!I wonder what's up with ", "!Lets go see ", "!I didn't see you over there ", "!Well if it isn't "];
 
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Tools file loaded...");
+	},
+
 	PrintCoordinatesIPandGateway: function () {
 		Delay(1000);
 

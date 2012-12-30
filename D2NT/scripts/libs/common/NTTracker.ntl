@@ -1,4 +1,8 @@
 var Tracker = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Tracker file loaded...");
+	},
+
 	Create: function () {
 		var _stats = '{ "Gamename": "" , "GameStatus": "", "Deaths": 0, "Muling": false, "TorchMuling": false, "LastScript": "", "FreeSpaceStash": 0, "FreeSpaceInventory": 0 }'; 
 		if (!File.Exists("tracking/" + me.name + "_tracker.ntl") {

@@ -4,6 +4,10 @@ var _minion;
 var _NTP_HaveCTA = -1;
 
 var Precast = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Precast file loaded...");
+	},
+
 	DoPrecastCTA: function (refresh, castbo) {
 		if (arguments.length < 2)
 			castbo = true;

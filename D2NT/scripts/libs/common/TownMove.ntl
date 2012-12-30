@@ -1,6 +1,10 @@
 Include("libs/Common_Vars.ntl");
 
 var TownMove = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "TownMove file loaded...");
+	},
+
 	MoveTo: function (spot, isPortal, isWaypoint, isStash) {
 		var _act, _pos, _isWaypoint, _isStash,
 			a = false;

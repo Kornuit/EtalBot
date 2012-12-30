@@ -2,6 +2,10 @@ Include("libs/Common_Vars.ntl");
 Include("libs/common/ColorConverter.ntl");
 
 var Runeword = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Runeword file loaded...");
+	},
+
 	CheckItem: function (item, checkonly) {
 		var i, n, j, _baseitem, _needhel,
 			_classid = item.classid;

@@ -7,6 +7,10 @@ var _NTSI_BeltSize;
 _IgnoredItems = new Array();
 
 var SnagIt = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "SnagIt file loaded...");
+	},
+
 	ClearIgnoredItems: function () { _IgnoredList = new Array(); },
 
 	LoadNIPFiles: function (filepath) {

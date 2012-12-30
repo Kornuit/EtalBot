@@ -1,6 +1,10 @@
 Include("libs/Common_Vars.ntl");
 
 var File = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "File file loaded...");
+	},
+
 	Exists: function (path) {
 		var _file = FileOpen(path, 0);
 		if (!_file) { return false; }

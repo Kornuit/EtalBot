@@ -5,6 +5,10 @@ var skippedImmuneBoss = false;
 Include("libs/Common_Vars.ntl");
 
 var Attack = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Attack file loaded...");
+	},
+
 	Initialize: function () {
 		if (NTConfig_AttackSkill[1] == -1 || NTConfig_AttackSkill[3] == -1) {
 			//this.DetectAttackPattern(); // the onld detection method disabling unless someone updates the list for the default attacks

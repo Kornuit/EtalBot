@@ -4,6 +4,10 @@ Include("libs/common/ItemAlias.ntl");
 var _NTIP_CheckList = new Array();
 
 var ItemParser = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "ItemParser file loaded...");
+	},
+
 	OpenFile: function (filepath) {
 		var _nipfile, _line, _originalLine,
 			_lineNumber = 0;

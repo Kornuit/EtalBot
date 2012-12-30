@@ -1,6 +1,10 @@
 Include("libs/Common_Vars.ntl");
 
 var Waypoint = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "WayPoint file loaded...");
+	},
+
 	VoyageToArea: function (areaID) {
 		var destinationAreaID = areaID,
 			checkArea = areaID,

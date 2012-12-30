@@ -5,6 +5,10 @@ var TownManager = {
 	_TMGR_BuyArrows = false,
 	ammyreq = Math.abs(Math.floor(me.GetStat(12) / 2)-90) * 2;
 
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "TownManager file loaded...");
+	},
+
 	Manager: function (simple) {
 		var _cubing;
 		while(me.areaid == 0){

@@ -1,6 +1,10 @@
 Include("libs/Common_Vars.ntl");
 
 var Skill = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Skill file loaded...");
+	},
+
 	CastSkill: function (skillid, usehand, x, y) {
 		var _hand, _shift;
 

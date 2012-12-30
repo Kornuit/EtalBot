@@ -1,6 +1,10 @@
 Include("libs/Common_Vars.ntl");
 
 var Unit = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Unit file loaded...");
+	},
+
 	FindUnit: function (unittype, search, retry) {
 		var i, _unit;
 

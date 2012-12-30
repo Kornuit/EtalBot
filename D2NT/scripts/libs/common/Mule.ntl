@@ -1,6 +1,10 @@
 Include("libs/Common_Vars.ntl");
 
 var Mule = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "Mule file loaded...");
+	},
+
 	var muleScripts = ("AutoMulingSystem1.2.ntj", "AutoMulingSystemLeecher1.2.ntj"),
 		MuleAccount = "";
 

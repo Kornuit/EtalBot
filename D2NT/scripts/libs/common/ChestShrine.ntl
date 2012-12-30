@@ -1,6 +1,10 @@
 Include("libs/Common_Vars.ntl");
 
 var Chest = {
+	Check: function () {
+		return SendCopyData("D2NT Manager", null, (D2NT_MGR_PRINT_LOG << 16) | 0, "ChestShrine file loaded...");
+	},
+
 	GetSpecialChest: function () {
 		var _chest;
 
